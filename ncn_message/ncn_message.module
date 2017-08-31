@@ -1,0 +1,809 @@
+<?php
+//------------------------------------------------------------------------------
+function ncn_message_menu()
+{
+	// message center main control
+	$items['account/message-center'] = array(
+	  'title' => "Message Center",
+	  'page callback' => 'ncn_message_center',
+	  'type' => MENU_CALLBACK,
+	  'access arguments' => array('ncn message center'),
+	);
+
+	// mark a message as read
+	$items['account/message-center/markread'] = array(
+	  'page callback' => 'ncn_message_markread',
+	  'type' => MENU_CALLBACK,
+	  'access arguments' => array('ncn message center'),
+	);
+	
+
+	
+	return $items;
+}
+
+function ncn_message_init() {
+	
+}
+
+function ncn_message_permission()
+{
+	return array(
+			    	'ncn message center' =>  array(
+				      'title' => t('ncn message center'),
+    				),	
+				);		
+}
+
+function ncn_message_theme() {
+  global $theme;
+ 
+  return array(
+    'ncn_message_reply_form' => array(
+      'arguments' => array('form' => NULL),
+      'template' => 'ncn-message-reply-form',
+    ),
+  );
+}
+
+function template_preprocess_ncn_message_reply_form(&$variables) {
+	$variables['reply'] = array();
+  $hidden = array();
+  // Provide variables named after form keys so themers can print each element independently.
+  foreach (element_children($variables['form']) as $key) {
+    $type = $variables['form'][$key]['#type'];
+    if ($type == 'hidden' || $type == 'token') {
+      $hidden[] = drupal_render($variables['form'][$key]);
+    }
+    else {
+      //$variables['reply'][$key] = drupal_render($variables['form'][$key]);
+    }
+  }
+  // Hidden form elements have no value to themers. No need for separation.
+  //$variables['reply']['hidden'] = implode($hidden);
+  // Collect all form elements to make it easier to print the whole form.
+	
+	$variables['form']['submit']['#value'] = "";
+	$variables['form']['submit']['#type'] = 'image_button';
+	$variables['form']['submit']['#src'] = 'modules/ncn_message/images/reply-btn.png';
+  $variables['form']['submit']['#attributes'] = array('class' => 'reply-submit-btn');
+	
+  $variables['ncn_message_reply_form_hidden'] = implode($hidden);
+}
+//------------------------------------------------------------------------------
+function ncn_message_markread()
+{
+
+	if (!strstr($_SERVER['REQUEST_URI'], 'admin/config'))
+	{
+		GLOBAL $user;
+		$msg_id = arg(3);
+	}
+	else
+	{
+		$user = user_load(1);
+		$user->uid = 0;
+		$msg_id = arg(4);
+	}
+
+
+	
+	// is numeric?	
+	if (!is_numeric($msg_id))
+	{	exit;	}
+	
+	// update (making sure user owns the file)
+//	$query = "UPDATE pm_message SET `read`=1 WHERE id=".$msg_id." AND `to`=".$user->uid;
+    $result = db_query('UPDATE {pm_message} SET `read`=1 WHERE id=:a AND `to`=:b',array(':a'=>$msg_id,':b'=>$user->uid));
+	echo "exit";
+}
+
+//------------------------------------------------------------------------------
+function ncn_message_center()
+{
+
+	$return = '';
+	// setup display
+	drupal_add_js(drupal_get_path('module', 'ncn_message') . '/ncn_message.js');
+	drupal_add_css(drupal_get_path('module', 'ncn_message').'/ncn_message.css', 'module', 'all', FALSE);
+	
+	ob_start();
+
+	// switch functions/pages
+	$tfunction = arg(2);	
+	$is_admin = null;
+	
+	switch ($tfunction)
+	{
+		case "send":
+			$desc = base64_decode(arg(4));
+			pm_send_message($desc);
+		break;
+		// reply to a specific message
+		case "reply":
+			$title = pm_reply($is_admin);	
+		break;
+		
+		// view all messages related to a claim
+		case "viewthread":
+			pm_viewthread($is_admin);	
+		break;
+		
+		// inbox
+		default:
+			$title = pm_inbox($is_admin);
+		break;
+	
+	}
+	
+	// get the page data
+	$content = ob_get_contents();
+	ob_end_clean();
+	
+	// build the template
+	//drupal_set_title($title);
+
+	$return .= $content;
+	
+	return($return);
+}
+
+//------------------------------------------------------------------------------
+function pm_reply()
+{
+	GLOBAL $base_url;
+
+	if (!strstr($_SERVER['REQUEST_URI'], 'admin/config'))
+	{
+		GLOBAL $user;
+	}
+	else
+	{
+		$user = user_load(1);
+		$user->uid = 0;
+	}
+
+
+	// get reply to id
+	$reply_to_id = arg(3);
+	
+	// check for numeric
+	if (!is_numeric($reply_to_id))
+	{	pm_inbox();return;		}
+	
+	// check that a thread exists and user has permission
+//	$query = "SELECT * FROM pm_message WHERE `id`=".$reply_to_id." AND `to`=".$user->uid.";";
+	$result = db_query('SELECT * FROM {pm_message} WHERE `id`=:a AND `to`=:b',array(':a'=>$reply_to_id,':b'=>$user->uid));
+	$row_count = $result->rowCount();
+	
+	if ($row_count == 0)	// no thread exists/access denied
+	{	pm_inbox();return;		}
+	
+	// get reply to
+    $reply_to = $result->fetchAssoc();
+
+	// get title
+	$title = "Reply to: ".StripSlashes($reply_to['subject']);
+
+	// get new message data	
+	if ( ($reply_to['subject'][0] == "R") && ($reply_to['subject'][1] == "e") && ($reply_to['subject'][2] == ":") )
+	{	$subject = StripSlashes($reply_to['subject']);	}
+	else
+	{	$subject = "Re: ".StripSlashes($reply_to['subject']);	}
+	
+	$old_body = explode("\n", StripSlashes($reply_to['body']));
+	$body = "";
+	
+	foreach ($old_body as $line)
+	{	$body .= "> ".trim($line)."\n";		}
+	
+	$body = "\n\n\n".$body;
+	
+	// save data for form
+	$_SESSION['default_subject'] = $subject;
+	$_SESSION['default_body'] = $body;
+	drupal_set_title($title);
+
+	
+	// draw new message form
+	print drupal_get_form('ncn_message_reply_form');
+	
+	return($title);
+}	
+
+function pm_send_message($title) {
+	GLOBAL $base_url;
+
+	if (!strstr($_SERVER['REQUEST_URI'], 'admin/config'))
+	{
+		GLOBAL $user;
+	}
+	else
+	{
+		$user = user_load(1);
+		$user->uid = 0;
+	}
+
+	unset($_SESSION['default_subject']);
+	unset($_SESSION['default_body']);
+	$_SESSION['default_subject'] = $title;
+	
+	if (empty($title)) {
+		$title = t("Send Message");
+	} else {
+		$title = t("Send Message ( !desc )", array('!desc'=>$title));
+	}
+	drupal_set_title($title);
+	
+	// When rejecting claim invoice, display popup window
+	if (isset($_SESSION['reject_claim_invoice'])) {
+		drupal_add_js("
+				window.onload=function(){ 
+					alert('To change this invoice you need to provide detailed instructions on what needs to be changed or updated on your invoice.');
+				}
+			", 
+			'inline'
+		);
+	}
+	print drupal_get_form('ncn_message_reply_form');
+}
+//------------------------------------------------------------------------------
+// validate the reply form
+function ncn_message_reply_form_validate($form, &$form_state)
+{
+	// check empty subject
+	if (trim($form_state['values']['subject']) == "")
+	{
+		form_set_error('', 'You must enter a subject');
+	}
+
+	// check empty body
+	if (trim($form_state['values']['body']) == "")
+	{
+		form_set_error('', 'You must enter a message');
+	}
+
+	// check html
+	if (preg_match("/([\<])([^\>]{1,})*([\>])/i", trim($form_state['values']['body'])))
+	{
+		form_set_error('', 'Message cannot contain HTML');
+	}
+	
+	return(true);
+}
+
+//------------------------------------------------------------------------------
+// send message and bouce to inbox
+function ncn_message_reply_form_submit($form, &$form_state)
+{
+GLOBAL $base_url;
+
+	if (!strstr($_SERVER['REQUEST_URI'], 'admin/config'))
+	{
+		GLOBAL $user;
+	}
+	else
+	{
+		$user = user_load(1);
+		$user->uid = 0;
+	}
+
+	$in_reply_to = $form_state['values']['in_reply_to'];
+	$claim_id = 0;
+	if (strpos($in_reply_to, 'c') === 0) {
+		$claim_id = intval(substr($in_reply_to, 1));
+		$in_reply_to = 0;
+	} else {
+		$in_reply_to = intval($in_reply_to);
+	}
+	
+	// leave log file when rejecting claim invoice
+	$b_claim_log = false;
+	if (arg(5) == 'log') {
+		$b_claim_log = true;
+	}
+	
+	$msg = "<pre>".$form_state['values']['body']."</pre>";
+	// send the message
+	pm_send($user->uid, 0, $form_state['values']['subject'], $form_state['values']['body'], $claim_id, $in_reply_to, '', array(), $b_claim_log, $msg);
+	
+	
+	if (isset($_SESSION['reject_claim_invoice'])) {
+		if ($claim_id == $_SESSION['reject_claim_invoice']['claim_id']) {
+			ncn_claims_manager_reject_claim_invoice_action($claim_id);		// reject claim invoice
+		}
+		unset($_SESSION['reject_claim_invoice']);
+	}
+	
+	// message and redirect
+	drupal_set_message('Message sent!', 'status');
+	drupal_goto($base_url."/account/message-center/inbox");
+}
+
+//------------------------------------------------------------------------------
+// define the reply form
+function ncn_message_reply_form($form_state)
+{
+	$form = array();
+	$form['#attributes'] = array('enctype' => "multipart/form-data");
+
+		$form['subject'] = array(
+			'#type' => 'textfield', 
+			'#default_value' => t($_SESSION['default_subject']),
+	  	);
+
+		$form['body'] = array(
+			'#type' => 'textarea', 
+			'#default_value' => t($_SESSION['default_body']),
+			'#resizable' => false,
+			'#rows' => 12,
+	  	);
+	  	
+		$form['in_reply_to'] = array(
+			'#type' => 'hidden',
+			'#value' => arg(3),
+		);
+
+	$form['submit'] = array('#type' => 'submit', '#weight' => 101, '#value' => t('Send Message'));
+	return($form);
+
+}
+
+//------------------------------------------------------------------------------
+// required for message sending
+function ncn_message_mail($key, &$message, $params)
+{
+	switch ($key)
+	{
+		case "some_mail_key":
+			$message['subject'] = $params['subject'];
+			$message['body'][] = $params['body'];
+			break;
+		case "template_mail_key":
+			$message['subject'] = $params['subject'];
+			$message['body'][] = ncn_admin_get_mail_body( "{".$params['mail_template']."}", $message, $params );
+			
+			break;
+	}
+}
+
+//------------------------------------------------------------------------------
+function pm_message_tags($v, $body)
+{
+	foreach ($v as $key=>$val)
+	{
+		$body = str_replace('!'.$key, $val, $body);
+	}
+	
+	return($body);
+}
+
+//------------------------------------------------------------------------------
+function pm_send($from, $to, $subject, $body, $claim_id = 0, $in_reply_to = 0, $mail_template='', $_params=array(), $b_log=false, $log_message="")
+{
+GLOBAL $user;
+	$user = user_load($user->uid);
+	// check the "in reply to"
+	if ($in_reply_to != 0) 
+	{
+	//	$query = "SELECT * FROM pm_message WHERE `id`=".$in_reply_to;
+		$result = db_query('SELECT * FROM {pm_message} WHERE `id`=:a',array(':a'=>$in_reply_to));
+		$row_count = $result->rowCount();
+        $row = $result->fetchAssoc();
+		
+		if (is_numeric($row['claim_id']))
+		{	$claim_id = $row['claim_id'];	}
+		
+		if ($row['claim_log'] == 1) {
+			$b_log = true;
+			
+		}
+	}
+	
+	$claim_log = 0;
+	if ($claim_id && $b_log) {
+		if ($log_message != "") {
+			$result = ncn_admin_insert_claim_log($claim_id, date('U'), $log_message);
+		}
+		$claim_log = 1;
+	}
+	// insert message into database
+	if (is_numeric($from))
+	{
+	//	$query = "INSERT INTO pm_message VALUES(NULL, ".$from.", ".$to.", 0, ".$claim_id.", ".date('U').", \"".AddSlashes($subject)."\", \"".AddSlashes($body)."\", ".$in_reply_to.", 0, $claim_log);";
+		$result = db_query('INSERT INTO {pm_message} VALUES(NULL,:a,:b,:c,:d,:e,:f,:g,:h,:i,:j)',
+            array(':a'=>$from,':b'=>$to,':c'=>0,':d'=>$claim_id,':e'=>date('U'),':f'=>$subject,':g'=>$body,':h'=>$in_reply_to,':i'=>0,':j'=>$claim_log));
+	}
+
+	if ($mail_template == 'no mail') {
+		return;
+	}
+	
+	// get users email address
+	$admin_user = user_load(1);	// load admin account
+	$admin_email_address = $admin_user->mail;
+
+	if ($to != 0)
+	{
+		$_user = user_load($to);
+		$to_email_address = $_user->mail;
+	}
+	else
+	{	$to_email_address = $admin_email_address;	}
+	
+	// email to recipient
+	$params = array(
+		'body' => $body,
+		'subject' => $subject,
+		'mail_template' => $mail_template
+	);
+	
+	//remain claim log
+	if ($mail_template) {
+		
+	}
+	
+	$params = array_merge($params, $_params);
+	//drupal_set_message("email_address: ".$to_email_address);
+	if (!empty($to_email_address)) {
+		if ($mail_template) {
+			drupal_mail('ncn_message', 'template_mail_key', $to_email_address, language_default(), $params, $admin_email_address, TRUE);			
+			if($_POST['claim_status']=='returned'){
+                // Send mail to Director of Member Services if claim status is 'returned'
+                send_returned_claim_mail_update('template_mail_key', $params, $admin_email_address);
+            }
+		} else {
+			drupal_mail('ncn_message', 'some_mail_key', $to_email_address, language_default(), $params, $admin_email_address, TRUE);
+			if($_POST['claim_status']=='returned'){
+                // Send mail to Director of Member Services if claim status is 'returned'
+                send_returned_claim_mail_update('some_mail_key', $params, $admin_email_address);
+            }
+		}
+	}
+	if ($to == 0) {
+		if (is_member($user->profile_memberid)) {
+			$member_id = $user->profile_memberid;
+		} 
+		$member = get_member_from_id($member_id);
+		if (!empty($member)) {
+			/*$am_user = user_load($member['am_uid']);
+			$to_am_mail = $am_user->mail;*/
+			//drupal_set_message("am_email_address: ".$to_am_mail);
+			
+			$am_list = get_account_manager_list();
+			foreach ($am_list as $am) {
+				$to_am_mail = $am['mail'];
+				//drupal_set_message("am_email_address: ".$to_am_mail);
+				if (!empty($to_am_mail)) {
+					if ($mail_template) {
+						drupal_mail('ncn_message', 'template_mail_key', $to_am_mail, language_default(), $params, $admin_email_address, TRUE);
+					} else {
+						drupal_mail('ncn_message', 'some_mail_key', $to_am_mail, language_default(), $params, $admin_email_address, TRUE);
+					}
+				}
+			}
+		}
+	}
+	return;
+}
+
+//------------------------------------------------------------------------------
+function pm_viewthread()
+{
+GLOBAL $base_url;
+
+	if (!strstr($_SERVER['REQUEST_URI'], 'admin/config'))
+	{
+		GLOBAL $user;
+	}
+	else
+	{
+		$user = user_load(1);
+		$user->uid = 0;
+	}
+
+	// get thread/claim id
+	$claim_id = arg(3);
+	
+	// check for numeric
+	if (!is_numeric($claim_id))
+	{	pm_inbox();return;		}
+	
+	// check that a thread exists and user has permission
+//	$query = "SELECT * FROM pm_message WHERE `claim_id`=".$claim_id." AND (`to`=".$user->uid." OR `from`=".$user->uid.") AND `archived`=0 ORDER BY `timestamp` DESC;";
+	$result = db_query('SELECT * FROM {pm_message} WHERE `claim_id`=:a AND (`to`=:b OR `from`=:c) AND archived=0 ORDER BY timestamp DESC',array(':a'=>$claim_id,':b'=>$user->uid,':c'=>$user->uid));
+	$row_count = $result->rowCount();
+	//$result_res = $result->fetchAssoc();
+	//print_r($result_res); exit;
+	if ($row_count == 0)	// no thread exists/access denied
+	{	pm_inbox();return;		}
+	
+	// update all message sin thread as read
+//	$query2 = "UPDATE pm_message SET `read`=1 WHERE `claim_id`=".$claim_id." AND `archived`=0 AND `to`=".$user->uid.";";
+	$result2 = db_query('UPDATE {pm_message} SET `read` = 1 WHERE claim_id=:a AND archived=0 AND `to`=:b',array(':a'=>$claim_id,':b'=>$user->uid));
+	// draw the thread
+	$title = "Message";
+?>
+<div id="msg_center_inbox">
+<div class="mci-content">
+	<div class="mci-header">
+		<div class="title"> <?php echo $title; ?></div>
+		<?php if (!strstr($_SERVER['REQUEST_URI'], 'admin/config')): ?>
+		<div class="help"><a href="#">Help</a></div>
+		<?php endif; ?>
+	</div>
+	<div class="mci-content-wrapper">
+		<div class="table-header">
+		<table class="pm"> 
+			<tr class="header">
+				<td class="td-vt-from">From</td> 
+				<td class="td-vt-to">To</td>
+				<td class="td-vt-date">Date</td>
+				<td class="td-vt-msg">Message</td>
+			</tr>
+		</table>
+		</div>
+		<div class="table-body">
+		<table class="pm">
+	<?php
+		
+		// run through messages TO/FROM current user that relate to CLAIM
+		//for ($i=0; $i<$row_count; $i++)
+		foreach($result as $row)
+		{
+			// get data
+			$row = (array)$row;
+			
+			?>		
+			<tr class="<?php if ($i%2) print "even"; else print "odd"; ?>"> 
+				<td class="td-vt-from"><?= pm_get_username($row['from']); ?></td> 
+				<td class="td-vt-to" ><?= pm_get_username($row['to']); ?></td> 
+				<td class="td-vt-date"><?= date("m/d/Y H:m", $row['timestamp']); ?></td>
+				<td class="td-vt-msg">
+					<strong><?= StripSlashes($row['subject']); ?></strong><br />
+					<br />
+					<div class="msg-body">
+						<?= body_for_html($row['body']); ?>
+					</div>
+					<?php
+					// onyl show "[reply]" button on message TO this user
+					if ($row['to'] == $user->uid)
+					{
+						?>
+						<!-- <div style="text-align:right;" class="action-panel">
+						<a href="<?= $base_url; ?>/account/message-center/reply/<?= $row['id']; ?>"><strong>[reply]</strong></a>
+						</div> -->
+						<?php
+					}
+					?>
+				</td>
+			</tr>
+			<?php
+		}
+		
+		?>
+		</table>
+		</div> <!-- end of table-body -->
+		<div class="ncn-control-back clearfix">
+			<div style="float: right;"> 
+			<a href="javascript:history.back(1)">Back</a>
+			</div>
+		</div>
+		</div>
+	</div>
+</div>
+	<?php
+}
+	
+//------------------------------------------------------------------------------
+function pm_get_username($user_id)
+{
+	if ($user_id == 0)
+	{	return("Administrator");	}
+
+	$user = user_load($user_id);
+	return($user->name);
+	
+}
+
+//------------------------------------------------------------------------------
+function pm_inbox()
+{
+	
+	if (!strstr($_SERVER['REQUEST_URI'], 'admin/config'))
+	{
+		GLOBAL $user;
+	}
+	else
+	{
+		$user = user_load(1);
+		$user->uid = 0;
+	}
+	//$title = "Message Center - Inbox";
+	$title = "";
+	
+	$query = "SELECT * FROM pm_message WHERE `to`=".$user->uid." AND `archived`=0 ORDER BY `timestamp` DESC";	
+	$result = db_query('SELECT id FROM {pm_message} WHERE `to` = :d AND archived=0',array(':d'=>$user->uid));	
+	$total_count = $result->rowCount();
+	render_pm_list($query, $total_count);	
+	return($title);	
+}
+
+//------------------------------------------------------------------------------
+// draws preview of messages using $query to select records
+function render_pm_list($query, $total_count)
+{
+	GLOBAL $base_url;
+	$page_records = 10;
+	$page_number = 0;
+	if (isset($_REQUEST['page'])) {
+		$page_number = intval($_REQUEST['page']);
+	}
+	if ($page_number*$page_records>=$total_count) {
+		$page_number = ceil((double)$total_count/$page_records) - 1;
+	}
+	if ($page_number < 0) {
+		$page_number = 0;
+	}
+	$query .= " LIMIT ".$page_number*$page_records.", $page_records ";
+	
+	$result = db_query($query);
+	$row_count = $result->rowCount();
+	
+	$str_ranger = ($page_number*$page_records+1) . " - " . ($page_number*$page_records+$row_count) . " of " . $total_count;
+	if ($total_count == 0) {
+		$str_ranger = '';
+	}
+	
+	if (!strstr($_SERVER['REQUEST_URI'], 'admin/config'))
+	{
+		$toggle_base = $base_url.'/account/message-center/markread/';
+	}
+	else
+	{
+		$toggle_base = $base_url.'/admin/config/ncn_admin/messages_markread/';
+	}
+	$title = "Message Center";
+	$sub_title = "Inbox";
+	
+	
+?>
+<div id="msg_center_inbox">
+<div class="mci-content">
+	<div class="mci-header">
+		<div class="title"><?php echo $title; ?>&nbsp;-&nbsp;<span class="sub_title"><?php echo $sub_title; ?></span></div>
+		<?php if (!strstr($_SERVER['REQUEST_URI'], 'admin/config')): ?>
+		<div class="help"><a href="#">Help</a></div>
+		<?php endif; ?>
+	</div>
+	<div class="mci-content-wrapper">
+	<div class="table-header">
+		<table class="pm"> 
+		<tr class="header"> 
+			<!-- <td>&nbsp;</td> -->
+			<td class="td-date">Date</td>
+			<td class="td-subject">Subject</td>
+			<td><div class="ncn-pager-ranger"><?php echo $str_ranger; ?></div></td>
+		</tr>
+		</table>
+	</div>
+	<div class="table-body">
+<?php
+
+	$result = db_query($query);
+	$row_count = $result->rowCount();
+	$page_num = 0;
+	echo "<table class='pm ncn-pager-item'>";
+	foreach($result as $i => $row)
+	{
+		// get data        
+		$row = (array) $row;
+		if ($row['read'] == 0)
+		{	
+			$subject_class = "subject_unread";
+			$subject_append = ' [unread]';
+		}
+		else
+		{	
+			$subject_class = "subject_read";	
+			$subject_append = '';
+		}
+		
+		// render the preview
+		?>
+			<tr class="<?php if ($i%2) print "even"; else print "odd"; ?>"> 
+				<!-- <td width="20"><input type="checkbox" name="msg_<?= $row['id']; ?>"></td> -->
+				<td class="td-date"><?= date("m/d/Y H:m", $row['timestamp']); ?></td>
+				<td class="td-subject">
+					<a href="#" onclick="pm_toggle_message(<?= $row['id']; ?>, '<?= $toggle_base; ?>');return false;">
+						<span id="subject_<?= $row['id']; ?>" class="<?= $subject_class; ?>"><?= StripSlashes($row['subject']); ?></span>
+					</a>
+					<span id="subject_append_<?= $row['id']; ?>"><?= $subject_append; ?></span>
+				</td>
+			</tr>
+			<tr class="hidden-row <?php if ($i%2) print "even_body"; else print "odd_body"; ?>">
+				<td colspan="2" class="internal">
+				<div id="body_<?= $row['id']; ?>" class="pm_body_div">
+					<table class="pm_internal" cellpadding=0 cellspacing=0>
+					<tbody class="pm_internal">
+						<tr>
+							<td class="td-date">&nbsp;</td>
+							<td>
+								<div><?= body_for_html($row['body']); ?></div>
+								<div style="text-align:right;" class="action-panel">
+								<?php
+									// admin is read only							
+									if (!strstr($_SERVER['REQUEST_URI'], 'admin/config'))
+									{
+										?>
+										<a href="<?= $base_url; ?>/account/message-center/viewthread/<?= $row['claim_id']; ?>"><strong>[view thread]</strong></a>
+										<!-- &nbsp;
+										<a href="<?= $base_url; ?>/account/message-center/reply/<?= $row['id']; ?>"><strong>[reply]</strong></a> -->
+										<?php
+									}
+								?>
+								</div>
+							</td>
+						</tr>
+					</tbody>
+					</table>
+				</div>
+				</td>
+			</tr>
+<?php
+	}	
+	// no results
+	if ($total_count == 0)
+	{
+		?>
+		<tr>
+			<td colspan="2">No messages</td>
+		</tr>
+		<?php
+	} else if (($row_count%$page_records)!=0) {
+		for($i=$row_count;$i<$page_records;$i++) { 	?>
+			<tr class="<?php if ($i%2) print "even"; else print "odd"; ?>"><td colspan="2">&nbsp;</td></tr>
+		<?php }
+	}
+	echo "</table>";
+?>
+		</div>
+		<?php
+			$_url = $base_url."/".drupal_get_path_alias( implode( '/', arg() ) );
+			$first_url = $_url.'?page=0';
+			$prev_url = $_url.'?page='.($page_number-1);
+			$next_url = $_url.'?page='.($page_number+1);
+			$last_url = $_url.'?page='.(int)($total_count/$page_records);
+			if ($page_number == 0) {
+				$first_url = $prev_url = '#';
+			} else if(($page_number+1)*$page_records>=$total_count) {
+				$last_url = $next_url = '#';
+			}
+		?>
+		<?php if( $total_count > $page_records ): ?>
+		<div class="ncn-pager-control clearfix">	<!-- pager_control -->
+			<div style="float: right">
+			<a class="first <?php if ($first_url=='#') { echo 'disabled'; } ?>" href="<?php echo $first_url; ?>" >first</a>
+			<a class="prev <?php if ($prev_url=='#') { echo 'disabled'; } ?>" href="<?php echo $prev_url; ?>" >prev</a>
+			<a class="next <?php if ($next_url=='#') { echo 'disabled'; } ?>" href="<?php echo $next_url; ?>" >next</a>
+			<a class="last <?php if ($last_url=='#') { echo 'disabled'; } ?>" href="<?php echo $last_url; ?>" >last</a>
+			</div>
+		</div>
+		<?php endif; ?>
+	</div>
+</div>	
+</div>
+<?php
+}
+
+//------------------------------------------------------------------------------
+function body_for_html($body)
+{
+	$body = StripSlashes($body);
+	$body = str_replace("<", "&lt;", $body);
+	$body = str_replace(">", "&gt;", $body);
+	$body = nl2br($body);
+	return($body);
+}
+
+//------------------------------------------------------------------------------

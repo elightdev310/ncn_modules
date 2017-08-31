@@ -1,0 +1,122 @@
+.sales-report-header{
+	width: 100%;
+}
+
+.report-date{
+	width: 80%;
+	text-align: center;
+	float: left;
+}
+.download-report{
+	width: 20%;
+	text-align: right;
+	float: right;
+}
+
+.report-best-total{
+	margin-top: 15px;
+	padding-left: 5px;
+	font-weight: bold;
+	float:left;
+}
+.report-content{
+	margin-top: 0px;
+	float:left;
+	width:100%;
+}
+
+.column-3 .report-category{
+	float: left;
+	width: 20%;
+}
+select#report_category{
+	width: 120px;
+}
+
+.column-3 .report-date{
+	width: 50%;
+}
+.column-3 .download-report{
+	width: 30%;
+}
+
+.column-3.type-a .report-date{
+	width: 35%;
+}
+.column-3.type-a .download-report{
+	width: 45%;
+}
+
+.sales-report-header-name{
+	margin-top: 10px;
+}
+
+/* ncn_pvc.css */
+.ncn_pvc_table .pvc_group{
+	font-weight: bold;
+	background-color: #D4E7F3;
+    border-bottom: 1px solid #B4D7F0;
+	border-top: 1.5em solid #FFFFFF;
+}
+
+.ncn_pvc_table .pvc_item{
+	padding-left: 1.5em;
+}
+
+#ncn_pvc_settings .ncn_pvc_table th, #ncn_pvc_settings .ncn_pvc_table td{
+	text-align: center;
+}
+
+#ncn_pvc_settings .ncn_pvc_table .pvc_group, #ncn_pvc_settings .ncn_pvc_table .pvc_item{
+	text-align: left;
+}
+
+/* ncn_sponsor.css */
+.image_sponsor_image {
+	max-width: 728px;
+	
+}
+
+/* ncn_subuser.css */
+#create-subuser-wrapper {
+	font-size: 12px;
+    border: solid 1px #A7A7A7;
+	background-color: #fff;
+}
+
+.form-table td {
+	padding: 3px;
+}
+.form-table .tlabel{
+	width: 190px;
+	text-align: right;
+}
+.form-table input, .form-table select {
+	width: 200px;
+}
+
+#create-subuser #create-subuser-wrapper {
+	margin-top: 10px;
+}
+#create-subuser #create-subuser-wrapper  .form-table{
+	width: 80%;
+	margin: 20px auto;
+}
+
+.subuser-form-btn {
+	text-indent: -9999px;
+	float: left;
+	margin-top: 10px;
+}
+
+#subuser-list  .td-first-name{ width: 80px; }
+#subuser-list  .td-last-name{ width: 80px; }
+#subuser-list  .td-company-name{ width: 200px; }
+#subuser-list  .td-contact{ width: 180px; }
+#subuser-list  .td-address{ width: 150px; }
+#subuser-list  .td-city{ width: 100px; }
+#subuser-list  .td-state{ width: 40px; }
+#subuser-list  .td-zip{}
+
+.ncn-month-report.report-content tr td { border-bottom: solid 1px #ddd; }
+.ncn-month-report.report-content tr.group td { background-color:#ddd; }

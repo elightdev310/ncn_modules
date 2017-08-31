@@ -1,0 +1,229 @@
+<?php
+
+
+/**
+ * hook_init function
+ */
+require_once('ncn_capsulecrm.sync.inc');
+require_once('ncn_capsulecrm.token.inc');
+require_once('ncn_capsulecrm.account.inc');
+require_once('ncn_capsulecrm.note.inc');
+function ncn_capsulecrm_init() {
+	
+}
+
+/**
+ * hook_perm function
+ */
+function ncn_capsulecrm_permission()
+{	
+	//return array('ncn capsule_crm management');
+	return array(
+		'ncn capsule_crm management' => array(
+		  'title' => t('ncn capsule_crm management'),
+		));
+}
+
+/**
+ * hook_menu function
+ */
+/*function ncn_capsulecrm_menu()
+{
+	$item = array();
+	
+	return $item;
+}*/
+
+
+/**
+ * hook_user function
+ */
+function ncn_capsulecrm_user($op, &$edit, &$account, $category = NULL) {
+	switch ($op) {
+	case 'after_update':
+		$_user = user_load($account->uid);
+		if ($_user->profile_memberid) {
+			ncn_capsulecrm_set_user_detail_link($account->uid);
+		}
+		break;
+	}
+}
+
+
+function ncn_capsulecrm_create_member($member_id) {
+
+	$_member = get_member_from_id($member_id);
+	if (empty($_member)) { return FALSE; }
+	
+	$c_street = $_member['address'];
+	$c_city = $_member['city'];
+	$c_state = $_member['state'];
+	$c_zip = $_member['zip'];
+	$c_country = profile_location_get_country($_member['country']);
+	$c_email_addr = $_member['contactemail'];
+	$c_phone_number = _get_format_phone_string($_member['officephone']);
+	
+	// ******************* organization ********************* //
+	$organization = array();
+	
+	//$organization['contacts']['address']['type'] = 'Office';
+	$organization['contacts']['address']['street'] = $c_street;
+	$organization['contacts']['address']['city'] = $c_city;
+	$organization['contacts']['address']['state'] = $c_state;
+	$organization['contacts']['address']['zip'] = $c_zip;
+	$organization['contacts']['address']['country'] = $c_country;
+	//$organization['contacts']['email']['type'] = 'Work';
+	$organization['contacts']['email']['emailAddress'] = $c_email_addr;
+	$organization['contacts']['phone']['type'] = 'Work';
+	$organization['contacts']['phone']['phoneNumber'] = $c_phone_number;
+	
+	$organization['name'] = $_member['legalname'];//'My Company';
+//	var_dump($organization);
+	$response = capsule_add_organization( array('organisation'=>$organization) );
+	if ($response->code != 201) {
+		drupal_set_message(t('Capsule CRM Error: Failed to add an organization into Capsule CRM'), 'error');
+		return FALSE;
+	}
+
+	
+	$party_id = substr($response->headers['location'], strrpos($response->headers['location'], '/')+1);
+	drupal_set_message( t("Added an organization(#!party_id) into Capsule CRM", array('!party_id'=>$party_id)) );
+	ncn_capsulecrm_set_map_data($member_id, $party_id, 0);
+	
+	
+	// Mobile Phone to Contacts
+	$c_mobile_number = _get_format_phone_string($_member['mobilephone']);
+	$org['contacts']['phone']['type'] = 'Mobile';
+	$org['contacts']['phone']['phoneNumber'] = $c_mobile_number;
+	$response = capsule_update_organization( array('organisation'=>$org), $party_id );
+	if ($response->code != 200) { 	// updating success code  = 200
+		drupal_set_message(t('Capsule CRM Error: Failed to add mobile phone to organization'), 'error');
+		return FALSE; 
+	}
+	
+	// Tag (Gold Member)
+	$member_type = "Gold Member";
+	if ($_member['member_type'] == 1) {
+		$member_type = "Silver Member";
+	} else if ($_member['member_type'] == 2) {
+		$member_type = "Gold Lite Member";
+	} else if ($_member['member_type'] == 3) {
+		$member_type = "Coach on Call Member";
+	} else if ($_member['member_type'] == 4) {
+		$member_type = "Gold Coach Member";
+	}
+	$response = capsule_add_party_tag( $party_id, urlencode($member_type) );
+	
+	// Custom Field (Member ID #)
+	$data = array(
+		'label'=>'Member ID #', 
+		'text'=>$member_id
+	);
+	$response = capsule_add_party_customfield( $party_id, array('customField'=>$data) );
+	
+	// Custom Field (Distributor / Associate)
+	$user_details = user_load($_member['owner']);
+		
+	$dis_asso_name = $user_details->profile_legalname;
+	$data = array(
+		'label'=>'Distributor / Associate', 
+		'text'=>$dis_asso_name
+	);
+	$response = capsule_add_party_customfield( $party_id, array('customField'=>$data) );
+	if ($response->code != 201)  {
+		drupal_set_message(t('Capsule CRM Error: Failed to add a customfield (!label : !text)', array('!label'=>$data['label'], '!text'=>$data['text'])), 'error');
+	}
+	
+	// Custom Field (Account Manager)
+	$user_details = user_load($_member['am_uid']);
+	$am_name = $user_details->profile_firstname." ".$user_details->profile_lastname;
+	$data = array(
+		'label'=>'Account Manager', 
+		'text'=>$am_name
+	);
+	$response = capsule_add_party_customfield( $party_id, array('customField'=>$data) );
+	if ($response->code != 201)  {
+		drupal_set_message(t('Capsule CRM Error: Failed to add a customfield (!label : !text)', array('!label'=>$data['label'], '!text'=>$data['text'])), 'error');
+	}
+	
+	// Custom Field (Username)
+	$username = strtolower($_member['first_name'].$_member['last_name']);
+	$data = array(
+		'label'=>'Username', 
+		'text'=>$username
+	);
+	$response = capsule_add_party_customfield( $party_id, array('customField'=>$data) );
+	if ($response->code != 201)  {
+		drupal_set_message(t('Capsule CRM Error: Failed to add a customfield (!label : !text)', array('!label'=>$data['label'], '!text'=>$data['text'])), 'error');
+	}
+	
+	// Custom Field (Original Password)
+	$orginal_pass = date('j', $_member['create']).$_member['first_name'].date('Y', $_member['create']);
+	$data = array(
+		'label'=>'Original Password', 
+		'text'=>$orginal_pass
+	);
+	$response = capsule_add_party_customfield( $party_id, array('customField'=>$data) );
+	if ($response->code != 201)  {
+		drupal_set_message(t('Capsule CRM Error: Failed to add a customfield (!label : !text)', array('!label'=>$data['label'], '!text'=>$data['text'])), 'error');
+	}
+	
+	/*// Custom Field (Sent Welcome Kit)
+	$data = array(
+		'label'=>'Sent Welcome Kit', 
+		'boolean'=>true
+	);
+	$response = capsule_add_party_customfield( $party_id, array('customField'=>$data) );
+	if ($response->code != 201)  {
+		drupal_set_message(t('Capsule CRM Error: Failed to add a customfield (!label : !text)', array('!label'=>$data['label'], '!text'=>$data['text'])), 'error');
+	}*/
+	
+	// Custom Field (Date of Purchase)
+	$purchase_date = date('Y-m-d', $_member['create']).'T00:00:00Z';
+	$data = array(
+		'label'=>'Date of Purchase', 
+		//'date'=>'2011-08-15T00:00:00Z'
+		'date'=>$purchase_date
+	);
+	$response = capsule_add_party_customfield( $party_id, array('customField'=>$data) );
+	if ($response->code != 201)  {
+		drupal_set_message(t('Capsule CRM Error: Failed to add a customfield (!label : !text)', array('!label'=>$data['label'], '!text'=>$data['date'])), 'error');
+	}
+	
+	$sales_rep = $_member['sales_rep'];
+	$data = array(
+		'label'=>'Sales Rep', 
+		'text'=>$sales_rep
+	);
+	$response = capsule_add_party_customfield( $party_id, array('customField'=>$data) );
+	if ($response->code != 201)  {
+		drupal_set_message(t('Capsule CRM Error: Failed to add a customfield (!label : !text)', array('!label'=>$data['label'], '!text'=>$data['text'])), 'error');
+	}
+	
+	// ******************* person ********************* //
+	
+	$person = array();
+	$c_first_name = $_member['first_name'];
+	$c_last_name = $_member['last_name'];
+	//$person['contacts']['email']['type'] = 'Work';
+	$person['contacts']['email']['emailAddress'] = $c_email_addr;
+	$person['contacts']['phone']['type'] = 'Work';
+	$person['contacts']['phone']['phoneNumber'] = $c_phone_number;
+	
+	$person['firstName'] = $c_first_name;
+	$person['lastName'] = $c_last_name;
+	$person['organisationId'] = $party_id;
+	
+	$response = capsule_add_person( array('person'=>$person) );
+	if ($response->code != 201) { 
+		drupal_set_message(t('Capsule CRM Error: Failed to add a person into Capsule CRM'), 'error');
+		return FALSE; 
+	}
+	$person_party_id = substr($response->headers['location'], strrpos($response->headers['location'], '/')+1);
+	drupal_set_message( t("Added a person(#!party_id) into Capsule CRM", array('!party_id'=>$person_party_id)) );
+	
+	ncn_capsulecrm_set_map_data($member_id, $party_id, $person_party_id);
+	return TRUE;	
+}
+
+//party_id = 14202504	// test
