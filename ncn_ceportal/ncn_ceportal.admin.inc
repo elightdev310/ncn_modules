@@ -150,7 +150,7 @@ function ncn_ceportal_ce_history_section($claim_id, $pvc_ce_management, $pvc_ce_
         ));
     }
 
-    $output = theme('table',array("header"=>$header,"rows"=>$rows,'id' => 'ce_history_table'));
+    $output = theme('table',array("header"=>$header,"rows"=>$rows, 'attributes'=>array('id' => 'ce_history_table')));
 	return $output;
 }
 
@@ -375,7 +375,7 @@ function ncn_ceportal_admin_mail_settings_token_table() {
 			'data'=>array($token, $desc), 
 		);
 	}
-	$output = theme('table',array('header'=>$header,'rows'=>$rows,'id' => 'ce_mail_settings_token_table'));
+	$output = theme('table',array('header'=>$header,'rows'=>$rows, 'attributes'=>array('id' => 'ce_mail_settings_token_table')));
 	
 	return $output;
 }
@@ -402,6 +402,7 @@ function ncn_ceportal_admin_mail_settings_form_submit($form, &$form_state) {
 }
 
 function ncn_ceportal_admin_weekly_sales_report() {
+GLOBAL $base_url;
 	$report_date = 0;
 	if ( arg(4) == "" ) {
 		$report_date = time();
@@ -511,32 +512,32 @@ function _ncn_ceportal_render_sales_table($report_date, $user_id=0) {
 	$from = strtotime("last monday", $to);
 	
 	//$count_query = "SELECT COUNT(*)    FROM {ncn_ce_sales_report} WHERE status=1 AND timestamp>=$from AND timestamp<$to ";
-	$count_query = db_select('ncn_ce_sales_report', 'n')
-        ->fields('n')
-        ->condition('status', '1','=')
-        ->condition('timestamp',$from ,'>=')
-        ->condition('timestamp',$to,'<')
-        ->countquery()
-        ->extend('PagerDefault')
-        ->limit(10)
-        ->execute();
+	// $count_query = db_select('ncn_ce_sales_report', 'n')
+ //        ->fields('n')
+ //        ->condition('status', '1','=')
+ //        ->condition('timestamp',$from ,'>=')
+ //        ->condition('timestamp',$to,'<')
+ //        ->countquery()
+ //        ->extend('PagerDefault')
+ //        ->limit(10)
+ //        ->execute();
    // $count_query = $count_query->
     $sql 		 = "SELECT * FROM {ncn_ce_sales_report} WHERE status=1 AND timestamp>=$from AND timestamp<$to";
 	$total_query = "SELECT SUM(amount) as amt FROM {ncn_ce_sales_report} WHERE status=1 AND timestamp>=$from AND timestamp<$to ";
     if($user_id)
 	{
-		$count_query->condition('ce_uid',$user_id,'=');
+		//$count_query->condition('ce_uid',$user_id,'=');
 		$sql		 .= " AND ce_uid=".$user_id;
 		$total_query .= " AND ce_uid=".$user_id;
 	}
 	$sql .= " ORDER BY timestamp DESC";
 	//$result = pager_query($sql, 10, 0, $count_query);
-	$result = $count_query;
+	//$result = $count_query;
 	
 	$headers  = array();
 	$rows = array();
-    $total_result = db_query($total_query);
-	$total_amount = $total_result->amt;
+    $total_result = db_query($sql);
+	$total_amount = db_query($total_query)->fetchField();
 
 	foreach($total_result as $row)
 	{
@@ -544,7 +545,7 @@ function _ncn_ceportal_render_sales_table($report_date, $user_id=0) {
 		$_user = user_load($row['ce_uid']);
 
 		$claim_q = db_query("SELECT claim_id FROM {ncn_ce_claim_trigger} WHERE id=:d", array(":d"=>$row['ce_claim_trigger_id']));
-		$claim_id = $claim_q->claim_id;
+		$claim_id = $claim_q->fetchField();
 
 		$cur_path = $_GET['q'];
 		$op_edit_url = base_path()."admin/config/ncn_ceportal/sales/".$row['id']."/edit?dest=".base64_encode($cur_path);
@@ -596,7 +597,7 @@ function ncn_ceportal_get_sales_data($report_date, $user_id, &$data) {
 function ncn_ceportal_admin_edit_sale($id) {
 	drupal_set_title( t("Payment #@id", array('@id'=>$id)) );
 	$output = '';
-	if ($_POST['tfunction'] == "ncn_ceportal_sale_edit") {
+	if (isset($_POST['tfunction']) && $_POST['tfunction'] == "ncn_ceportal_sale_edit") {
 		ncn_ceportal_sale_edit_action($id);
 	}
 	

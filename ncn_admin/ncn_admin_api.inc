@@ -703,7 +703,7 @@ function ncn_admin_get_member_logo_info($member_id) {
 }
 function ncn_admin_get_member_logo($member_id) {
 	$row = ncn_admin_get_member_logo_info($member_id);
-	return $row['filepath'];
+	return isset($row['filepath'])?$row['filepath']:'';
 }
 
 function ncn_admin_get_claim_info($claim_id) {
@@ -723,7 +723,7 @@ function ncn_admin_get_claim_info($claim_id) {
 
 function ncn_admin_is_user_in_training($uid) {
 	$account = user_load($uid);
-	if (is_member($account->profile_memberid)) {
+	if (isset($account->profile_memberid) && is_member($account->profile_memberid)) {
 		$_fblocked = '';
 		if ( isset($account->profile_fblocked) ) {
 			$_fblocked = $account->profile_fblocked;
@@ -858,7 +858,7 @@ function ncn_admin_draw_calendar($month, $year, $data=array()){
 
       /** QUERY THE DATABASE FOR AN ENTRY FOR THIS DAY !!  IF MATCHES FOUND, PRINT THEM !! **/
 	  if(count($data)>0){
-      	$calendar.= $data[$list_day];
+      	$calendar.= isset($data[$list_day])?$data[$list_day]:'';
 	  }
       
     $calendar.= '</td>';
@@ -904,7 +904,7 @@ function ncn_admin_get_paid_membership($timestamp) {
 	
 	foreach($result as $row) 
 	{
-		$data[] = $row;
+		$data[] = (array)$row;
 	}
 	return $data;
 }
@@ -956,10 +956,10 @@ function ncn_admin_get_upcoming_membership($timestamp) {
 	///////////////////////////////////////////////////////////////////
 	// Unactivated Member
 //	$query = "SELECT * FROM member_id_pool WHERE used=0 AND status=1";
-	$result = db_query('SELECT * FROM {member_id_pool} WHERE used=0 AND status=1');
+	$result = db_query('SELECT * FROM {member_id_pool} WHERE used=0 AND status=1')->fetchAll();
 	foreach($result as $member) 
 	{
-		$member = array($member);
+		$member = (array)$member;
 		if ($member['create'] == 0) { continue; }
 		
 		if ($member['member_type'] == 0 || $member['member_type'] == 2 || $member['member_type'] == 3 || $member['member_type'] == 4)	// For Gold Member
@@ -974,7 +974,7 @@ function ncn_admin_get_upcoming_membership($timestamp) {
 }
 
 function ncn_admin_get_day_of_membership_given_month($member_id, $month, $year) {
-	$member = get_member_from_id($member_id);
+  $member = get_member_from_id($member_id);
   if (!empty($member)) {
     if ($member['next_payment_date'] == 0) {
       $member['next_payment_date'] = calculate_next_month(date('U'), ncn_user_get_member_renewal_day($member_id));
@@ -1076,7 +1076,7 @@ function ncn_admin_get_claim_file($claim_id, $claim_file_type, $revision=0) {
 function ncn_admin_get_workplace_name($uid) {
 	$_user = user_load($uid);
 	if ($_user) {
-		if (is_member($_user->profile_memberid) || is_distributor($_user) || is_associate($_user) || is_subuser($_user) || is_claim_examiner($_user))
+		if ((isset($_user->profile_memberid) && is_member($_user->profile_memberid)) || is_distributor($_user) || is_associate($_user) || is_subuser($_user) || is_claim_examiner($_user))
         {
     		return "account";
        	} else {
@@ -1186,7 +1186,7 @@ function ncn_admin_get_claim_extra_file($id) {
 }
 
 function user_detail_get_total_claims($_user) {
-	if (is_member($_user->profile_memberid)) {
+	if (isset($_user->profile_memberid) && is_member($_user->profile_memberid)) {
 		$total_claims = ncn_admin_get_total_claim_from_user($_user->uid);
 		return $total_claims;
 	}

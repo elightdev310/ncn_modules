@@ -75,7 +75,7 @@ function capsule_api_functions() {
   foreach ($functions['user'] as $key => $func) {
     $rows[] = array($func);
   }
-  return theme('table', $header, $rows);
+  return theme('table', array('header'=>$header, 'rows'=>$rows));
 }
 
 function get_functions($file) {

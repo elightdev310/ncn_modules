@@ -461,7 +461,7 @@ GLOBAL $user;
 		}
 	}
 	if ($to == 0) {
-		if (is_member($user->profile_memberid)) {
+		if (isset($user->profile_memberid) && is_member($user->profile_memberid)) {
 			$member_id = $user->profile_memberid;
 		} 
 		$member = get_member_from_id($member_id);
@@ -609,21 +609,21 @@ function pm_get_username($user_id)
 //------------------------------------------------------------------------------
 function pm_inbox()
 {
-	
+	$user_id = 0;
 	if (!strstr($_SERVER['REQUEST_URI'], 'admin/config'))
 	{
 		GLOBAL $user;
+		$user_id = $user->uid;
 	}
 	else
 	{
 		$user = user_load(1);
-		$user->uid = 0;
 	}
 	//$title = "Message Center - Inbox";
 	$title = "";
 	
-	$query = "SELECT * FROM pm_message WHERE `to`=".$user->uid." AND `archived`=0 ORDER BY `timestamp` DESC";	
-	$result = db_query('SELECT id FROM {pm_message} WHERE `to` = :d AND archived=0',array(':d'=>$user->uid));	
+	$query = "SELECT * FROM pm_message WHERE `to`=".$user_id." AND `archived`=0 ORDER BY `timestamp` DESC";	
+	$result = db_query('SELECT id FROM {pm_message} WHERE `to` = :d AND archived=0',array(':d'=>$user_id));	
 	$total_count = $result->rowCount();
 	render_pm_list($query, $total_count);	
 	return($title);	

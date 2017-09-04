@@ -147,7 +147,7 @@ switch ($tfunction)
         drupal_set_message(t("Profile has been updated."), 'status');
         //}
 
-        if (is_member($user->profile_memberid)) {
+        if (isset($user->profile_memberid) && is_member($user->profile_memberid)) {
             $result = db_query("UPDATE {member_id_pool} SET
                                            first_name=:fn, last_name=:ln, legalname=:lgn, country=:cn, address=:ad, city=:ct, state=:st, zip=:zp WHERE member_id=:mid",
                 array(':fn'=>$_POST['profile_firstname'],':ln'=>$_POST['profile_lastname'],':lgn'=>$_POST['profile_legalname'],
@@ -438,7 +438,7 @@ switch ($tfunction)
 ?>
 
     <fieldset class="edit_user_group">
-        <?php if(is_member($user->profile_memberid)): ?>
+        <?php if(isset($user->profile_memberid)&&is_member($user->profile_memberid)): ?>
             <?php
             $extra_field_url = 'account/my-extra-profile.html';
             if (arg(0) == 'admin') {
@@ -507,7 +507,7 @@ switch ($tfunction)
                 </tr>
             </table>
         </form>
-        <?php if(is_member($user->profile_memberid)) : ?>
+        <?php if(isset($user->profile_memberid)&&is_member($user->profile_memberid)) : ?>
             <!-- Upload Member Logo-->
             <form id="upload_member_logo_form" method="POST" enctype="multipart/form-data">
                 <input type="hidden" id="member_logo_tfunction" name="tfunction" value="upload_member_logo" />
@@ -532,7 +532,7 @@ switch ($tfunction)
             </form>
         <?php endif; ?>
     </fieldset>
-<?php if(ncn_admin_is_gold_member_demo($user->profile_memberid)): ?>
+<?php if(isset($user->profile_memberid) && ncn_admin_is_gold_member_demo($user->profile_memberid)): ?>
     <?php
     $result = db_query('SELECT to_expired_time, num_claims FROM {member_gold_demo} WHERE member_id=:s AND expired=0 AND status=1 ORDER BY to_expired_time DESC',array(':s'=>$user->profile_memberid));
     if ($result) {
@@ -572,7 +572,7 @@ switch ($tfunction)
     </fieldset>
 <?php endif; ?>
 <?php 	// Role
-if ($in_admin && !is_member($user->profile_memberid) && !is_distributor($user) && !is_associate($user) && !is_subuser($user) ):
+if ($in_admin && !(isset($user->profile_memberid)&&is_member($user->profile_memberid)) && !is_distributor($user) && !is_associate($user) && !is_subuser($user) ):
     ?>
     <?php
     $select_role = 1;
@@ -614,16 +614,17 @@ if ($in_admin && !is_member($user->profile_memberid) && !is_distributor($user) &
 <?php if ($GLOBALS['user']->uid==1 || user_access('ncn capsule_crm management')) { ?>
     <fieldset class="edit_user_group">
         <?php
-        $cc_map_info = ncn_capsulecrm_get_map_info($user->profile_memberid);
-        $organization_id = 0; $person_id = 0;
-        if ($cc_map_info) {
-            $organization_id = $cc_map_info['organization_id'];
-            $person_id       = $cc_map_info['person_id'];
-            $_url_cc_org = ncn_capsulecrm_get_url()."party/".$organization_id;
+        if (isset($user->profile_memberid)) {
+            $cc_map_info = ncn_capsulecrm_get_map_info($user->profile_memberid);
+            $organization_id = 0; $person_id = 0;
+            if ($cc_map_info) {
+                $organization_id = $cc_map_info['organization_id'];
+                $person_id       = $cc_map_info['person_id'];
+                $_url_cc_org = ncn_capsulecrm_get_url()."party/".$organization_id;
+            }
         }
-
         ?>
-        <?php if ( is_member($user->profile_memberid) && ($GLOBALS['user']->uid==1 || user_access('ncn capsule_crm management')) ) { ?>
+        <?php if ( (isset($user->profile_memberid)&&is_member($user->profile_memberid)) && ($GLOBALS['user']->uid==1 || user_access('ncn capsule_crm management')) ) { ?>
             <h2 class="sub-title">CapsuleCRM</h2>
             <form method="POST" id="update_org_party_id">
                 <input type="hidden" name="tfunction" value="update_org_party_id">
@@ -660,7 +661,7 @@ if ($in_admin && !is_member($user->profile_memberid) && !is_distributor($user) &
     </fieldset>
 <?php } ?>
 <?php
-if ( ($GLOBALS['user']->uid==1 || user_access('ncn_admin edit member type')) && is_member($user->profile_memberid)) {
+if ( ($GLOBALS['user']->uid==1 || user_access('ncn_admin edit member type')) && (isset($user->profile_memberid)&&is_member($user->profile_memberid))) {
     $member_type = get_member_type($user);
     ?>
     <fieldset class="edit_user_group">
@@ -762,7 +763,7 @@ if ( ($GLOBALS['user']->uid==1 || user_access('ncn_admin edit member type')) && 
     </fieldset>
 <?php } ?>
 <?php
-if ($in_admin && is_member($user->profile_memberid)) {
+if ($in_admin && isset($user->profile_memberid) && is_member($user->profile_memberid)) {
     $owner_id = get_owner($user->profile_memberid);
     if ($owner_id != 0) {
         ?>
@@ -799,7 +800,7 @@ if ($in_admin && is_member($user->profile_memberid)) {
     }
 }
 
-if ($in_admin && is_member($user->profile_memberid)) {
+if ($in_admin && isset($user->profile_memberid) && is_member($user->profile_memberid)) {
     $am_uid = 0;
 //        $query = "SELECT * FROM member_id_pool WHERE member_id=".$user->profile_memberid;
     $result = db_query('SELECT * FROM member_id_pool WHERE member_id=:a',array(':a'=>$user->profile_memberid));
@@ -858,7 +859,7 @@ if ((is_distributor($user) == true) && stristr($_SERVER['REQUEST_URI'], 'admin')
     </fieldset>
 <?php
 }
-if ($in_admin && (is_distributor($user) || is_member($user->profile_memberid)))
+if ($in_admin && (is_distributor($user) || (isset($user->profile_memberid)&&is_member($user->profile_memberid))))
 {
     // show credit card form
     ?>
@@ -890,7 +891,7 @@ if ($in_admin && (is_distributor($user) || is_member($user->profile_memberid)))
     <?php
 
     // show edit practicepay profile id#'s form for these users (but only in admin)
-    if (stristr($_SERVER['REQUEST_URI'], 'admin') && (is_distributor($user) || is_member($user->profile_memberid)))
+    if (stristr($_SERVER['REQUEST_URI'], 'admin') && (is_distributor($user) || (isset($user->profile_memberid)&&is_member($user->profile_memberid))))
     {
         // get the current data
         $cim_profile = get_cim_profile_data($user);	// see function below

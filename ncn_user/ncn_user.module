@@ -56,7 +56,7 @@ function ncn_user_insert_user_block_track($uid, $t_blocked, $t_returned=0, $t_un
 
 function ncn_user_update_user_unblock_track($uid, $t_unblocked) {
   $_user = user_load($uid);
-  if (is_member($_user->profile_memberid)) {
+  if (isset($_user->profile_memberid) && is_member($_user->profile_memberid)) {
     ncn_user_change_member_renewal_day($_user->profile_memberid, date('d'), TRUE);
   }
   

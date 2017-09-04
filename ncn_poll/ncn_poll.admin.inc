@@ -398,7 +398,7 @@ function ncn_poll_admin_render_poll_result($poll_id) {
 			nl2br($pt['comment']), 
 		);
 	}
-	$output = theme('table', array('header'=>$header,'rows'=>$rows,'id'=>'poll_result_table'));
+	$output = theme('table', array('header'=>$header,'rows'=>$rows,'attributes'=>array('id'=>'poll_result_table')));
 	
 	return $output;
 }

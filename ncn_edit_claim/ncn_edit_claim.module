@@ -18,13 +18,13 @@ function ncn_edit_claim_handler()
 GLOBAL $custom_theme;
 
 	$claim_id = arg(2);
-  $room_choose_type = arg(3);
-  $room_choose_value = arg(4);
-  if ($room_choose_type == 'tab') {
-    if (!$room_choose_value) { $room_choose_value = 1; }
-  } else {
-    if (!$room_choose_value) { $room_choose_value = 1; $room_choose_type = 'tab'; }
-  }
+	$room_choose_type = arg(3);
+	$room_choose_value = arg(4);
+	if ($room_choose_type == 'tab') {
+	if (!$room_choose_value) { $room_choose_value = 1; }
+	} else {
+	if (!$room_choose_value) { $room_choose_value = 1; $room_choose_type = 'tab'; }
+	}
   
 	$custom_theme = "ncn_account";
 	$GLOBALS['in_edit'] = true;
@@ -50,11 +50,11 @@ GLOBAL $custom_theme;
 	$_SESSION['claim'][$claim_id]['#data']['claim_id'] = $claim_id;
 	$_SESSION['claim'][$claim_id]['customer_name'] = unserialize($row['val']);
 
-  $_SESSION['claim_log'][$claim_id] = "";
+  	$_SESSION['claim_log'][$claim_id] = "";
 
 	// load data
 //	$query = "SELECT * FROM claims_data WHERE claim_id=".$claim_id." AND `key`='scope';";
-	$result = db_query('SELECT * FROM {claims_data} WHERE `claim_id`=:a AND `key`=:b',array(':a'=>$claim_id,':b'=>scope));
+	$result = db_query('SELECT * FROM {claims_data} WHERE `claim_id`=:a AND `key`=:b',array(':a'=>$claim_id,':b'=>'scope'));
 	$row_count = $result->rowCount();
 
 	if ($row_count > 0)	{
@@ -68,7 +68,7 @@ GLOBAL $custom_theme;
 		$_SESSION['claim'][$claim_id]['scope'][$room_name] = array();
 	}
 	
-		
+	drupal_set_title('Edit Album');
 	return theme('ncn_add_room',array("claim_id"=>$claim_id,"room_choose_type"=>$room_choose_type,"room_choose_value"=>$room_choose_value));				// ncn_crete_claim/ncn_add_room.tpl.php
 
 	

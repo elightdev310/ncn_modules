@@ -42,7 +42,7 @@ function ncn_capsulecrm_user($op, &$edit, &$account, $category = NULL) {
 	switch ($op) {
 	case 'after_update':
 		$_user = user_load($account->uid);
-		if ($_user->profile_memberid) {
+		if (isset($_user->profile_memberid) && $_user->profile_memberid) {
 			ncn_capsulecrm_set_user_detail_link($account->uid);
 		}
 		break;

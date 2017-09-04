@@ -496,7 +496,7 @@ function ncn_ce_portal_set_mode($mode) {
 }
 
 function ncn_ce_portal_get_sales_info($id) {
-	$result = db_query("SELECT * FROM {ncn_ce_sales_report} WHERE id=%d", $id);
+	$result = db_query("SELECT * FROM {ncn_ce_sales_report} WHERE id=:id", array(':id'=>$id));
     if($result)
     {
         foreach($result as $row)

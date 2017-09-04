@@ -365,10 +365,10 @@ function get_profilename_from_id($account)
 //
 //    // is account free?
     $free_extra = '';
-    if (is_member($temp_user->profile_memberid))
+    if (isset($temp_user->profile_memberid) && is_member($temp_user->profile_memberid))
     {
         $result = db_query('SELECT customerProfileId FROM {member_cim} WHERE member_id=:s',array(':s'=>$temp_user->profile_memberid));
-        if (intval($result) == 0) {
+        if (intval($result->fetchField()) == 0) {
             $free_extra = '(FREE)';
         }
     }
@@ -772,9 +772,9 @@ function user_admins_account() {
         $users_list = $account->uid;
         $member_type = get_member_type_name($users_list);
 		$_user = user_load($users_list);
-        if (ncn_admin_is_gold_member_demo($_user->profile_memberid)) {
+        if (isset($_user->profile_memberid)&&ncn_admin_is_gold_member_demo($_user->profile_memberid)) {
             $member_type .= " (Demo)";
-        } else if (ncn_admin_is_member_first_free($_user->profile_memberid)) {
+        } else if (isset($_user->profile_memberid)&&ncn_admin_is_member_first_free($_user->profile_memberid)) {
             $member_type .= " (First Free)";
         }
 		
@@ -788,7 +788,7 @@ function user_admins_account() {
         $options[$account->uid] = array(
           //  array('data' => array('#type' => 'link', '#title' => t($account->name), '#href' => "admin/config/ncn_create_user/all_user_list/detail/$account->uid")),
             'username' => $name,
-            'status' => ($_user->profile_fblocked == 'first'? 'training' : $status[$account->status]),
+            'status' => ((isset($_user->profile_fblocked)&&$_user->profile_fblocked=='first')? 'training' : $status[$account->status]),
             'member_type' => $member_type,
             'roles' => theme('item_list', array('items' => $users_roles)),
             'associate' => get_distributor_associate_name($users_list),
@@ -821,7 +821,7 @@ function user_operations_unblock_callback($user_ary){
         foreach($user_ary as $usr){
             $_user1 = user_load($usr);
             if($_user1->status==0){
-                if (is_member($_user1->profile_memberid)) {
+                if (isset($_user1->profile_memberid)&&is_member($_user1->profile_memberid)) {
                     $_fblocked = '';
                     if ( isset($_user1->profile_fblocked) ) {
                         $_fblocked = $_user1->profile_fblocked;
@@ -1039,12 +1039,16 @@ function all_user_list(){
 ////        '#empty' => t('No people available.'),
 ////    );
 ////    $form['pager'] = array('#markup' => theme('pager'));
+    $output = '';
 	if (!empty($_POST['accounts']) && isset($_POST['operation']) && ($_POST['operation'] == 'cancel')) {
-        $output .= render(drupal_get_form(user_multiple_cancel_confirm));
+        $cancel_form = drupal_get_form('user_multiple_cancel_confirm');
+        $output .= render($cancel_form);
     } else {
-	    $output .= render(drupal_get_form(user_filters_form));
-    	$output .= render(drupal_get_form(user_admins_account));
-	}	
+        $filter_form = drupal_get_form('user_filters_form');
+        $admin_account_form = drupal_get_form('user_admins_account');
+	    $output .= render($filter_form);
+    	$output .= render($admin_account_form);
+	}
 //    $output .= render(drupal_get_form(filter_form));
 //    $output .= render($form);
 //    $output .= theme('table', array('header'=>$header,'rows'=>$options));
@@ -1217,7 +1221,7 @@ function all_user_listOLD()
        //var_dump($_user);
         $member_since = 0;
 
-        if (is_member($_user->profile_memberid) ) {
+        if (isset($_user->profile_memberid)&&is_member($_user->profile_memberid) ) {
             $member = get_member_from_id($_user->profile_memberid);
             if (!empty($member)) {
                 $member_since = $member['create'];
@@ -1426,21 +1430,22 @@ function unactivated_member_list_edit($id)
     $result['owner'] = (isset($_POST['owner']) && trim($_POST['owner'])!='' ? trim($_POST['owner']) : '');
     $result['member_type'] = (isset($_POST['member_type']) && trim($_POST['member_type'])!='' ? trim($_POST['member_type']) : '');
 
-    $assign_whose = $_POST['dist_asso'];
+    $assign_whose = $result['dist_asso'];
 
+    $distributor_name = '';
     if ( $assign_whose == 'distributor' ) {
         $dist = user_load($_POST['distributor']);
-    } else {
+    } elseif ($assign_whose == 'associate' ) {
         $dist = user_load($_POST['associate']);	// * add this code for associate role *
     }
-    $distributor_name = $dist->profile_firstname.' '.$dist->profile_lastname;
+    if (!empty($dist)) {
+        $distributor_name = $dist->profile_firstname.' '.$dist->profile_lastname;
+    }
 
     $member = get_member_from_id($a);
-  //  var_dump($member['owner']);
+    // ncn_printr($member);
     if ($result['tfunction'] == 'una_member_edit') {
-
-
-        $result = db_update('member_id_pool')
+        $result_update = db_update('member_id_pool')
             ->fields(array(
                 'status' => $result['status'],
                 'member_id' => $result['member_id'],
@@ -1456,26 +1461,21 @@ function unactivated_member_list_edit($id)
                 'mobilephone' => $result['mobilephone'],
                 'contactemail' => $result['contactemail'],
                 'sales_rep' => $result['sales_rep'],
-                'distributor' => $result['dist_asso'],
-                'owner' => $dist->uid,
-                'member_type' => $result['member_type'],
-
-            ))
-            ->condition('member_id', $a,'=')
+                //'distributor' => $distributor_name,
+                'owner' => (!empty($dist))? $dist->uid : 0,
+                'member_type' => $result['member_type'] 
+                ))
+            ->condition('member_id', $a, '=')
             ->execute();
-      //  var_dump($result);
-       // exit;
 //        $query = "UPDATE {member_id_pool} SET status=%d, first_name='%s', last_name='%s', legalname='%s', country='%s', address='%s', city='%s', state='%s',
 //zip='%s', officephone='%s', mobilephone='%s', contactemail='%s', sales_rep='%s', distributor='%s', owner=%d, member_type=%d WHERE member_id='%s'";
 //        $result = db_query($query, $p_status, $p_first_name, $p_last_name, $p_legalname, $p_country, $p_address, $p_city, $p_state, $p_zip, $p_officephone, $p_mobilephone, $p_contactemail, $p_sales_rep, $distributor_name, $dist->uid, $p_member_type, $member_id);
 
-
-        if ($member['owner'] != $dist->uid) {
-            ncn_report_change_owner($a, $member['owner'], $dist->uid);
-        }
-
-        if ($result) {
+        if ($result_update) {
             drupal_set_message('Member information updated, successfully.');
+            if ($member['owner'] != $dist->uid) {
+                ncn_report_change_owner($a, $member['owner'], $dist->uid);
+            }
         } else {
             drupal_set_message('Failed to update member information.', 'error');
         }

@@ -707,7 +707,7 @@ function ncn_auto_payments_check_expiration() {
     {
         $u = (array)$u;
 		$_user = user_load($u['uid']);
-		if (!is_member($_user->profile_memberid)) { continue; }
+		if (!(isset($_user->profile_memberid)&&is_member($_user->profile_memberid))) { continue; }
 		if ($u['status'] == 0 && $_user->profile_fblocked != 'first') {
 			continue;	// blocked
 		}

@@ -1,4 +1,4 @@
-<?
+<?php
 GLOBAL $base_url;
 ?>
 
@@ -80,7 +80,7 @@ GLOBAL $base_url;
 
                         <?php
                         if ($n_members): ?>
-                            <a href='<? echo $base_url; ?>/admin/config/ncn_create_user/account_manager_list/view/<? echo $_user_am->uid; ?>'>View</a>
+                            <a href='<?php echo $base_url; ?>/admin/config/ncn_create_user/account_manager_list/view/<?php echo $_user_am->uid; ?>'>View</a>
 <!--                        <a href="--><?php
 //                        echo $base_url; ?><!--/admin/config/ncn_create_user/account_manager_list/view/--><?php
 //                        echo $_user_am->uid

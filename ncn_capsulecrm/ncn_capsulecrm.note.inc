@@ -11,7 +11,7 @@ global $user;
 
   $claim = get_claim_data($claim_id);
   if ($claim && $claim['user_id'] && $account=user_load($claim['user_id'])) {
-    $member_id = $account->profile_memberid;
+    $member_id = isset($account->profile_memberid)?$account->profile_memberid:0;
     if ($member_id && $cc_info=ncn_capsulecrm_get_map_info($member_id)) {
       if ($cc_info['organization_id']) {
         $data = array(

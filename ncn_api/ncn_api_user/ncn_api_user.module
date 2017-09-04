@@ -350,3 +350,12 @@ function ncn_api_user_get_userid_from_token($name, $pass) {
 	}
 	return FALSE;
 }
+
+function ncn_printr($obj, $exit=1) {
+    echo "<pre>";
+    print_r($obj);
+    echo "</pre>";
+    if ($exit) {
+        exit;
+    }
+}

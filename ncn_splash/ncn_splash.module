@@ -165,7 +165,7 @@ GLOBAL $base_url;
 		$rows[] = array(array('data' => t("There isn't splash image."), 'colspan' => 6));
 	}
 	
-	$output = theme('table',array('header'=>$header,'rows'=>$rows,'id' => 'admin-splash-items'));
+	$output = theme('table',array('header'=>$header,'rows'=>$rows,'attributes'=>array('id' => 'admin-splash-items')));
 	$output .= theme('pager');
   
 	return $output;
@@ -179,10 +179,10 @@ function ncn_splash_add_splash_image() {
 
 	ncn_splash_add_splash_image_action();
 	
-	$image_path = $_POST['splash_image'];
-	$image_url  = file_create_url($_POST['splash_image']);
-	$splash_from_time = strtotime($_POST['splash_from_time']);
-	$splash_to_time   = strtotime($_POST['splash_to_time']);
+	$image_path = isset($_POST['splash_image'])?$_POST['splash_image']:'';
+	$image_url  = isset($_POST['splash_image'])?file_create_url($_POST['splash_image']):'';
+	$splash_from_time = isset($_POST['splash_from_time'])?strtotime($_POST['splash_from_time']):0;
+	$splash_to_time   = isset($_POST['splash_to_time'])?strtotime($_POST['splash_to_time']):0;
 	if ($splash_from_time == 0) {
 		$splash_from_time = date('U');
 	}
@@ -203,10 +203,10 @@ function ncn_splash_add_splash_image() {
 			</td>
 		</tr>
 		<tr><td>Title: </td>
-			<td><input type="text" name="splash_title" id="splash_title" value="<?php echo $_POST['splash_title']; ?>" size="50"/></td>
+			<td><input type="text" name="splash_title" id="splash_title" value="<?php echo isset($_POST['splash_title'])?$_POST['splash_title']:''; ?>" size="50"/></td>
 		</tr>
 		<tr><td>Description: </td>
-			<td><textarea name="splash_description" id="splash_description" cols="47" rows="3"><?php echo $_POST['splash_description']; ?></textarea></td>
+			<td><textarea name="splash_description" id="splash_description" cols="47" rows="3"><?php echo isset($_POST['splash_description'])?$_POST['splash_description']:''; ?></textarea></td>
 		</tr>
 		<tr><td>Duration*: </td>
 			<td>
@@ -230,7 +230,7 @@ function ncn_splash_add_splash_image() {
 
 function ncn_splash_add_splash_image_action() {
 //add splash
-	if ($_POST['tfunction'] == 'add_splash_image') {
+	if (isset($_POST['tfunction']) && $_POST['tfunction'] == 'add_splash_image') {
 		$image_path		= $_POST['splash_image'];
 		$title	 		= $_POST['splash_title']; 
 		$description	= $_POST['splash_description'];
@@ -281,7 +281,7 @@ function ncn_splash_add_splash_image_action() {
 function ncn_splash_edit_splash_image($sid) {
 
 	$splash = ncn_splash_get_splash_from_sid($sid);
-	if ($_POST['tfunction-edit'] == 'edit_splash') {
+	if (isset($_POST['tfunction-edit']) && $_POST['tfunction-edit'] == 'edit_splash') {
 		$image_path 	= $_POST['splash_image'];
 		$image_url  	= file_create_url($image_path);
 		$title	 		= $_POST['splash_title']; 
@@ -495,7 +495,7 @@ function ncn_splash_prompt_default()
 {
 	GLOBAL $user;
 	$user = user_load($user->uid);
-	if (!is_member($user->profile_memberid)) {
+	if (!(isset($user->profile_memberid)&&is_member($user->profile_memberid))) {
 		return FALSE;
 	}
 	

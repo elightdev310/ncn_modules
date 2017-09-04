@@ -1,4 +1,4 @@
-<?
+<?php
     $a = $result;
 //    var_dump($a);
             GLOBAL $base_url;
@@ -50,32 +50,32 @@
             }
 
             $class = ($i % 2) ? 'even' : 'odd';
-            if ($data[$i]['member_type'] == 0)
+            if ($member['member_type'] == 0)
             {
                 $str_member_type = "Gold";
             }
             else
-                if ($data[$i]['member_type'] == 1)
+                if ($member['member_type'] == 1)
                 {
                     $str_member_type = "Silver";
                 }
                 else
-                    if ($data[$i]['member_type'] == 2)
+                    if ($member['member_type'] == 2)
                     {
                         $str_member_type = "Gold Lite";
                     }
                     else
-                        if ($data[$i]['member_type'] == 3)
+                        if ($member['member_type'] == 3)
                         {
                             $str_member_type = "Coach on Call";
                         }
                         else
-                            if ($data[$i]['member_type'] == 4)
+                            if ($member['member_type'] == 4)
                             {
                                 $str_member_type = "Gold Coach";
                             }
                             else
-                                if ($data[$i]['member_type'] == 5)
+                                if ($member['member_type'] == 5)
                                 {
                                     $str_member_type = "CSI";
                                 }

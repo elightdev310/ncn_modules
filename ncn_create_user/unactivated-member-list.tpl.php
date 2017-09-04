@@ -160,7 +160,7 @@
     $output.= theme('table', array(
         "header" => $header,
         "rows" => $rows,
-        'id' => 'una_member_list'
+        'attributes'=>array('id' => 'una_member_list')
     ));
     $output.= theme('pager');
     echo $output;

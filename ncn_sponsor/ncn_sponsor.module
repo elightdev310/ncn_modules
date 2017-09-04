@@ -585,7 +585,7 @@ function ncn_sponsor_report_page() {
 		$rows[] = array(array('data' => t("There isn't sponsors."), 'colspan' => 6));
 	}
 	$output = '';
-	$output = theme('table',array('header'=>$header,'rows'=>$rows,'id' => 'ncn_sponsor_report_page'));
+	$output = theme('table',array('header'=>$header,'rows'=>$rows,'attributes'=>array('id' => 'ncn_sponsor_report_page')));
 	$output .= theme('pager');
 	return $output;
 }

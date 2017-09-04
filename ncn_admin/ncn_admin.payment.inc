@@ -164,6 +164,7 @@ GLOBAL $base_url;
     echo $table_head;
     
     //for($i=0; $i<$row_count; $i++) 
+  $i=0; 
 	foreach($result as $row)
 	{
       $row = (array)$row; 
@@ -192,6 +193,7 @@ GLOBAL $base_url;
         
       </tr>
       <?php
+      $i++;
     }
     
     echo $table_foot;
@@ -377,7 +379,7 @@ function ncn_admin_payment_get_downloadable_transactions($mode) {
     
     $member_since = '';
     
-    if ( is_member($_user->profile_memberid) ) {
+    if ( isset($_user->profile_memberid) && is_member($_user->profile_memberid) ) {
       $member = get_member_from_id($_user->profile_memberid);
       if (!empty($member)) {
         $member_since = $member['create'];

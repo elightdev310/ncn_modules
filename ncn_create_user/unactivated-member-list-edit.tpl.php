@@ -100,8 +100,8 @@ drupal_add_js(drupal_get_path('module', 'ncn_admin') . '/ncn_admin.js');
                     <td class="td-label">Type</td>
                     <td>
                         <select id="dist_asso" name="dist_asso">
-                            <option value="distributor" <?php if($_owner->roles['5']=='distributor') { echo "selected"; }?>>Distributor</option>
-                            <option value="associate" <?php if($_owner->roles['7']=='associate') { echo "selected"; }?>>Associate</option>
+                            <option value="distributor" <?php if(isset($_owner->roles['5']) && $_owner->roles['5']=='distributor') { echo "selected"; }?>>Distributor</option>
+                            <option value="associate" <?php if(isset($_owner->roles['7']) && $_owner->roles['7']=='associate') { echo "selected"; }?>>Associate</option>
                         </select>
                     </td>
                 </tr>

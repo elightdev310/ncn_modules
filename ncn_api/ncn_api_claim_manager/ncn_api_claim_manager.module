@@ -435,7 +435,7 @@ function ncn_api_claim_manager_check_claim_access($claim_id, $user_id) {
 			if ($parent_uid == $claim['user_id']) {
 				return TRUE;
 			}
-		} else if (!is_member($_user->profile_memberid)) {
+		} else if (!(isset($_user->profile_memberid) && is_member($_user->profile_memberid))) {
 			return TRUE;
 		}
 	}

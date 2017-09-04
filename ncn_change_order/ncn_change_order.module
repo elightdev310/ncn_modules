@@ -402,9 +402,9 @@ function ncn_change_order_check_renewal_all() {
 }
 
 function ncn_change_order_render_request_list_table_admin($claim_id) {
-	if ($_POST['tfunction'] == 'ncn_cor_review') {
+	if (isset($_POST['tfunction']) && $_POST['tfunction'] == 'ncn_cor_review') {
 		ncn_change_ordr_render_request_list_review($claim_id);
-	} else if ($_POST['tfunction'] == 'ncn_cor_charge') {
+	} else if ($_POST['tfunction'] && $_POST['tfunction'] == 'ncn_cor_charge') {
 		ncn_change_ordr_render_request_list_charge($claim_id);
 	}
 	

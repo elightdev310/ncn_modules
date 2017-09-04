@@ -9,132 +9,127 @@
 
 function user_register()
 {
-	global $user, $base_url;
+    global $user, $base_url;
 
-	if (!isset($_GET['id'])) //HERE
-	{
-		Header("Location:".$base_url."/activate.html");
-		exit;
-	}
-	else
-	{
-		$saved_member_id = base64_decode($_GET['id']);
-	}
+    if (!isset($_GET['id'])) //HERE
+    {
+        Header("Location:".$base_url."/activate.html");
+        exit;
+    }
+    else
+    {
+        $saved_member_id = base64_decode($_GET['id']);
+    }
 
-	$admin = user_access('administer users');
+    $admin = user_access('administer users');
 
-	// If we aren't admin but already logged on, go to the user page instead.
+    // If we aren't admin but already logged on, go to the user page instead.
+    if (!$admin && $user->uid)
+    {
+        drupal_goto('user/' . $user->uid);
+    }
 
-	if (!$admin && $user->uid)
-	{
-		drupal_goto('user/' . $user->uid);
-	}
+    $form = array();
+    /*$form['service_question'] = array(
+                                        '#type'=>'radios',
+                                        '#title' => t('What kind of restoration services do you provide'),
+                                        '#options' => array(
+                                            'Water Restoration' => 'Water Restoration',
+                                            'Fire Restoration' => 'Fire Restoration',
+                                            'Reconstruction' => 'Reconstruction',
+                                            'Mold Remediation' => 'Mold Remediation'
+                                        ),
+                                        '#default_value' => '',
+                                        '#required'=>TRUE,
+                                        '#weight' => -40,
+                                        );*/
 
-	$form = array();
-	/*$form['service_question'] = array(
-										'#type'=>'radios',
-										'#title' => t('What kind of restoration services do you provide'),
-										'#options' => array(
-											'Water Restoration' => 'Water Restoration',
-											'Fire Restoration' => 'Fire Restoration',
-											'Reconstruction' => 'Reconstruction',
-											'Mold Remediation' => 'Mold Remediation'
-										),
-										'#default_value' => '',
-										'#required'=>TRUE,
-										'#weight' => -40,
-										);*/
+    // Display the registration form.
 
-	// Display the registration form.
+    if (!$admin)
+    {
+        $form['user_registration_help'] = array(
+            '#value' => filter_xss_admin(variable_get('user_registration_help', '')) ,
 
-	if (!$admin)
-	{
-		$form['user_registration_help'] = array(
-			'#value' => filter_xss_admin(variable_get('user_registration_help', '')) ,
+            // Ensure that user registration help appears above profile fields.
 
-			// Ensure that user registration help appears above profile fields.
+            '#weight' => - 20,
+        );
+    }
 
-			'#weight' => - 20,
-		);
-	}
+    // Merge in the default user edit fields.
+    $form = array_merge($form, user_edit_form($form_state, NULL, NULL, TRUE));
+    if ($admin)
+    {
+        $form['account']['notify'] = array(
+            '#type' => 'checkbox',
+            '#title' => t('Notify user of new account')
+        );
 
-	// Merge in the default user edit fields.
+        // Redirect back to page which initiated the create request;
+        // usually admin/user/user/create.
 
-	$form = array_merge($form, user_edit_form($form_state, NULL, NULL, TRUE));
-	if ($admin)
-	{
-		$form['account']['notify'] = array(
-			'#type' => 'checkbox',
-			'#title' => t('Notify user of new account')
-		);
+        $form['destination'] = array(
+            '#type' => 'hidden',
+            '#value' => $_GET['q']
+        );
+    }
 
-		// Redirect back to page which initiated the create request;
-		// usually admin/user/user/create.
+    /******* for confirm ****/
+    $form['confirm_page'] = array(
+        '#type' => 'hidden',
+        '#value' => 0,
+        '#attributes' => array('id'=>'edit-user-confirm-page'),
+    );
+    /******/
 
-		$form['destination'] = array(
-			'#type' => 'hidden',
-			'#value' => $_GET['q']
-		);
-	}
+    // Create a dummy variable for pass-by-reference parameters. (Profile Fields)
+    $null = NULL;
+    $extra = _user_forms($null, NULL, NULL, 'register');
 
-	/******* for confirm ****/
-	$form['confirm_page'] = array(
-		'#type' => 'hidden',
-		'#value' => 0,
-		'#attributes' => array('id'=>'edit-user-confirm-page'),
-	);
-	/******/
+    // insert the default email address
+    $form['account']['mail']['#default_value'] = $extra['Company Information']['profile_contactemail']['#default_value'];
+    // Remove form_group around default fields if there are no other groups.
 
-	// Create a dummy variable for pass-by-reference parameters.
+    if (!$extra)
+    {
+        foreach(array(
+            'name',
+            'mail',
+            'pass',
+            'status',
+            'roles',
+            'notify'
+        ) as $key)
+        {
+            if (isset($form['account'][$key]))
+            {
+                $form[$key] = $form['account'][$key];
+            }
+        }
 
-	$null = NULL;
-	$extra = _user_forms($null, NULL, NULL, 'register');
+        unset($form['account']);
+    }
+    else
+    {
+        $form = array_merge($form, $extra);
+    }
 
-	// insert the default email address
+    if (variable_get('configurable_timezones', 1))
+    {
 
-	$form['account']['mail']['#default_value'] = $extra['Company Information']['profile_contactemail']['#default_value'];
+        // Override field ID, so we only change timezone on user registration,
+        // and never touch it on user edit pages.
 
-	// Remove form_group around default fields if there are no other groups.
+        $form['timezone'] = array(
+            '#type' => 'hidden',
+            '#default_value' => variable_get('date_default_timezone', NULL) ,
+            '#id' => 'edit-user-register-timezone',
+        );
 
-	if (!$extra)
-	{
-		foreach(array(
-			'name',
-			'mail',
-			'pass',
-			'status',
-			'roles',
-			'notify'
-		) as $key)
-		{
-			if (isset($form['account'][$key]))
-			{
-				$form[$key] = $form['account'][$key];
-			}
-		}
+        // Add the JavaScript callback to automatically set the timezone.
 
-		unset($form['account']);
-	}
-	else
-	{
-		$form = array_merge($form, $extra);
-	}
-
-	if (variable_get('configurable_timezones', 1))
-	{
-
-		// Override field ID, so we only change timezone on user registration,
-		// and never touch it on user edit pages.
-
-		$form['timezone'] = array(
-			'#type' => 'hidden',
-			'#default_value' => variable_get('date_default_timezone', NULL) ,
-			'#id' => 'edit-user-register-timezone',
-		);
-
-		// Add the JavaScript callback to automatically set the timezone.
-
-		drupal_add_js('
+        drupal_add_js('
                 // Global Killswitch
                 if (Drupal.jsEnabled) {
                     jQuery(document).ready(function() {
@@ -142,20 +137,20 @@ function user_register()
                     });
                 }',
         'inline');
-	}
+    }
 
-	$form['submit'] = array(
-		'#type' => 'submit',
-		'#value' => t('Create new account') ,
-		'#weight' => 30
-	);
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => t('Create new account') ,
+        '#weight' => 30
+    );
 
-	// $form['#validate'][] = 'user_register_anwser_question';
+    // $form['#validate'][] = 'user_register_anwser_question';
 
-	$form['#validate'][] = 'user_register_validate';
-	$form['#validate'][] = 'user_register_confirm';
+    $form['#validate'][] = 'user_register_validate';
+    $form['#validate'][] = 'user_register_confirm';
     $form['#attributes']['id'] = 'user-register';
-	//$form['#submit'][] = 'user_register_form_submit';
+    //$form['#submit'][] = 'user_register_form_submit';
 
     return $form;
 }
@@ -163,18 +158,16 @@ function user_register()
 /*
 * User Registration Form Submit
 */
-function user_register_form_submit ($form, &$form_state)
+function user_register_form_submit($form, &$form_state)
 {
     global $base_url;
-
-
 
     $date = explode("/", $_POST['profile_credit_card_expiration']);
 
     if (sizeof($date) == 2)
-    {		$date = "20".$date[1]."-".$date[0];	  }
+    {       $date = "20".$date[1]."-".$date[0];   }
     else
-    {		$date = '';		}
+    {       $date = '';     }
 
     // check for free / admin already added profile
     // ** This needs to be removed **
@@ -190,7 +183,7 @@ function user_register_form_submit ($form, &$form_state)
               "<description>".$_POST['profile_firstname']." ".$_POST['profile_lastname']."</description>".
               "<email>" . $_POST["mail"] . "</email>".
               "</profile>".
-              "</createCustomerProfileRequest>";	// <?php
+              "</createCustomerProfileRequest>";    // <?php
 
           $response = send_xml_request($content);
           $parsedresponse = parse_api_response($response);
@@ -208,7 +201,7 @@ function user_register_form_submit ($form, &$form_state)
           "<billTo>".
            "<firstName>".$_POST['profile_firstname']."</firstName>".
            "<lastName>".$_POST['profile_lastname']."</lastName>".
-  //		 "<country>".$_POST['profile_country']."</country>".
+  //         "<country>".$_POST['profile_country']."</country>".
            "<address>".$_POST['profile_address']."</address>".
            "<city>".$_POST['profile_city']."</city>".
            "<state>".$_POST['profile_state']."</state>".
@@ -224,7 +217,7 @@ function user_register_form_submit ($form, &$form_state)
           "</payment>".
           "</paymentProfile>".
           "<validationMode>liveMode</validationMode>". // or liveMode
-          "</createCustomerPaymentProfileRequest>";	// <?php
+          "</createCustomerPaymentProfileRequest>"; // <?php
 
           $response = send_xml_request($content);
           $parsedresponse = parse_api_response($response);
@@ -249,7 +242,7 @@ function user_register_form_submit ($form, &$form_state)
 
         $query = "INSERT INTO member_cim VALUES(NULL, \"".AddSlashes($form['account']['name']['#value'])."\", \"".AddSlashes($customerProfileId)."\", \"".AddSlashes($customerPaymentProfileId)."\");";
         $result = db_query($query);
-    }		// END not a test credit card number
+    }       // END not a test credit card number
     */
 
     $admin = user_access('administer users');
@@ -353,170 +346,161 @@ function user_register_form_submit ($form, &$form_state)
             //drupal_set_message(t('Thank you for applying for an account. Your account is currently pending approval by the site administrator.<br />In the meantime, a welcome message with further instructions has been sent to your e-mail address.'));
             $form_state['redirect'] = 'user/review';
             return;
-
         }
     }
 }
 
 
 /*
-* Apply page
-*/
-
+ * Apply page 
+ * URL: apply.html
+ */
 function user_apply()
 {
-	ob_start();
-
-?>
-	<style>
-    .form-item-profile-taxnumber{display:<?php echo ($_POST['profile_taxstatus']=='1' ? 'block':'none'); ?>;}
-	.form-item-profile-fblocked,.form-item-profile-taxstatus .form-required{display:none;}
+    ob_start(); ?>
+    
+    <style>
+    .form-item-profile-taxnumber{display:<?php echo (isset($_POST['profile_taxstatus']) && $_POST['profile_taxstatus']=='1' ? 'block':'none'); ?>;}
+    .form-item-profile-fblocked,.form-item-profile-taxstatus .form-required{display:none;}
     .form-textarea{width:auto !important;}
     .grippie{width:529px;}
-	</style>
+    </style>
 
     <script type="text/javascript">
         jQuery(document).ready(function(){
             jQuery("#edit-profile-taxstatus").click(function(){jQuery('.form-item-profile-taxnumber').slideToggle('slow');});
         });
     </script>
-	<?php
-	$content = ob_get_contents();
-	ob_end_clean();
-	$form = drupal_render(drupal_get_form('user_register'));
-	//$form = str_replace('name="profile_taxstatus"', 'onchange="change_tax_status(this.checked);" name="profile_taxstatus"', $form);
-	$content.= $form;
-	$form_errors = form_get_errors();
-	if ($form_errors)
-	{
-		if (isset($form_errors['next-confirm']))
-		{
+    <?php
+    $content = ob_get_contents();
+    ob_end_clean();
+    $u_form = drupal_get_form('user_register');
+    $form = drupal_render($u_form);
+    //$form = str_replace('name="profile_taxstatus"', 'onchange="change_tax_status(this.checked);" name="profile_taxstatus"', $form);
+    $content.= $form;
+    $form_errors = form_get_errors();
+    if ($form_errors)
+    {
+        if (isset($form_errors['next-confirm']))
+        {
+            $content = "<div id=\"user_register_form\" style=\"display: none;\">$content</div>";
+            /*$javascript =
+            "\r\t<script type='text/javascript'>
+            jQuery().ready(function() {
+            jQuery('#edit-user-confirm-page').val('1');
+            });
+            </script>";*/
 
-			// watchdog('trace-1', 'Here is Confirm Page'.$form_erros['next-confirm'], array());
+            // $content .=$javascript;
 
-			$content = "<div id=\"user_register_form\" style=\"display: none;\">$content</div>";
-			/*$javascript =
-			"\r\t<script type='text/javascript'>
-			jQuery().ready(function() {
-			jQuery('#edit-user-confirm-page').val('1');
-			});
-			</script>";*/
-
-			// $content .=$javascript;
-
-			$confirm_page = get_user_confirm_page();
-			$content.= $confirm_page;
-		}
-	}
-	return $content;
+            $confirm_page = get_user_confirm_page();
+            $content.= $confirm_page;
+        }
+    }
+    return $content;
 }
 
 function get_user_confirm_page()
 {
-	ob_start();
+    ob_start();
 ?>
-	<div id="create_user_confirm">
-		<form method="POST" id="user_confirm_form">
-		<div class="title-confirm">Terms and Conditions</div>
-		<div class="term-conditions"><tt><p align="justify"><?php echo variable_get('ncn_user_terms_text', ''); ?></p></tt></div>
-		<div class="title-confirm" style>Non-Disclosure</div>
-		<div class="term-conditions"><tt><p align="justify"><?php echo variable_get('ncn_user_nda_text', ''); ?></p></tt></div>
+    <div id="create_user_confirm">
+        <form method="POST" id="user_confirm_form">
+        <div class="title-confirm">Terms and Conditions</div>
+        <div class="term-conditions"><tt><p align="justify"><?php echo variable_get('ncn_user_terms_text', ''); ?></p></tt></div>
+        <div class="title-confirm" style>Non-Disclosure</div>
+        <div class="term-conditions"><tt><p align="justify"><?php echo variable_get('ncn_user_nda_text', ''); ?></p></tt></div>
 
-		<div class="confirm-agree-div">
-			<input type="checkbox" name="chk_nda" id="chk_nda" onclick="on_click_chk_nda()"/>
-			<label for="chk_nda">I accept the terms and non-disclosure agreement</label>&nbsp;&nbsp;
-			<input type="button" id="create_user_btn" class="create-user-agree-btn" onclick="create_user_agree()" value="OK" style="width: 70px; height: 25px;" disabled>
-			<!-- <span>&nbsp; or &nbsp;<a href="<?php echo $GLOBALS['base_url']; ?>/account">cancel</a></span> -->
-		</div>
-		</form>
-	</div>
-	<script>
-	function on_click_chk_nda() {
-		if (jQuery('#chk_nda').is(':checked')) {
-			jQuery('#create_user_btn').removeAttr('disabled');
-		} else {
-			jQuery('#create_user_btn').attr("disabled", "disabled");
-		}
-	}
+        <div class="confirm-agree-div">
+            <input type="checkbox" name="chk_nda" id="chk_nda" onclick="on_click_chk_nda()"/>
+            <label for="chk_nda">I accept the terms and non-disclosure agreement</label>&nbsp;&nbsp;
+            <input type="button" id="create_user_btn" class="create-user-agree-btn" onclick="create_user_agree()" value="OK" style="width: 70px; height: 25px;" disabled>
+            <!-- <span>&nbsp; or &nbsp;<a href="<?php echo $GLOBALS['base_url']; ?>/account">cancel</a></span> -->
+        </div>
+        </form>
+    </div>
+    <script>
+    function on_click_chk_nda() {
+        if (jQuery('#chk_nda').is(':checked')) {
+            jQuery('#create_user_btn').removeAttr('disabled');
+        } else {
+            jQuery('#create_user_btn').attr("disabled", "disabled");
+        }
+    }
 
-	function create_user_agree() {
-		if (jQuery('#chk_nda').is(':checked')) {
-			jQuery('#edit-user-confirm-page').val('1');
-			jQuery('#user_register_form #user-register').submit();
-		}
-	}
-	</script>
+    function create_user_agree() {
+        if (jQuery('#chk_nda').is(':checked')) {
+            jQuery('#edit-user-confirm-page').val('1');
+            jQuery('#user_register_form #user-register').submit();
+        }
+    }
+    </script>
 <?php
-	$confirm_page = ob_get_contents();
-	ob_end_clean();
-	return $confirm_page;
+    $confirm_page = ob_get_contents();
+    ob_end_clean();
+    return $confirm_page;
 }
 
 /*
-* activate page
-*/
-
+ * activate page
+ * URL: activate.html
+ */
 function user_activate_page()
 {
-	$output = drupal_render(drupal_get_form('user_activate'));
-	$output.= '<br /><strong>Office</strong> 877.654.8668<br /><strong>Fax</strong> 877.654.8667';
-	return $output;
+    $output = drupal_render(drupal_get_form('user_activate'));
+    $output.= '<br /><strong>Office</strong> 877.654.8668<br /><strong>Fax</strong> 877.654.8667';
+    return $output;
 }
-
 function user_activate()
 {
-	global $user;
-	$admin = user_access('administer users');
+    global $user;
+    $admin = user_access('administer users');
 
-	// If we aren't admin but already logged on, go to the user page instead.
+    // If we aren't admin but already logged on, go to the user page instead.
+    if (!$admin && $user->uid)
+    {
+        drupal_goto('user/' . $user->uid);
+    }
 
-	if (!$admin && $user->uid)
-	{
-		drupal_goto('user/' . $user->uid);
-	}
-
-	$form = array();
-
-	// Account information:
-
-	$form['account'] = array(
-		'#type' => 'fieldset',
-		'#title' => t('Activate Your Membership') ,
-		'#weight' => - 10,
-	);
-	$form['account']['member_id'] = array(
-		'#type' => 'textfield',
-		'#default_value' => '',
-		'#id' => 'edit-user-register-timezone',
-		'#title' => t('Member ID') ,
-	);
-	$form['submit'] = array(
-		'#type' => 'submit',
-		'#value' => t('Next Step') ,
-		'#weight' => 30
-	);
-	$form['#validate'][] = 'user_activate_validate';
-	return $form;
+    $form = array();
+    // Account information:
+    $form['account'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Activate Your Membership') ,
+        '#weight' => - 10,
+    );
+    $form['account']['member_id'] = array(
+        '#type' => 'textfield',
+        '#default_value' => '',
+        '#id' => 'edit-user-register-timezone',
+        '#title' => t('Member ID') ,
+    );
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => t('Next Step') ,
+        '#weight' => 30
+    );
+    $form['#validate'][] = 'user_activate_validate';
+    return $form;
 }
-
 function user_activate_validate($form, &$form_state)
 {
-	$member_id = trim($_POST['member_id']);
-	$result = db_query('SELECT * FROM member_id_pool WHERE member_id=:mid AND `used`=0', array(
-		':mid' => $member_id
-	));
-	$row_count = $result->rowCount();
-	if ($row_count == 0)
-	{
-		form_set_error('category', t('That is not a valid membership id.'));
-	}
+    // $member_id = trim($_POST['member_id']);
+    $member_id = trim($form_state['values']['member_id']);
+    $result = db_query('SELECT * FROM member_id_pool WHERE member_id=:mid AND `used`=0', 
+                        array(':mid' => $member_id) );
+    $row_count = $result->rowCount();
+    if ($row_count == 0)
+    {
+        form_set_error('category', t('That is not a valid membership id.'));
+    }
 }
-
 function user_activate_submit($form, &$form_state)
 {
-	$member_id = trim($_POST['member_id']);
-	Header("Location:apply.html?id=" . base64_encode($member_id));
-	exit;
+    // $member_id = trim($_POST['member_id']);
+    $member_id = trim($form_state['values']['member_id']);
+    Header("Location:apply.html?id=" . base64_encode($member_id));
+    exit;
 }
 
 function user_regiseter_question_submit($form, &$form_state)
@@ -525,213 +509,209 @@ function user_regiseter_question_submit($form, &$form_state)
 
 function user_register_anwser_question($form, &$form_state)
 {
-	if (!$form_state[values]['service_question'])
-	{
-		form_set_error('service_question', t('Please choose answer.'));
-	}
+    if (!$form_state[values]['service_question'])
+    {
+        form_set_error('service_question', t('Please choose answer.'));
+    }
 }
 
 function user_register_confirm($form, &$form_state)
 {
-	if (!form_get_errors())
-	{
-		if ($_REQUEST['confirm_page'] != 1)
-		{
-			form_set_error('next-confirm', 'terms and condition page');
-		}
+    if (!form_get_errors())
+    {
+        if ($_REQUEST['confirm_page'] != 1)
+        {
+            form_set_error('next-confirm', 'terms and condition page');
+        }
 
-		/*ob_start();
+        /*ob_start();
 
-		// $form_state['values']['confirm_page'] = '1';
+        // $form_state['values']['confirm_page'] = '1';
 
-		print_r($form_state['values']);
-		$msg = ob_get_contents();
-		ob_end_clean();
-		watchdog('trace', $msg, array());*/
-	}
+        print_r($form_state['values']);
+        $msg = ob_get_contents();
+        ob_end_clean();
+        watchdog('trace', $msg, array());*/
+    }
 }
 
 function user_edit_form(&$form_state, $uid, $edit, $register = FALSE)
 {
-	//_user_password_dynamic_validation();
-	$admin = user_access('administer users');
+    //_user_password_dynamic_validation();
+    $admin = user_access('administer users');
 
-	// Account information:
+    // Account information:
+    $form['account'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Account information') ,
+        '#weight' => - 10,
+    );
 
-	$form['account'] = array(
-		'#type' => 'fieldset',
-		'#title' => t('Account information') ,
-		'#weight' => - 10,
-	);
+    // Only show name field when: registration page; or user is editing own account and can change username; or an admin user.
 
-	// Only show name field when: registration page; or user is editing own account and can change username; or an admin user.
-
-	if ($register || ($GLOBALS['user']->uid == $uid && user_access('change own username')) || $admin)
-	{
-		$form['account']['name'] = array(
-			'#type' => 'textfield',
-			'#title' => t('Member ID') ,
-			'#maxlength' => USERNAME_MAX_LENGTH,
-			'#disabled' => TRUE,
-			'#required' => TRUE,
-			'#value' => base64_decode($_GET['id']),
+    if ($register || ($GLOBALS['user']->uid == $uid && user_access('change own username')) || $admin)
+    {
+        $form['account']['name'] = array(
+            '#type' => 'textfield',
+            '#title' => t('Member ID') ,
+            '#maxlength' => USERNAME_MAX_LENGTH,
+            '#disabled' => TRUE,
+            '#required' => TRUE,
+            '#value' => base64_decode($_GET['id']),
             '#default_value' => base64_decode($_GET['id']),
-		);
+        );
         $form['account']['name_h'] = array(
             '#type' => 'hidden',
             '#value' => base64_decode($_GET['id']),
         );
-	}
+    }
 
-	$form['account']['mail'] = array(
-		'#type' => 'textfield',
-		'#title' => t('E-mail address') ,
-		'#default_value' => $edit['mail'],
-		'#maxlength' => EMAIL_MAX_LENGTH,
-		'#description' => t('A valid e-mail address. All e-mails from the system will be sent to this address. The e-mail address is not made public and will only be used if you wish to receive a new password or wish to receive certain news or notifications by e-mail.') ,
-		'#required' => TRUE,
-	);
-	if (!$register)
-	{
-		$form['account']['pass'] = array(
-			'#type' => 'password_confirm',
-			'#description' => t('To change the current user password, enter the new password in both fields.') ,
-			'#size' => 25,
-		);
-	}
-	elseif (!variable_get('user_email_verification', TRUE) || $admin)
-	{
-		$form['account']['pass'] = array(
-			'#type' => 'password_confirm',
-			'#description' => t('Provide a password for the new account in both fields.') ,
-			'#required' => TRUE,
-			'#size' => 25,
-		);
-	}
+    $form['account']['mail'] = array(
+        '#type' => 'textfield',
+        '#title' => t('E-mail address') ,
+        '#default_value' => $edit['mail'],
+        '#maxlength' => EMAIL_MAX_LENGTH,
+        '#description' => t('A valid e-mail address. All e-mails from the system will be sent to this address. The e-mail address is not made public and will only be used if you wish to receive a new password or wish to receive certain news or notifications by e-mail.') ,
+        '#required' => TRUE,
+    );
+    if (!$register)
+    {
+        $form['account']['pass'] = array(
+            '#type' => 'password_confirm',
+            '#description' => t('To change the current user password, enter the new password in both fields.') ,
+            '#size' => 25,
+        );
+    }
+    elseif (!variable_get('user_email_verification', TRUE) || $admin)
+    {
+        $form['account']['pass'] = array(
+            '#type' => 'password_confirm',
+            '#description' => t('Provide a password for the new account in both fields.') ,
+            '#required' => TRUE,
+            '#size' => 25,
+        );
+    }
 
-	if ($admin)
-	{
-		$form['account']['status'] = array(
-			'#type' => 'radios',
-			'#title' => t('Status') ,
-			'#default_value' => isset($edit['status']) ? $edit['status'] : 1,
-			'#options' => array(
-				t('Blocked') ,
-				t('Active')
-			)
-		);
-	}
+    if ($admin)
+    {
+        $form['account']['status'] = array(
+            '#type' => 'radios',
+            '#title' => t('Status') ,
+            '#default_value' => isset($edit['status']) ? $edit['status'] : 1,
+            '#options' => array(
+                t('Blocked') ,
+                t('Active')
+            )
+        );
+    }
 
-	if (user_access('administer permissions'))
-	{
-		$roles = user_roles(TRUE);
+    if (user_access('administer permissions'))
+    {
+        $roles = user_roles(TRUE);
 
-		// The disabled checkbox subelement for the 'authenticated user' role
-		// must be generated separately and added to the checkboxes element,
-		// because of a limitation in D6 FormAPI not supporting a single disabled
-		// checkbox within a set of checkboxes.
-		// TODO: This should be solved more elegantly. See issue #119038.
+        // The disabled checkbox subelement for the 'authenticated user' role
+        // must be generated separately and added to the checkboxes element,
+        // because of a limitation in D6 FormAPI not supporting a single disabled
+        // checkbox within a set of checkboxes.
+        // TODO: This should be solved more elegantly. See issue #119038.
 
-		$checkbox_authenticated = array(
-			'#type' => 'checkbox',
-			'#title' => $roles[DRUPAL_AUTHENTICATED_RID],
-			'#default_value' => TRUE,
-			'#disabled' => TRUE,
-		);
-		unset($roles[DRUPAL_AUTHENTICATED_RID]);
-		if ($roles)
-		{
-			$default = empty($edit['roles']) ? array() : array_keys($edit['roles']);
-			$form['account']['roles'] = array(
-				'#type' => 'checkboxes',
-				'#title' => t('Roles') ,
-				'#default_value' => $default,
-				'#options' => $roles,
-				DRUPAL_AUTHENTICATED_RID => $checkbox_authenticated,
-			);
-		}
-	}
+        $checkbox_authenticated = array(
+            '#type' => 'checkbox',
+            '#title' => $roles[DRUPAL_AUTHENTICATED_RID],
+            '#default_value' => TRUE,
+            '#disabled' => TRUE,
+        );
+        unset($roles[DRUPAL_AUTHENTICATED_RID]);
+        if ($roles)
+        {
+            $default = empty($edit['roles']) ? array() : array_keys($edit['roles']);
+            $form['account']['roles'] = array(
+                '#type' => 'checkboxes',
+                '#title' => t('Roles') ,
+                '#default_value' => $default,
+                '#options' => $roles,
+                DRUPAL_AUTHENTICATED_RID => $checkbox_authenticated,
+            );
+        }
+    }
 
-	// Signature:
+    // Signature:
+    if (variable_get('user_signatures', 0) && module_exists('comment') && !$register)
+    {
+        $form['signature_settings'] = array(
+            '#type' => 'fieldset',
+            '#title' => t('Signature settings') ,
+            '#weight' => 1,
+        );
+        $form['signature_settings']['signature'] = array(
+            '#type' => 'textarea',
+            '#title' => t('Signature') ,
+            '#default_value' => $edit['signature'],
+            '#description' => t('Your signature will be publicly displayed at the end of your comments.') ,
+        );
 
-	if (variable_get('user_signatures', 0) && module_exists('comment') && !$register)
-	{
-		$form['signature_settings'] = array(
-			'#type' => 'fieldset',
-			'#title' => t('Signature settings') ,
-			'#weight' => 1,
-		);
-		$form['signature_settings']['signature'] = array(
-			'#type' => 'textarea',
-			'#title' => t('Signature') ,
-			'#default_value' => $edit['signature'],
-			'#description' => t('Your signature will be publicly displayed at the end of your comments.') ,
-		);
+        // Prevent a "validation error" message when the user attempts to save with a default value they
+        // do not have access to.
 
-		// Prevent a "validation error" message when the user attempts to save with a default value they
-		// do not have access to.
+        if (!filter_access($edit['signature_format']) && empty($_POST))
+        {
+            drupal_set_message(t("The signature input format has been set to a format you don't have access to. It will be changed to a format you have access to when you save this page."));
+            $edit['signature_format'] = FILTER_FORMAT_DEFAULT;
+        }
 
-		if (!filter_access($edit['signature_format']) && empty($_POST))
-		{
-			drupal_set_message(t("The signature input format has been set to a format you don't have access to. It will be changed to a format you have access to when you save this page."));
-			$edit['signature_format'] = FILTER_FORMAT_DEFAULT;
-		}
+        $form['signature_settings']['signature_format'] = filter_form($edit['signature_format'], NULL, array(
+            'signature_format'
+        ));
+    }
 
-		$form['signature_settings']['signature_format'] = filter_form($edit['signature_format'], NULL, array(
-			'signature_format'
-		));
-	}
+    // Picture/avatar:
+    if (variable_get('user_pictures', 0) && !$register)
+    {
+        $form['picture'] = array(
+            '#type' => 'fieldset',
+            '#title' => t('Picture') ,
+            '#weight' => 1
+        );
+        $picture = theme('user_picture', (object)$edit);
+        if ($edit['picture'])
+        {
+            $form['picture']['current_picture'] = array(
+                '#value' => $picture
+            );
+            $form['picture']['picture_delete'] = array(
+                '#type' => 'checkbox',
+                '#title' => t('Delete picture') ,
+                '#description' => t('Check this box to delete your current picture.')
+            );
+        }
+        else
+        {
+            $form['picture']['picture_delete'] = array(
+                '#type' => 'hidden'
+            );
+        }
 
-	// Picture/avatar:
+        $form['picture']['picture_upload'] = array(
+            '#type' => 'file',
+            '#title' => t('Upload picture') ,
+            '#size' => 48,
+            '#description' => t('Your virtual face or picture. Maximum dimensions are %dimensions and the maximum size is %size kB.', array(
+                '%dimensions' => variable_get('user_picture_dimensions', '85x85') ,
+                '%size' => variable_get('user_picture_file_size', '30')
+            )) . ' ' . variable_get('user_picture_guidelines', '')
+        );
+        $form['#validate'][] = 'user_profile_form_validate';
+        $form['#validate'][] = 'user_validate_picture';
+    }
 
-	if (variable_get('user_pictures', 0) && !$register)
-	{
-		$form['picture'] = array(
-			'#type' => 'fieldset',
-			'#title' => t('Picture') ,
-			'#weight' => 1
-		);
-		$picture = theme('user_picture', (object)$edit);
-		if ($edit['picture'])
-		{
-			$form['picture']['current_picture'] = array(
-				'#value' => $picture
-			);
-			$form['picture']['picture_delete'] = array(
-				'#type' => 'checkbox',
-				'#title' => t('Delete picture') ,
-				'#description' => t('Check this box to delete your current picture.')
-			);
-		}
-		else
-		{
-			$form['picture']['picture_delete'] = array(
-				'#type' => 'hidden'
-			);
-		}
-
-		$form['picture']['picture_upload'] = array(
-			'#type' => 'file',
-			'#title' => t('Upload picture') ,
-			'#size' => 48,
-			'#description' => t('Your virtual face or picture. Maximum dimensions are %dimensions and the maximum size is %size kB.', array(
-				'%dimensions' => variable_get('user_picture_dimensions', '85x85') ,
-				'%size' => variable_get('user_picture_file_size', '30')
-			)) . ' ' . variable_get('user_picture_guidelines', '')
-		);
-		$form['#validate'][] = 'user_profile_form_validate';
-		$form['#validate'][] = 'user_validate_picture';
-	}
-
-	$form['#uid'] = $uid;
-	return $form;
+    $form['#uid'] = $uid;
+    return $form;
 }
 
 /**
  * Retrieve a list of all form elements for the specified category.
  */
 function _user_forms(&$edit, $account, $category, $hook = 'form') {
-
     module_load_include('pages.inc', 'user', 'user');
 
     $groups = array();
@@ -747,20 +727,15 @@ function _user_forms(&$edit, $account, $category, $hook = 'form') {
         }
     }
 
-//    echo "<pre>";
-//    print_r($edit);
-//    echo "</pre>";
-
-    $groups = array_merge(drupal_get_form('user_profile_form',$edit,'Distributor'),$groups);
-    $groups = array_merge(drupal_get_form('user_profile_form',$edit,'Operations Information'),$groups);
-    $groups = array_merge(drupal_get_form('user_profile_form',$edit,'Principal Owners'),$groups);
-    $groups = array_merge(drupal_get_form('user_profile_form',$edit,'Company Information'),$groups);
+    $groups = array_merge(drupal_get_form('user_profile_form',$edit,'Distributor'), $groups);
+    $groups = array_merge(drupal_get_form('user_profile_form',$edit,'Operations Information'), $groups);
+    $groups = array_merge(drupal_get_form('user_profile_form',$edit,'Principal Owners'), $groups);
+    $groups = array_merge(drupal_get_form('user_profile_form',$edit,'Company Information'), $groups);
 
     // patch in the firstname/lastname
     if (isset($_GET['id']))
     {
         //echo 'SELECT * FROM member_id_pool WHERE member_id='.base64_decode($_GET['id']);
-
         $result = db_query('SELECT * FROM member_id_pool WHERE member_id=:mid',array(':mid'=>base64_decode($_GET['id'])));
         $row_count = $result->rowCount();
 
@@ -867,7 +842,7 @@ function _user_forms(&$edit, $account, $category, $hook = 'form') {
                     $groups['Credit Card Information']['#attributes'] = array('style'=>'display: none;');
                 }
 
-            }	// END cc profile already set
+            }   // END cc profile already set
             else {
                 unset($groups['Credit Card Information']);
             }
@@ -918,7 +893,7 @@ function register_user_save($account, $array = array(), $category = 'account') {
         // check for admin
         //if (($GLOBALS['user']->uid != 1) && ($GLOBALS['user']->uid != 6)  && (is_distributor($GLOBALS['user'])!=true) && (is_associate($GLOBALS['user'])!=true) && (is_account_manager($GLOBALS['user'])!=true) )
         //{
-        $profile_memberid = $array['name'];		// save for later
+        $profile_memberid = $array['name'];     // save for later
 
         $array['name'] = get_new_username($array['profile_firstname'].$array['profile_lastname']);
         //$array['pass'] = date("j").preg_replace("/[^a-zA-Z0-9]/", "", $array['profile_firstname']).date("Y");
@@ -935,7 +910,7 @@ function register_user_save($account, $array = array(), $category = 'account') {
     else if (is_object($account) && $account->uid && $array['status'] == 1 && $account->status == 0) {
 
         $_user1 = user_load($account->uid);
-        if (is_member($_user1->profile_memberid)) {
+        if (isset($_user1->profile_memberid) && is_member($_user1->profile_memberid)) {
             $_fblocked = '';
             if ( isset($_user1->profile_fblocked) ) {
                 $_fblocked = $_user1->profile_fblocked;
@@ -959,7 +934,7 @@ function register_user_save($account, $array = array(), $category = 'account') {
             drupal_mail('ncn_admin', 'member_login', $_user1->mail, language_default(), $params);
             if ($_fblocked == 'first') {
                 //$array['password'] = date("j", $account->created).preg_replace("/[^a-zA-Z0-9]/", "", $account->profile_firstname).date("Y", $account->created);
-                $_query = "UPDATE profile_value SET value='no first' WHERE fid=64 AND uid=".$_user1->uid;	// profile_fblocked : 64
+                $_query = "UPDATE profile_value SET value='no first' WHERE fid=64 AND uid=".$_user1->uid;   // profile_fblocked : 64
                 $result = db_query($_query);
             }
         }
@@ -967,7 +942,7 @@ function register_user_save($account, $array = array(), $category = 'account') {
     else if (is_object($account) && $account->uid && $array['status'] == 0 && $account->status == 0) {
 
         $_user1 = user_load($account->uid);
-        $_query = "UPDATE profile_value SET value='no first' WHERE fid=64 AND uid=".$_user1->uid;	// profile_fblocked : 64
+        $_query = "UPDATE profile_value SET value='no first' WHERE fid=64 AND uid=".$_user1->uid;   // profile_fblocked : 64
         $result = db_query($_query);
 
         $array['pass'] = get_member_password($_user1->profile_memberid, $account->profile_firstname);
@@ -991,7 +966,7 @@ function register_user_save($account, $array = array(), $category = 'account') {
         }
         foreach ($array as $key => $value) {
             if ($key == 'pass' && !empty($value)) {
-				require_once DRUPAL_ROOT . '/' . variable_get('password_inc', 'includes/password.inc');
+                require_once DRUPAL_ROOT . '/' . variable_get('password_inc', 'includes/password.inc');
                 $query .= "$key = '%s', ";
                 $v[] = user_hash_password(trim($value));
             }
@@ -1061,7 +1036,7 @@ function register_user_save($account, $array = array(), $category = 'account') {
             if (!$login_mail_sent) {
                 _user_mail_notify($op, $user);
             }
-        } else if (isset($array['status']) && $array['status'] == $account->status && $account->status==0) {	// training -> blocked
+        } else if (isset($array['status']) && $array['status'] == $account->status && $account->status==0) {    // training -> blocked
             $op = $array['status'] == 1 ? 'status_activated' : 'status_blocked';
             if (empty($user->password)) {
                 $user->password = $user_pass;
@@ -1196,7 +1171,7 @@ function get_new_username($name, $next = 2)
             $row_count_n = $result_n->rowCount();
 
             if ($row_count_n == 0)
-            {	return $new_name;	}
+            {   return $new_name;   }
         }
     }
 

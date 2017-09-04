@@ -70,7 +70,7 @@ function ncn_poll_prompt_question() {
 GLOBAL $user;
 GLOBAL $base_url;
 	$user = user_load($user->uid);
-	if (!is_member($user->profile_memberid)) {
+	if (!(isset($user->profile_memberid) && is_member($user->profile_memberid))) {
 		return FALSE;
 	}
 	

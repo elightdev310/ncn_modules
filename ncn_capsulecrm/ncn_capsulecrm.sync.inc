@@ -192,7 +192,7 @@ function ncn_capsulecrm_daily_update_active_user_data() {
         $u_row = (array)$u_row;
 		$user = user_load($u_row['uid']);
 		if ($user) {
-			if (is_member($user->profile_memberid)) {
+			if (isset($user->profile_memberid)&&is_member($user->profile_memberid)) {
 				ncn_capsulecrm_daily_update_user_member_data($user);
 			}
 		} else {
@@ -215,7 +215,7 @@ function ncn_capsulecrm_daily_update_unactived_member_data() {
  * Update			# of Claims , Total $$ YTD: , Total $$ All Time: 
  */
 function ncn_capsulecrm_daily_update_user_member_data($user) {
-	$crm_info = ncn_capsulecrm_check_map_info($user->profile_memberid);
+	$crm_info = ncn_capsulecrm_check_map_info(isset($user->profile_memberid)?$user->profile_memberid:0);
 	if (!$crm_info) {
 		return FALSE;
 	}
@@ -356,7 +356,7 @@ function ncn_capsulecrm_add_task($member_id, $note) {
 function ncn_capsulecrm_set_user_detail_link($user_id, $member_id=0) {
 	if ($member_id == 0) {
 		$_user = user_load($user_id);
-		if ($_user && $_user->profile_memberid) {
+		if ($_user && isset($_user->profile_memberid) && $_user->profile_memberid) {
 			$member_id = $_user->profile_memberid;
 		} else {
 			return FALSE;
@@ -410,7 +410,7 @@ function ncn_capsulecrm_set_user_detail_link_maintain() {
         $row = (array)$row;
 		$uid = $row['uid'];
 		$_user = user_load($uid);
-		if ($_user->profile_memberid) {
+		if (isset($_user->profile_memberid) && $_user->profile_memberid) {
 			ncn_capsulecrm_set_user_detail_link($uid);
 		}
 	}

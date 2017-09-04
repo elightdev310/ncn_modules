@@ -579,7 +579,7 @@ function build_table_grouping($data, $total) {
 	$output .= '
 		<tr class="even">
 			<td></td>
-			<td colspan="2"><div style="margin:10px 10px 0px 50px">Total:&nbsp;&nbsp; '.render_payment_cost($totals[1]).'</div></td>
+			<td colspan="2"><div style="margin:10px 10px 0px 50px">Total:&nbsp;&nbsp; '.render_payment_cost($total[1]).'</div></td>
 		</tr>
 	</tbody>
 	</table>
@@ -766,7 +766,8 @@ GLOBAL $base_url;
 	</div>
 </div>
 <?php
-    build_renewal_report_table($data, $total, array($_REQUEST['page'], 50));
+    $page = isset($_REQUEST['page'])?$_REQUEST['page']:0;
+    build_renewal_report_table($data, $total, array($page, 50));
 	$content = ob_get_contents();
 	ob_end_clean();
 	return $content;
@@ -829,7 +830,8 @@ GLOBAL $base_url;
 	</div>
 </div>
 <?php 			
-	build_renewal_report_table($data, $total, array($_REQUEST['page'], 50));
+    $page = isset($_REQUEST['page'])?$_REQUEST['page']:0;
+	build_renewal_report_table($data, $total, array($page, 50));
 	$content = ob_get_contents();
 	ob_end_clean();
 	return $content;
@@ -888,8 +890,9 @@ GLOBAL $base_url;
 		?>
 	</div>
 </div>
-<?php 			
-	build_renewal_report_table($data,$total,array($_REQUEST['page'], 50));
+<?php 
+    $page = isset($_REQUEST['page'])?$_REQUEST['page']:0;
+	build_renewal_report_table($data,$total,array($page, 50));
 	$content = ob_get_contents();
 	ob_end_clean();
 	return $content;
@@ -928,7 +931,7 @@ function _ncn_member_renewal_report_get_data(&$data, &$total, $report_date, $typ
             if (date('U') <= $d) {
                 _ncn_member_renewal_report_get_data_daily_upcoming($data, $d, $all_member_data);
             } else {
-                _ncn_member_renewal_report_get_data_daily_past($data, $total_daily, $d, $members_gbyd[date('j', $d)]);
+                _ncn_member_renewal_report_get_data_daily_past($data, $total_daily, $d, isset($members_gbyd[date('j', $d)])?$members_gbyd[date('j', $d)]:null) ;
                 $total += $total_daily;
             }
         }
@@ -1047,7 +1050,7 @@ function ncn_report_group_member_by_purchase_date($timestamp) {
 	$data = array();
 	$year = date('Y', $timestamp);
 	$month= date('n', $timestamp);
-	$result = db_query('SELECT * FROM {member_id_pool}');
+	$result = db_query('SELECT * FROM {member_id_pool}')->fetchAll();
 //	while ($member = db_fetch_array($result))
     foreach($result as $member)
     {

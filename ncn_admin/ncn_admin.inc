@@ -331,7 +331,7 @@ function payment_transaction_edit_standard_page($pid)
 	$r_data['page_id'] = 'payment_transaction_edit_standard_page';
 	$r_data['form_id'] = 'add_standard_transaction_form';
 	$r_data['tfunction'] = 'edit_standard';
-	if ($_POST['tfunction'] == $r_data['tfunction'])
+	if (isset($_POST['tfunction']) && $_POST['tfunction'] == $r_data['tfunction'])
 	{
 		$r_data['product_id'] = $_POST['product_id'];
 		$r_data['amount'] = floatval($_POST['p_amount']);
@@ -506,7 +506,7 @@ function draw_select_user_list_transaction($name, $select_val, $attributes = '')
 	{
         $row = (array)$row;
 		$_user = user_load($row['uid']);
-		if (is_distributor($_user) || is_member($_user->profile_memberid))
+		if (is_distributor($_user) || (isset($_user->profile_memberid) && is_member($_user->profile_memberid)))
 		{
 			$data[] = $_user;
 		}
@@ -530,6 +530,7 @@ function draw_select_user_list_transaction($name, $select_val, $attributes = '')
 		}
 		else
 		{
+			$member_type = get_member_type_num($_user->uid);
 			if ($member_type == 0)
 			{
 				$str_type = "Gold Member";
@@ -719,7 +720,7 @@ function standard_transaction_validation($data)
 		if ($data['uid'] != '')
 		{
 			$_user = user_load($data['uid']);
-			if (!is_member($_user->profile_memberid))
+			if (!(isset($_user->profile_memberid) && is_member($_user->profile_memberid)))
 			{
 				$ret_val = FALSE;
 				drupal_set_message(t('You need to select only Member User ID for this type.') , 'error');
@@ -786,7 +787,7 @@ function add_standard_transaction_action($data)
 	{
 		$_user = user_load(intval($data['uid']));
 		$uid = $data['uid'];
-		$member_id = $_user->profile_memberid;
+		$member_id = isset($_user->profile_memberid)? $_user->profile_memberid:0;
 	}
 	else
 	if ($data['member_id'] != '')
@@ -870,7 +871,7 @@ function edit_standard_transaction_action($data)
 	{
 		$_user = user_load(intval($data['uid']));
 		$uid = $data['uid'];
-		$member_id = $_user->profile_memberid;
+		$member_id = isset($_user->profile_memberid)?$_user->profile_memberid:0;
 	}
 	else
 	if ($data['member_id'] != '')
@@ -1286,7 +1287,7 @@ function ncn_admin_am_view_members_page($am_uid)
 function ncn_admin_account_manager_list_action()
 {
    // var_dump($_POST);
-	if ($_POST['tfunction'] == 'auto_assign')
+	if (isset($_POST['tfunction']) && $_POST['tfunction'] == 'auto_assign')
 	{
 		$auto_assign = $_POST['p_auto_assign'];
      //   var_dump($auto_assign);
@@ -1464,6 +1465,7 @@ function ncn_admin_render_claim_status_checkbox($label, $id, $claim_id, $data_na
 		return '';
 	}
 
+	$checked = '';
 	if (get_ncn_data_extra($claim_id, $data_name) == 'on')
 	{
 		$checked = 'checked';
@@ -1559,7 +1561,7 @@ function ncn_admin_render_claim_status($claim_id)
 function ncn_admin_view_claim_action($claim_id)
 {
 	GLOBAL $language;
-	if ($_POST['tfunction'] == 'claim_status_extra')
+	if (isset($_POST['tfunction']) && $_POST['tfunction'] == 'claim_status_extra')
 	{
 		$data = array();
 		$data['cs_pp'] = isset($_POST['cs_pp']) ? 'on' : '';
@@ -1631,13 +1633,15 @@ function ncn_admin_view_claim_action($claim_id)
 			$_admin = user_load(1);
 			$admin_mail = $_admin->mail; //***
 			$_claim_user = user_load($claim['user_id']);
-			$_member = get_member_from_id($_claim_user->profile_memberid);
-			if (!empty($_member))
-			{
-				$_am = user_load($_member['am_uid']);
-				if ($_am)
+			if (isset($_claim_user->profile_memberid)) {
+				$_member = get_member_from_id($_claim_user->profile_memberid);
+				if (!empty($_member))
 				{
-					$am_mail = $_am->mail; //***
+					$_am = user_load($_member['am_uid']);
+					if ($_am)
+					{
+						$am_mail = $_am->mail; //***
+					}
 				}
 			}
 
@@ -1961,14 +1965,16 @@ function get_claim_docs_rejected_bcc()
 	$admin_mail = $_admin->mail; //***
 	$bcc = $admin_mail;
 	$_claim_user = user_load($claim['user_id']);
-	$_member = get_member_from_id($_claim_user->profile_memberid);
-	if (!empty($_member))
-	{
-		$_am = user_load($_member['am_uid']);
-		$am_mail = $_am->mail; //***
-		if ($am_mail != '')
+	if (isset($_claim_user->profile_memberid)) {
+		$_member = get_member_from_id($_claim_user->profile_memberid);
+		if (!empty($_member))
 		{
-			$bcc.= ", $am_mail";
+			$_am = user_load($_member['am_uid']);
+			$am_mail = $_am->mail; //***
+			if ($am_mail != '')
+			{
+				$bcc.= ", $am_mail";
+			}
 		}
 	}
 
@@ -2545,7 +2551,7 @@ function ncn_admin_member_report()
 				if ($member['member_type'] == 0)
 				{ // Gold
 					$n_gold_member+= 1;
-					if ($_user->status == 0 && $_user->profile_fblocked != 'first')
+					if ($_user->status == 0 && (!isset($_user->profile_fblocked) || $_user->profile_fblocked != 'first'))
 					{
 						$n_gold_member_pause+= 1;
 					}
@@ -2566,7 +2572,7 @@ function ncn_admin_member_report()
 				if ($member['member_type'] == 1)
 				{ // Silver
 					$n_silver_member+= 1;
-					if ($_user->status == 0 && $_user->profile_fblocked != 'first')
+					if ($_user->status == 0 && (!isset($_user->profile_fblocked) || $_user->profile_fblocked != 'first'))
 					{
 						$n_silver_member_pause+= 1;
 					}
@@ -2575,7 +2581,7 @@ function ncn_admin_member_report()
 				if ($member['member_type'] == 2)
 				{ // Gold Lite
 					$n_gold_lite_member+= 1;
-					if ($_user->status == 0 && $_user->profile_fblocked != 'first')
+					if ($_user->status == 0 && (!isset($_user->profile_fblocked) || $_user->profile_fblocked != 'first'))
 					{
 						$n_gold_lite_member_pause+= 1;
 					}
@@ -2584,7 +2590,7 @@ function ncn_admin_member_report()
 				if ($member['member_type'] == 3)
 				{ // Coach on Call
 					$n_coach_on_call_member+= 1;
-					if ($_user->status == 0 && $_user->profile_fblocked != 'first')
+					if ($_user->status == 0 && (!isset($_user->profile_fblocked) || $_user->profile_fblocked != 'first'))
 					{
 						$n_coach_on_call_member_pause+= 1;
 					}
@@ -2593,7 +2599,7 @@ function ncn_admin_member_report()
 				if ($member['member_type'] == 4)
 				{ // Gold Coach
 					$n_gold_coach_member+= 1;
-					if ($_user->status == 0 && $_user->profile_fblocked != 'first')
+					if ($_user->status == 0 && (!isset($_user->profile_fblocked) || $_user->profile_fblocked != 'first'))
 					{
 						$n_gold_coach_member_pause+= 1;
 					}
@@ -2977,12 +2983,12 @@ function ncn_admin_download_user_list()
 		unset($_user->roles[2]);
 		$role = implode($_user->roles);
 		$member_type = get_member_type_name($_user->uid);
-		if (ncn_admin_is_gold_member_demo($_user->profile_memberid))
+		if (ncn_admin_is_gold_member_demo(isset($_user->profile_memberid)?$_user->profile_memberid:0))
 		{
 			$member_type.= " (Demo)";
 		}
 		else
-		if (ncn_admin_is_member_first_free($_user->profile_memberid))
+		if (ncn_admin_is_member_first_free(isset($_user->profile_memberid)?$_user->profile_memberid:0))
 		{
 			$member_type.= " (First Free)";
 		}
@@ -3015,7 +3021,7 @@ function ncn_admin_download_user_list()
 		$am = get_account_manager_name($_user->uid);
 		$member_since = 0;
 		$sales_rep = '';
-		if (is_member($_user->profile_memberid))
+		if (isset($_user->profile_memberid) && is_member($_user->profile_memberid))
 		{
 			$member = get_member_from_id($_user->profile_memberid);
 			if (!empty($member))
@@ -3036,7 +3042,7 @@ function ncn_admin_download_user_list()
 		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("A$row_index", $username);
 		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("B$row_index", $company_name);
 		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("C$row_index", $role);
-		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("D$row_index", $_user->profile_memberid);
+		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("D$row_index", isset($_user->profile_memberid)?$_user->profile_memberid:'');
 		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("E$row_index", $member_type);
 		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("F$row_index", $status);
 		$objPHPExcel->setActiveSheetIndex(0)->setCellValue("G$row_index", $cancel_time);
@@ -3084,23 +3090,28 @@ function ncn_admin_download_user_list()
 function get_member_type_num($user_id)
 {
 	$user_details = user_load($user_id);
+	if ($user_details && isset($user_details->profile_memberid)) {
+	   	$result = db_query('SELECT * FROM member_id_pool WHERE member_id=:a',array(':a'=>$user_details->profile_memberid));
+		$row_count = $result->rowCount();
+		if ($row_count == 0)
+		{
+			return -1;
+		}
 
-   	$result = db_query('SELECT * FROM member_id_pool WHERE member_id=:a',array(':a'=>$user_details->profile_memberid));
-	$row_count = $result->rowCount();
-	if ($row_count == 0)
-	{
-		return -1;
+    	$member = $result->fetchAssoc();
+
+		return $member['member_type'];
 	}
-
-    $member = $result->fetchAssoc();
-
-	return $member['member_type'];
+	return -1;
 }
 
 function get_member_type_name($user_id)
 {
 
 	$member_type = get_member_type_num($user_id);
+	if ($member_type < 0) {
+		return '';
+	}
 
 	$type_arr = get_member_type_array();
    	return $type_arr[$member_type];
@@ -3121,67 +3132,77 @@ function get_member_type_array()
 function get_account_manager_name($user_id)
 {
 	$user_details = user_load($user_id);
-
-	if (is_distributor($user_details) == true || is_associate($user_details) == true)
-	{
-		$result = db_query('SELECT * FROM users_parent WHERE uid=:a',array(':a'=>$user_id));
-		$row_count = $result->rowCount();
-		if ($row_count == 0)
+	if ($user_details) {
+		if (is_distributor($user_details) == true || is_associate($user_details) == true)
 		{
-			return ('');
+			$result = db_query('SELECT * FROM users_parent WHERE uid=:a',array(':a'=>$user_id));
+			$row_count = $result->rowCount();
+			if ($row_count == 0)
+			{
+				return ('');
+			}
+
+	        $row = $result->fetchAssoc();
+	//		$row = (array)$result;
+			$row['owner'] = $row['parent'];
+
+			// now load the distributor account details
+	     //   var_dump($row);
+			$user_details = user_load($row['owner']);
+	      //  var_dump($user_details);
+	//        var_dump($user_details);
+			if ($user_details) {
+				return $user_details->profile_firstname . " " . $user_details->profile_lastname . " (" . $user_details->name . ")";
+			} else {
+				return 'User #'.$row['owner'];
+			}
 		}
 
-        $row = $result->fetchAssoc();
-//		$row = (array)$result;
-		$row['owner'] = $row['parent'];
+		// normal accounts
 
-		// now load the distributor account details
-     //   var_dump($row);
-		$user_details = user_load($row['owner']);
-      //  var_dump($user_details);
-//        var_dump($user_details);
-		return $user_details->profile_firstname . " " . $user_details->profile_lastname . " (" . $user_details->name . ")";
-	}
-
-	// normal accounts
-
-	else
-	{
-
-		// now get the distributor user id
-
-	//	$query = "SELECT * FROM member_id_pool WHERE member_id=\"" . AddSlashes($user_details->profile_memberid) . "\";";
-		$result = db_query('SELECT * FROM member_id_pool WHERE member_id=:a',array(':a'=>$user_details->profile_memberid));
-		$row_count = $result->rowCount();
-		if ($row_count == 0) // not found/invalid
+		else if (isset($user_details->profile_memberid))
 		{
-			return ('');
+
+			// now get the distributor user id
+
+			//	$query = "SELECT * FROM member_id_pool WHERE member_id=\"" . AddSlashes($user_details->profile_memberid) . "\";";
+			$result = db_query('SELECT * FROM member_id_pool WHERE member_id=:a',array(':a'=>$user_details->profile_memberid));
+			$row_count = $result->rowCount();
+			if ($row_count == 0) // not found/invalid
+			{
+				return ('');
+			}
+
+	        $row = $result->fetchAssoc();
+
+			// now get the account managers id
+
+			/*$query = "SELECT parent FROM users_parent WHERE uid=".$row['owner'];
+			$result = db_query($query);
+			$row_count = $result->rowCount();
+			if ($row_count == 0)	// not found/invalid
+			{	return ('');	}
+
+			$row = (array)$result;
+
+			// now load the distributor account details
+
+			$user_details = user_load($row['parent']);
+			*/
+			if ($row['am_uid'])
+			{
+				$user_details = user_load($row['am_uid']);
+				if ($user_details) {
+					return $user_details->profile_firstname . " " . $user_details->profile_lastname . " (" . $user_details->name . ")";
+				} else {
+					return 'User #'.$row['am_uid'];
+				}
+			}
+
+			return '';
 		}
-
-        $row = $result->fetchAssoc();
-
-		// now get the account managers id
-
-		/*$query = "SELECT parent FROM users_parent WHERE uid=".$row['owner'];
-		$result = db_query($query);
-		$row_count = $result->rowCount();
-		if ($row_count == 0)	// not found/invalid
-		{	return ('');	}
-
-		$row = (array)$result;
-
-		// now load the distributor account details
-
-		$user_details = user_load($row['parent']);
-		*/
-		if ($row['am_uid'])
-		{
-			$user_details = user_load($row['am_uid']);
-			return $user_details->profile_firstname . " " . $user_details->profile_lastname . " (" . $user_details->name . ")";
-		}
-
-		return '';
-	}
+	} 
+	return '';
 }
 
 /**
@@ -3196,8 +3217,10 @@ function get_distributor_associate_name($user_id)
 {
 
 	$user_details = user_load($user_id);
+	if (!$user_details) {
+		return '';
+	}
 
-   // var_dump($user_details);
 	if (is_distributor($user_details) == true || is_associate($user_details) == true)
 	{
 		return ('');
@@ -3205,46 +3228,50 @@ function get_distributor_associate_name($user_id)
 
 	// not found/invalid
 
-	if ($user_details->profile_memberid == '')
-	{
-
-		$result = db_query('SELECT * FROM {users_parent} WHERE uid=:a',array(':a'=>$user_id));
-
-		$row_count = $result->rowCount();
-      //  var_dump($row_count);
-       // exit;
-		if ($row_count == 0)
+	if (isset($user_details->profile_memberid)) {
+		if ($user_details->profile_memberid == '')
 		{
 
-			return ('');
+			$result = db_query('SELECT * FROM {users_parent} WHERE uid=:a',array(':a'=>$user_id));
+
+			$row_count = $result->rowCount();
+	      //  var_dump($row_count);
+	       // exit;
+			if ($row_count == 0)
+			{
+
+				return ('');
+			}
+
+	        $row = $result->fetchAssoc();
+
+	        $row['owner'] = $row['parent'];
 		}
-
-        $row = $result->fetchAssoc();
-
-        $row['owner'] = $row['parent'];
-	}
-	else
-	{
-
-		// now get the distributor user id
-        $result = db_query('SELECT * FROM member_id_pool WHERE member_id=:a',array(':a'=>$user_details->profile_memberid));
-		$row_count = $result->rowCount();
-		if ($row_count == 0) // not found/invalid
+		else
 		{
-			return ('');
+
+			// now get the distributor user id
+	        $result = db_query('SELECT * FROM member_id_pool WHERE member_id=:a',array(':a'=>$user_details->profile_memberid));
+			$row_count = $result->rowCount();
+			if ($row_count == 0) // not found/invalid
+			{
+				return ('');
+			}
+
+	        $row = $result->fetchAssoc();
 		}
 
-        $row = $result->fetchAssoc();
+		// now load the distributor account details
+	    //  var_dump($user_details);
+
+		if (isset($row['owner'])) {
+			$user_details = user_load($row['owner']);
+			if ($user_details) {
+		    	return $user_details->profile_legalname . " (" . $user_details->name . ")";
+		    }
+		}
 	}
-
-	// now load the distributor account details
-    //  var_dump($user_details);
-
-	$user_details = user_load($row['owner']);
-
-    return $user_details->profile_legalname . " (" . $user_details->name . ")";
- //   var_dump($user_details);
-
+	return '';
 }
 
 /**
@@ -3712,14 +3739,6 @@ function ncn_admin_get_coversheet_template($claim_invoice_type, $b_logo)
 
 function ncn_admin_make_cover_sheet($pdf_file_url, $data, $b_logo = false)
 {
-	/*if($_SERVER['REMOTE_ADDR']=='103.240.34.101')
-	{
-		echo "<pre>";
-		print_r($data);
-		echo "</pre>";
-		exit;
-	}*/
-
 	$claim_invoice_type = $data['claim_invoice_type'];
 	if (empty($claim_invoice_type))
 	{
@@ -4580,6 +4599,7 @@ function ncn_admin_membership_cal_day_list()
 		);
 	}
 
+	$rows = array();
 	foreach($m_day as $member)
 	{
 		$_owner = user_load($member['owner']);
@@ -4605,8 +4625,10 @@ function ncn_admin_membership_cal_day_list()
 	}
 
 	$output = '';
-	$output.= theme('table', $header, $rows, array(
-		'id' => 'membership_cal_day'
+	$output.= theme('table',  array(
+		'header' => $header,
+		'rows' => $rows, 
+		'attributes' => array('id' => 'membership_cal_day')
 	));
 	return $output;
 }
@@ -5200,7 +5222,7 @@ function ncn_admin_ncn_user_all_payments($user_id)
 	if ($user_id)
 	{
 		$_user = user_load($user_id);
-		$member_id = $_user->profile_memberid;
+		$member_id = isset($_user->profile_memberid)?$_user->profile_memberid:0;
 	}
 
 	$output = '';
@@ -5221,7 +5243,7 @@ function ncn_admin_ncn_user_ytd_payments($user_id)
 	if ($user_id)
 	{
 		$_user = user_load($user_id);
-		$member_id = $_user->profile_memberid;
+		$member_id = isset($_user->profile_memberid)?$_user->profile_memberid:0;
 	}
 
 	$year = date('Y', date('U'));
