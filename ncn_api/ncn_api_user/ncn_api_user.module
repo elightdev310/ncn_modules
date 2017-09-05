@@ -6,13 +6,13 @@ function ncn_api_user_menu() {
 
     $items[NCN_API_PREFIX.'/user'] = array(
         'title' => 'Log in',
-        'page callback' => 'ncn_api_user_login',
+        'page callback' => 'ncn_api_user_login_action',
         'access callback' => TRUE,
         'type' => MENU_CALLBACK,
     );
     $items[NCN_API_PREFIX.'/user/login'] = array(
         'title' => 'Log in',
-        'page callback' => 'ncn_api_user_login',
+        'page callback' => 'ncn_api_user_login_action',
         'access callback' => TRUE,
         'type' => MENU_CALLBACK,
     );
@@ -45,12 +45,11 @@ function ncn_api_user_menu() {
 /**
  * API Hanlder ( user/login )
  */
-function ncn_api_user_login() {
+function ncn_api_user_login_action() {
 	$m_data = array(
     'request_type'=>'set', 
     'response_status'=>0, 
-  );
-  
+    );
 	$account = array(
 		'name' => $_REQUEST['username'],
 		'pass' => $_REQUEST['password'],
@@ -351,11 +350,19 @@ function ncn_api_user_get_userid_from_token($name, $pass) {
 	return FALSE;
 }
 
-function ncn_printr($obj, $exit=1) {
+function ncn_print_r($obj, $exit=1) {
     echo "<pre>";
     print_r($obj);
     echo "</pre>";
     if ($exit) {
         exit;
+    }
+}
+
+function ncn_print_stack_trace() {
+    try {
+        throw new \Exception('Test');
+    } catch(\Exception $e) {
+        ncn_print_r($e->getTraceAsString());
     }
 }

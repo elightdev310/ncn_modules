@@ -3,18 +3,6 @@
 /*****************************************************************************/
 /*		CE Portal API
 /*****************************************************************************/
-
-function is_claim_examiner($user)
-{
-	foreach ($user->roles as $role)
-	{
-		if ($role == "Claim Examiner")
-		{	return true;	}
-	}
-	
-	return false;
-}
-
 function ncn_submit_handler_reflection($function) {
 	if ($function && function_exists($function)) {
 		$params = func_get_args();

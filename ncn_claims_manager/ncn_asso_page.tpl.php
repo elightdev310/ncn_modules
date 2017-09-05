@@ -1,5 +1,5 @@
 <div class="distributor-topbody">
-  <?= $topbody; ?>
+  <?= isset($topbody)? $topbody : ''; ?>
 </div>
 <div id="distributor_page" class="clearfix">
   <div class="page-wrapper <?php echo $page_class; ?>">

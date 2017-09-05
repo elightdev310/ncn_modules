@@ -1461,7 +1461,7 @@ function unactivated_member_list_edit($id)
                 'mobilephone' => $result['mobilephone'],
                 'contactemail' => $result['contactemail'],
                 'sales_rep' => $result['sales_rep'],
-                //'distributor' => $distributor_name,
+                'distributor' => $distributor_name,
                 'owner' => (!empty($dist))? $dist->uid : 0,
                 'member_type' => $result['member_type'] 
                 ))

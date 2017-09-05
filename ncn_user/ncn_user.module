@@ -8,7 +8,7 @@
  * hook_init function
  */
 function ncn_user_init() {
-	
+  module_load_include('inc', 'ncn_user', 'ncn_user.helper');
 }
 
 /**

@@ -2292,7 +2292,7 @@ function fm_draw_textfield($title, $name, $disabled = false, $required = false)
         <td class="tlabel"><label><?= $title; ?>
                 : <?php if ($required == true) print '<font color=red>*</font>'; ?></label></td>
         <td><input type="text" name="<?= $name; ?>" id="fm_<?= $name; ?>" autocomplete="off"
-                   value="<?= $_POST[$name]; ?>" <?php if ($disabled == true) print ' disabled="disabled"'; ?>></td>
+                   value="<?= isset($_POST[$name])?$_POST[$name]:''; ?>" <?php if ($disabled == true) print ' disabled="disabled"'; ?>></td>
     </tr>
 <?php
 }
