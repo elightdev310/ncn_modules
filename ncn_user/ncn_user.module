@@ -1,14 +1,12 @@
 <?php
 
-/**
- * Interact with ncn_admin module
- */
+require_once('ncn_user.helper.inc');
 
 /**
  * hook_init function
  */
 function ncn_user_init() {
-  module_load_include('inc', 'ncn_user', 'ncn_user.helper');
+  
 }
 
 /**

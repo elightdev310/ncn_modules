@@ -120,28 +120,24 @@ function ncn_subuser_create_subuser($member_id, $data) {
 		}
 	}
 	
-	// check valid username
-	if ($error == false)
-	{
-		$query = db_query('SELECT * FROM users WHERE name=:a',array(':a'=>$data['name']));
-		$result = $query;
-		$row_count = $result->rowCount();
+	// check valid username & email
+    if ($error == false)
+    {
+        if (check_existing_username($_POST['name'])) {
+            drupal_set_message("That username is taken. Please use another username.", 'error');
+            $error = true;
+        } else if (!valid_email_address($_POST['mail'])) {
+            drupal_set_message('Email address is invalid, Please retry to input email address.', 'error');
+            $error = true;
+        } else if (check_existing_email($_POST['mail'])) {
+            drupal_set_message("That email is taken. Please use another email.", 'error');
+            $error = true;
+        }
+    }
 
-		if ($row_count > 0)
-		{
-			drupal_set_message("That username is taken.", 'error');
-			$error = true;
-		}			
-	}
 	if ($error == false) {
 		if ($data['parent_mid'] == '') {
 			drupal_set_message("Please select member.", 'error');
-			$error = true;
-		}
-	}
-	if ($error == false) {
-		if (!valid_email_address($data['mail'])) {
-			drupal_set_message('Email address is invalid, Please retry to input email address.', 'error');
 			$error = true;
 		}
 	}
@@ -154,20 +150,6 @@ function ncn_subuser_create_subuser($member_id, $data) {
 			drupal_set_message("Passwords do not match.", 'error');
 			$error = true;
 		}
-	}
-	
-	// check valid email
-	if ($error == false)
-	{
-		$query = db_query('SELECT * FROM {users} WHERE mail=:a',array(':a'=>$data['mail']));
-		$result = $query;
-		$row_count = $result->rowCount();
-
-		if ($row_count > 0)
-		{
-			drupal_set_message("Warning: That email address is already in use.", 'error');
-			$error = true;
-		}			
 	}
 	
 	// add good, so add the associate
@@ -184,7 +166,8 @@ function ncn_subuser_create_subuser($member_id, $data) {
 		$info = array(
 			'pass' => $password, 
 			'init' => $data['mail'], 
-			'roles' => array(12 => 1, 2 => 1)	// sub user role id : 12
+			'roles' => array(USER_ROLE_SUB_USER => USER_ROLE_SUB_USER, 
+                             USER_ROLE_AUTHENTICATE => USER_ROLE_AUTHENTICATE)
 		);
 		$account = user_save('', array_merge($section1, $info));
 		// Terminate if an error occured during user_save().
@@ -200,7 +183,7 @@ function ncn_subuser_create_subuser($member_id, $data) {
 		$result = db_query('INSERT INTO {member_subuser}(member_id, sub_uid) VALUES(:s, :d)',
             array(':s'=>$member_id,':d'=>$sub_uid));
 		if (!$result) {
-			drupal_set_message( t('Create a sub user, successfuuly, but failed to assign sub user(user id: !uid) to member. Please report to administrator.', array('!uid'=>$sub_uid)), 'error' );
+			drupal_set_message( t('Create a sub user, successfully, but failed to assign sub user(user id: !uid) to member. Please report to administrator.', array('!uid'=>$sub_uid)), 'error' );
 			$error = true;
             if($is_admin){
 			    return TRUE;

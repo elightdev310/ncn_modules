@@ -162,7 +162,7 @@ function user_register_form_submit($form, &$form_state)
 {
     global $base_url;
 
-    $date = explode("/", $_POST['profile_credit_card_expiration']);
+    $date = explode("/", isset($_POST['profile_credit_card_expiration'])?$_POST['profile_credit_card_expiration']:'');
 
     if (sizeof($date) == 2)
     {       $date = "20".$date[1]."-".$date[0];   }
@@ -253,7 +253,7 @@ function user_register_form_submit($form, &$form_state)
     $mail = $form_state['values']['mail'];
     $name = $form_state['values']['name'];
 
-    ncn_track_nda_log($name);
+    ncn_track_nda_log($name);   // Track IP Address
 
     if (!variable_get('user_email_verification', TRUE) || $admin) {
         $pass = $form_state['values']['pass'];
@@ -268,7 +268,8 @@ function user_register_form_submit($form, &$form_state)
         $roles = array_filter($form_state['values']['roles']);
     }
     else {
-        $roles = array(8 => 8, 2 => 1);
+        $roles = array(USER_ROLE_MEMBER => USER_ROLE_MEMBER, 
+                       USER_ROLE_AUTHENTICATE => USER_ROLE_AUTHENTICATE);
     }
 
     if (!$admin && array_intersect(array_keys($form_state['values']), array('uid', 'roles', 'init', 'session', 'status'))) {
@@ -374,6 +375,7 @@ function user_apply()
     <?php
     $content = ob_get_contents();
     ob_end_clean();
+
     $u_form = drupal_get_form('user_register');
     $form = drupal_render($u_form);
     //$form = str_replace('name="profile_taxstatus"', 'onchange="change_tax_status(this.checked);" name="profile_taxstatus"', $form);
@@ -447,7 +449,8 @@ function get_user_confirm_page()
  */
 function user_activate_page()
 {
-    $output = drupal_render(drupal_get_form('user_activate'));
+    $form = drupal_get_form('user_activate');
+    $output = drupal_render($form);
     $output.= '<br /><strong>Office</strong> 877.654.8668<br /><strong>Fax</strong> 877.654.8667';
     return $output;
 }
@@ -940,7 +943,7 @@ function register_user_save($account, $array = array(), $category = 'account') {
         }
     }
     else if (is_object($account) && $account->uid && $array['status'] == 0 && $account->status == 0) {
-
+        // No First
         $_user1 = user_load($account->uid);
         $_query = "UPDATE profile_value SET value='no first' WHERE fid=64 AND uid=".$_user1->uid;   // profile_fblocked : 64
         $result = db_query($_query);

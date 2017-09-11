@@ -100,17 +100,18 @@ function charge_distributor($owner, $product_nid, $target_mid)
     }
 
 //    $query = "SELECT * FROM member_distributor_cim WHERE username=\"" . AddSlashes($user->name) . "\";";
-    $result = db_query('SELECT * FROM {member_distributor_cim} WHERE username=:a',array(':a'=>$user->name));
-    $row_count = $result->rowCount();
-    $cim_profile = $result->fetchAssoc();
+    $dist_cim = ncn_get_distributor_cim($user->name);
+    if (!$dist_cim) {
+        return false;
+    }
 
+    $customerProfileId = $member_cim['customerProfileId'];
+    $customerPaymentProfileId = $member_cim['customerPaymentProfileId'];
+    if (intval($customerProfileId) == 0 || intval($customerPaymentProfileId) == 0)
+    {
+        return true;
+    }
 
-    /*
-    [customerProfileId] => 3031071
-    [customerPaymentProfileId] => 2620455
-    */
-
-    set_time_limit(59);
     // get product details
     //$node = node_load(33);
     $node = node_load($product_nid);
@@ -118,63 +119,28 @@ function charge_distributor($owner, $product_nid, $target_mid)
 
     if ($node->sell_price != 0) {
         // attempt payment
-        $content =
-            "<?xml version=\"1.0\" encoding=\"utf-8\"?>" .
-            "<createCustomerProfileTransactionRequest xmlns=\"AnetApi/xml/v1/schema/AnetApiSchema.xsd\">" .
-            MerchantAuthenticationBlock() .
-            "<transaction>" .
-            "<profileTransAuthCapture>" .
-            "<amount>" . (string)$node->sell_price . "</amount>" . // should include tax, shipping, and everything.
-            "<shipping>" .
-            "<amount>0.00</amount>" .
-            "<name>" . (string)$node->title . "</name>" .
-            "<description>" . (string)$node->title . "</description>" .
-            "</shipping>" .
-
-            "<lineItems>" .
-            "<itemId>123456</itemId>" .
-            "<name>" . (string)$node->title . "</name>" .
-            "<description>" . (string)$node->title . "</description>" .
-            "<quantity>1</quantity>" .
-            "<unitPrice>" . (string)$node->sell_price . "</unitPrice>" .
-            "<taxable>false</taxable>" .
-            "</lineItems>" .
-
-            "<customerProfileId>" . $cim_profile["customerProfileId"] . "</customerProfileId>" .
-            "<customerPaymentProfileId>" . $cim_profile["customerPaymentProfileId"] . "</customerPaymentProfileId>" .
-            "<order>" .
-            "<invoiceNumber>" . get_unique_auth_profile_id() . "</invoiceNumber>" .
-            "</order>" .
-            "</profileTransAuthCapture>" .
-            "</transaction>" .
-            "</createCustomerProfileTransactionRequest>"; // <?php
-
-//          "<customerShippingAddressId>" . $_POST["customerShippingAddressId"] . "</customerShippingAddressId>".
-
-        $response = send_xml_request($content);
-        $parsedresponse = parse_api_response($response);
-
+        $response = sendNcnPaymentRequest($customerProfileId, $customerPaymentProfileId, 
+                      array(
+                        'price'         => $node->sell_price, 
+                        'shipping_name' => $node->title, 
+                        'shipping_desc' => $node->title, 
+                        'item_id'       => $product_nid, 
+                        'item_name'     => $node->title, 
+                        'item_desc'     => $node->title, 
+                      ));
         $auth_successful = true;
-        if ("Ok" == $parsedresponse->messages->resultCode) {
-//          echo "A transaction was successfully created for customerProfileId <b>"
-//              . htmlspecialchars($_POST["customerProfileId"])
-//              . "</b>.<br><br>";
-
+        if ("Ok" == $response->messages->resultCode) {
             $auth_successful = true;
             $response_code = 1; // success
 
             ncn_debug_message("Distributor charge successful.");
-
         } else {
-
             $auth_successful = false;
             $response_code = 3;
 
-            $response_reason_text = preg_replace("/[^a-zA-Z0-9\s\'\.]/", "", $parsedresponse->messages->message->text);
-
+            $response_reason_text = preg_replace("/[^a-zA-Z0-9\s\'\.]/", "", $response->messages->message->text);
             ncn_debug_message("Distributor charge failed:" . $response_reason_text);
         }
-
     } else {
         $auth_successful = true;
     }
@@ -372,7 +338,7 @@ function ncn_dist_create_member_action(&$create_step) {
         drupal_set_message('Contact email address exists. Please use another email address.', 'error');
         return;
     }
-    
+
     // get distributor name
     $dist = user_load($_POST['distributor']);
     $distributor_name = $dist->profile_firstname . ' ' . $dist->profile_lastname;
@@ -803,7 +769,8 @@ function _get_report_pass($username)
 function ncn_dist_user_check_password($password, $hashed_pwd)
 {
     module_load_include('inc', 'content', 'includes/password');
-    $account = (object)['pass'=>$hashed_pwd];
+    $account = array('pass'=>$hashed_pwd);
+    $account = (object)$account;
     return user_check_password($password, $account);
 }
 function ncn_dist_authorize_report()

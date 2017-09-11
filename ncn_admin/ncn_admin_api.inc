@@ -96,79 +96,37 @@ function check_existing_memberid($member_id, $used) {
 //------------------------------------------------------------------------------
 function charge_retail_kit($customerProfileId, $customerPaymentProfileId, $product_id, $member_id, $owner_id)
 {
-    set_time_limit(59);
-/*
-    [customerProfileId] => 3031071
-    [customerPaymentProfileId] => 2620455
-*/
-    
-    // get product details
-    
     $node = node_load($product_id);
     $node->data = unserialize($node->data);
 
     if ($node->sell_price != 0) {
         // attempt payment
-        $content =
-            "<?xml version=\"1.0\" encoding=\"utf-8\"?>" .
-            "<createCustomerProfileTransactionRequest xmlns=\"AnetApi/xml/v1/schema/AnetApiSchema.xsd\">" .
-            MerchantAuthenticationBlock().
-            "<transaction>".
-            "<profileTransAuthCapture>".
-            "<amount>" . (string)$node->sell_price . "</amount>". // should include tax, shipping, and everything.
-            "<shipping>".
-            "<amount>0.00</amount>".
-            "<name>".(string)$node->title."</name>".
-            "<description>".(string)$node->title."</description>".
-            "</shipping>".
-
-            "<lineItems>".
-            "<itemId>123456</itemId>".
-            "<name>".(string)$node->title."</name>".
-            "<description>".(string)$node->title."</description>".
-            "<quantity>1</quantity>".
-            "<unitPrice>".(string)$node->sell_price."</unitPrice>".
-            "<taxable>false</taxable>".
-            "</lineItems>".
-
-            "<customerProfileId>" . $customerProfileId . "</customerProfileId>".
-            "<customerPaymentProfileId>" . $customerPaymentProfileId . "</customerPaymentProfileId>".
-            "<order>".
-            "<invoiceNumber>".get_unique_auth_profile_id()."</invoiceNumber>".
-            "</order>".
-            "</profileTransAuthCapture>".
-            "</transaction>".
-            "</createCustomerProfileTransactionRequest>";   // <?php
-            
-        $response = send_xml_request($content);
-        $parsedresponse = parse_api_response($response);
-        
+        $response = sendNcnPaymentRequest($customerProfileId, $customerPaymentProfileId, 
+                      array(
+                        'price'         => $node->sell_price, 
+                        'shipping_name' => $node->title, 
+                        'shipping_desc' => $node->title, 
+                        'item_id'       => $product_id, 
+                        'item_name'     => $node->title, 
+                        'item_desc'     => $node->title, 
+                      ));        
         $auth_successful = true;
-        if ("Ok" == $parsedresponse->messages->resultCode)
+        if ("Ok" == $response->messages->resultCode)
         {
-            // echo "A transaction was successfully created for customerProfileId <b>"
-            //         . htmlspecialchars($_POST["customerProfileId"])
-            //         . "</b>.<br><br>";
-            
             $auth_successful = true;
             $response_code = 1;     // success
         }
         else
         {
-            
             $auth_successful = false;
             $response_code = 3;
-            
-            $response_reason_text = preg_replace("/[^a-zA-Z0-9\s\'\.]/", "", $parsedresponse->messages->message->text);
-            drupal_set_message($response_reason_text, 'error');         
-            
         }
     } else {
         $auth_successful = true;
     }
-        //*** payment log ***//
-        $payment_success = ($auth_successful)? 1:0;
-        ncn_report_payment_log($product_id, $payment_success, null, $member_id, 0, 0, $owner_id );
+    //*** payment log ***//
+    $payment_success = ($auth_successful)? 1:0;
+    ncn_report_payment_log($product_id, $payment_success, null, $member_id, 0, 0, $owner_id );
 
     return $auth_successful;
 }

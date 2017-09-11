@@ -21,14 +21,12 @@ else
 //------------------------------------------------------------------------------
 function ncn_cim_menu()
 {
-
     // complete distributor control page 
     $items['account/cim_patch'] = array(
       'page callback' => 'cim_patch_distributor',
       'type' => MENU_CALLBACK,
       'access arguments' => array('access content'),
     );
-
     return $items;
 }
 
@@ -479,5 +477,73 @@ function getNcnCimCustomerProfileInfo($vars)
         }
     }
     return false;
+}
+
+function sendNcnPaymentRequest($customerProfileId, $customerPaymentProfileId, $vars) {
+    set_time_limit(119);
+
+    extract($vars);
+    $content = 
+        "<?xml version=\"1.0\" encoding=\"utf-8\"?>" . 
+        "<createCustomerProfileTransactionRequest xmlns=\"AnetApi/xml/v1/schema/AnetApiSchema.xsd\">" . 
+          MerchantAuthenticationBlock() . 
+          "<transaction>" . 
+            "<profileTransAuthCapture>" . 
+              "<amount>" . (string)$price . "</amount>" . // should include tax, shipping, and everything.
+              "<shipping>" . 
+                "<amount>0.00</amount>" . 
+                "<name>" . $shipping_name . "</name>" . 
+                "<description>" . $shipping_desc . "</description>" . 
+              "</shipping>" . 
+              "<lineItems>" . 
+                "<itemId>". $item_id ."</itemId>" . 
+                "<name>" . $item_name . "</name>" . 
+                "<description>" . $item_desc . "</description>" . 
+                "<quantity>1</quantity>" . 
+                "<unitPrice>" . (string)$price . "</unitPrice>" . 
+                "<taxable>false</taxable>" . 
+              "</lineItems>" . 
+              "<customerProfileId>" . $customerProfileId . "</customerProfileId>" . 
+              "<customerPaymentProfileId>" . $customerPaymentProfileId . "</customerPaymentProfileId>" . 
+              "<order>" . 
+                "<invoiceNumber>" . get_unique_auth_profile_id() . "</invoiceNumber>" . 
+              "</order>" . 
+            "</profileTransAuthCapture>" . 
+          "</transaction>" . 
+        "</createCustomerProfileTransactionRequest>";
+    $response = send_xml_request($content);
+    $parsedresponse = parse_api_response($response);
+    return $parsedresponse;
+
+    // if ("Ok" == $parsedresponse->messages->resultCode) {
+    //     return true;
+    // } else {
+    //     $response_reason_text = preg_replace("/[^a-zA-Z0-9\s\'\.]/", "", $parsedresponse->messages->message->text);
+    //     drupal_set_message($response_reason_text, 'error');
+    //     return false;
+    // }
+}
+
+
+function ncn_get_member_cim($member_id) {
+    $result = db_query('SELECT * FROM {member_cim} WHERE member_id=:a',array(':a'=>(string)$member_id));
+    if ($row = $result->fetchAssoc()) {
+      $customerProfileId = $row['customerProfileId'];
+      $customerPaymentProfileId = $row['customerPaymentProfileId'];
+      return $row;
+    } else {
+      return false;
+    }
+}
+
+function ncn_get_distributor_cim($username) {
+    $result = db_query('SELECT * FROM {member_distributor_cim} WHERE username=:a',array(':a'=>$user->name));
+    if ($row = $result->fetchAssoc()) {
+      $customerProfileId = $row['customerProfileId'];
+      $customerPaymentProfileId = $row['customerPaymentProfileId'];
+      return $row;
+    } else {
+      return false;
+    }
 }
 ?>

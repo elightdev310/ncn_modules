@@ -6,39 +6,39 @@
  */
 function ncn_create_user_menu()
 {
-	$items = array();
-	$items['admin/config/ncn_create_user'] = array(
-		'title' => 'Net Claims Now Create Users',
-		'page callback' => 'drupal_get_form',
-		'access arguments' => array('administer users'),
-	);
-	
-	$items['apply.html'] = array(
-		'title' => 'Create new account',
-		'page callback' => 'user_apply',
-		'access callback' => 'user_register_access',
-		'type' => MENU_LOCAL_TASK,
-		'file' => 'ncn_create_user.pages.inc',
-	);
-	
-	$items['activate.html'] = array(
-		'title' => 'Create new account',
-		'page callback' => 'user_activate_page',
-		'access callback' => 'user_register_access',
-		'type' => MENU_LOCAL_TASK,
-		'file' => 'ncn_create_user.pages.inc',
-	);
-	
-	
-	/* List */
-	$items['admin/config/ncn_create_user/all_user_list'] = array(
-		'type' => MENU_LOCAL_TASK,
-		'title' => 'List Users',
-		'description'   => 'List Users',
-		'page callback' => 'all_user_list',
-		'access arguments' => array('administer users'),
-		'weight' => 0,
-	);
+    $items = array();
+    $items['admin/config/ncn_create_user'] = array(
+        'title' => 'Net Claims Now Create Users',
+        'page callback' => 'drupal_get_form',
+        'access arguments' => array('administer users'),
+    );
+    
+    $items['apply.html'] = array(
+        'title' => 'Create new account',
+        'page callback' => 'user_apply',
+        'access callback' => 'user_register_access',
+        'type' => MENU_LOCAL_TASK,
+        'file' => 'ncn_create_user.pages.inc',
+    );
+    
+    $items['activate.html'] = array(
+        'title' => 'Create new account',
+        'page callback' => 'user_activate_page',
+        'access callback' => 'user_register_access',
+        'type' => MENU_LOCAL_TASK,
+        'file' => 'ncn_create_user.pages.inc',
+    );
+    
+    
+    /* List */
+    $items['admin/config/ncn_create_user/all_user_list'] = array(
+        'type' => MENU_LOCAL_TASK,
+        'title' => 'List Users',
+        'description'   => 'List Users',
+        'page callback' => 'all_user_list',
+        'access arguments' => array('administer users'),
+        'weight' => 0,
+    );
     $items['admin/config/ncn_create_user/all_user_list/download'] = array(
       //  'type' => MENU_LOCAL_TASK,
         'title' => 'Download List',
@@ -72,14 +72,14 @@ function ncn_create_user_menu()
         'weight' => 0,
     );
 
-	$items['admin/config/ncn_create_user/account_manager_list'] = array(
-		'type' => MENU_LOCAL_TASK,
-		'title' => 'Account Manager List',
-		'description'   => 'Account Manager List',
-		'page callback' => 'account_manager_list',
-		'access arguments' => array('administer users'),
-		'weight' => 1,
-	);
+    $items['admin/config/ncn_create_user/account_manager_list'] = array(
+        'type' => MENU_LOCAL_TASK,
+        'title' => 'Account Manager List',
+        'description'   => 'Account Manager List',
+        'page callback' => 'account_manager_list',
+        'access arguments' => array('administer users'),
+        'weight' => 1,
+    );
     $items['admin/config/ncn_create_user/account_manager_list/view'] = array(
         //  'type' => MENU_LOCAL_TASK,
         'title' => 'Account Manager List View',
@@ -91,13 +91,13 @@ function ncn_create_user_menu()
 
 
     $items['admin/config/ncn_create_user/unactivated_member_list'] = array(
-		'type' => MENU_LOCAL_TASK,
-		'title' => 'Unactivated Member List',
-		'description'   => 'Unactivated Member List',
-		'page callback' => 'unactivated_member_list',
-		'access arguments' => array('administer users'),
-		'weight' => 2,
-	);
+        'type' => MENU_LOCAL_TASK,
+        'title' => 'Unactivated Member List',
+        'description'   => 'Unactivated Member List',
+        'page callback' => 'unactivated_member_list',
+        'access arguments' => array('administer users'),
+        'weight' => 2,
+    );
     $items['admin/config/ncn_create_user/unactivated_member_list/edit'] = array(
       //  'type' => MENU_LOCAL_TASK,
         'title' => 'Unactivated Member List Edit',
@@ -107,59 +107,59 @@ function ncn_create_user_menu()
       //  'weight' => 2,
     );
 
-	/* List */
+    /* List */
 
-	/* Add */
-	$items['admin/config/ncn_create_user/create_distributor'] = array(
-		'type'            => MENU_LOCAL_TASK,
-		'title'           => 'Add Distributor',
-		'description'     => 'Add distributor User',
-		'page callback'   => 'create_distributor',
-		'page arguments'  => array('create_distributor'),
-		'access arguments'=> array('administer users'),
-		'weight' => 3,
-	);
+    /* Add */
+    $items['admin/config/ncn_create_user/create_distributor'] = array(
+        'type'            => MENU_LOCAL_TASK,
+        'title'           => 'Add Distributor',
+        'description'     => 'Add distributor User',
+        'page callback'   => 'create_distributor',
+        'page arguments'  => array('create_distributor'),
+        'access arguments'=> array('administer users'),
+        'weight' => 3,
+    );
 
-	$items['admin/config/ncn_create_user/create_associate'] = array(
-		'type'            => MENU_LOCAL_TASK,
-		'title'           => 'Add Associate',
-		'description'     => 'Add Associate User',
-		'page callback'   => 'create_associate',
-		'page arguments'  => array('create_associate'),
-		'access arguments'=> array('administer users'),
-		'weight' => 4,
-	);
+    $items['admin/config/ncn_create_user/create_associate'] = array(
+        'type'            => MENU_LOCAL_TASK,
+        'title'           => 'Add Associate',
+        'description'     => 'Add Associate User',
+        'page callback'   => 'create_associate',
+        'page arguments'  => array('create_associate'),
+        'access arguments'=> array('administer users'),
+        'weight' => 4,
+    );
 
-	$items['admin/config/ncn_create_user/create_lead_generation_user'] = array(
-		'type'            => MENU_LOCAL_TASK,
-		'title'           => 'Add Lead Generation',
-		'description'     => 'Add Lead Generation User',
-		'page callback'   => 'create_lead_generation_user',
-		'page arguments'  => array('create_lead_generation_user'),
-		'access arguments'=> array('administer users'),
-		'weight' => 5,
-	);
+    $items['admin/config/ncn_create_user/create_lead_generation_user'] = array(
+        'type'            => MENU_LOCAL_TASK,
+        'title'           => 'Add Lead Generation',
+        'description'     => 'Add Lead Generation User',
+        'page callback'   => 'create_lead_generation_user',
+        'page arguments'  => array('create_lead_generation_user'),
+        'access arguments'=> array('administer users'),
+        'weight' => 5,
+    );
 
-	$items['admin/config/ncn_create_user/create_account_manager'] = array(
-		'type'            => MENU_LOCAL_TASK,
-		'title'           => 'Add User',
-		'description'     => 'Add User',
-		'page callback'   => 'create_account_manager',
-		'page arguments'  => array('create_account_manager'),
-		'access arguments'=> array('administer users'),
-		'weight' => 6,
-	);
+    $items['admin/config/ncn_create_user/create_account_manager'] = array(
+        'type'            => MENU_LOCAL_TASK,
+        'title'           => 'Add User',
+        'description'     => 'Add User',
+        'page callback'   => 'create_account_manager',
+        'page arguments'  => array('create_account_manager'),
+        'access arguments'=> array('administer users'),
+        'weight' => 6,
+    );
 
-	$items['admin/config/ncn_create_user/create_sub_user'] = array(
-		'type'            => MENU_LOCAL_TASK,
-		'title'           => 'Add Sub User',
-		'description'     => 'Add Sub User',
-		'page callback'   => 'create_sub_user',
-		'page arguments'  => array('create_sub_user'),
-		'access arguments'=> array('administer users'),
-		'weight' => 7,
-	);
-	/* Add */
+    $items['admin/config/ncn_create_user/create_sub_user'] = array(
+        'type'            => MENU_LOCAL_TASK,
+        'title'           => 'Add Sub User',
+        'description'     => 'Add Sub User',
+        'page callback'   => 'create_sub_user',
+        'page arguments'  => array('create_sub_user'),
+        'access arguments'=> array('administer users'),
+        'weight' => 7,
+    );
+    /* Add */
 
     /* Edit */
     $items['admin/config/ncn_create_user/edit_user_extra_profile/%'] = array(
@@ -170,7 +170,7 @@ function ncn_create_user_menu()
     );
     /* Edit */
 
-	return $items;
+    return $items;
 }
 function ncn_create_user_mail($key, &$message, $params)
 {
@@ -188,7 +188,8 @@ function ncn_create_user_mail($key, &$message, $params)
             $message['subject'] = t(variable_get('ncn_accountmanager_signup_subject', ''), $params, $options);
             $message['body'][] = t(variable_get('ncn_accountmanager_signup_body', ''), $params, $options);
             break;
-        case "distributor": $message['subject'] = t(variable_get('ncn_distributor_signup_subject', ''), $params, $options);
+        case "distributor": 
+            $message['subject'] = t(variable_get('ncn_distributor_signup_subject', ''), $params, $options);
             $message['body'][] = t(variable_get('ncn_distributor_signup_body', ''), $params, $options);
             break;
         case "associate":
@@ -227,7 +228,7 @@ function ncn_create_user_mail($key, &$message, $params)
             $message['body'][] = ncn_admin_get_mail_body( '{reject_claim}', $message, $params );
 
             $_admin = user_load(1);
-            $admin_mail = $_admin->mail;	//***
+            $admin_mail = $_admin->mail;    //***
             $bcc = $admin_mail;
 
             //$bcc = get_claim_docs_rejected_bcc();
@@ -238,7 +239,7 @@ function ncn_create_user_mail($key, &$message, $params)
             $_member = get_member_from_id($_claim_user->profile_memberid);
             if (!empty($_member)) {
                 $_am = user_load($_member['am_uid']);
-                $am_mail = $_am->mail;		//***
+                $am_mail = $_am->mail;      //***
                 if ($am_mail!='') {
                     $Cc = $am_mail;
                     $message['headers']['CC'] = $Cc;
@@ -255,7 +256,7 @@ function ncn_create_user_mail($key, &$message, $params)
             $message['body'][] = ncn_admin_get_mail_body( '{create_user}', $message, $params );
 
             $_admin = user_load(1);
-            $admin_mail = $_admin->mail;	//***
+            $admin_mail = $_admin->mail;    //***
             $bcc = $admin_mail;
             $message['headers']['Bcc'] = $bcc;
 
@@ -284,13 +285,14 @@ function ncn_create_user_mail($key, &$message, $params)
     }
 }
 
-function ncn_create_user_mail_alter($message) {
-    if ($message['id'] == 'user_register_pending_approval') {	//"modulename_key"
+function ncn_create_user_mail_alter($message) 
+{
+    if ($message['id'] == 'user_register_pending_approval') {   //"modulename_key"
         $_admin = user_load(1);
         $message['headers']['Bcc'] = $_admin->mail;
     } else {
         $_admin = user_load(1);
-        $bcc = $message['headers']['Bcc'];
+        $bcc = isset($message['headers']['Bcc'])?$message['headers']['Bcc']:'';
         if (strpos($bcc, $_admin->mail) === FALSE) {
             if (!empty($bcc)) {
                 $bcc .= ", ";
@@ -302,12 +304,13 @@ function ncn_create_user_mail_alter($message) {
     $message['from'] = "noreply@netclaimsnow.com";
     $message['headers']['From'] = "noreply@netclaimsnow.com";
 }
-function user_build_filter_querys() {
+
+function user_build_filter_querys() 
+{
     $filters = user_filters();
-//    var_dump($filters);
     // Build query
     $where = $args = $join = array();
-  // var_dump($_SESSION['user_overview_filter']);
+
     foreach (isset($_SESSION['user_overview_filter']) ? $_SESSION['user_overview_filter'] : array() as $filter) {
 
         list($key, $value) = $filter;
@@ -331,7 +334,7 @@ function user_build_filter_querys() {
             $where[] = "(pf.value != 0 AND mip.member_type=%d) ";
             $args[] = $value;
             $join[] = " LEFT JOIN {profile_value} pf ON (u.uid = pf.uid AND pf.fid=48)
-								LEFT JOIN {member_id_pool} mip ON (pf.value = mip.member_id) ";
+                                LEFT JOIN {member_id_pool} mip ON (pf.value = mip.member_id) ";
         } else {
             $where[] = $filters[$key]['where'];
             $args[] = $value;
@@ -694,8 +697,10 @@ function user_filters_form_submit($form, &$form_state) {
     return;
 }
 
+/**
+ * drupal_form (in admin/config/ncn_create_user/all_user_list)
+ */
 function user_admins_account() {
-
     $header = array(
         'username' => array('data' => t('Name'), 'field' => 'u.name'),
         'status' => array('data' => t('Status'), 'field' => 'u.status'),
@@ -712,7 +717,7 @@ function user_admins_account() {
     $query = db_select('users', 'u');
     $query->condition('u.uid', 0, '<>');
     user_build_filters_query($query);
-   // user_build_filters_query
+    // user_build_filters_query
     $count_query = clone $query;
     $count_query->addExpression('COUNT(u.uid)');
 
@@ -771,20 +776,20 @@ function user_admins_account() {
      //   var_dump($account->uid);
         $users_list = $account->uid;
         $member_type = get_member_type_name($users_list);
-		$_user = user_load($users_list);
+        $_user = user_load($users_list);
         if (isset($_user->profile_memberid)&&ncn_admin_is_gold_member_demo($_user->profile_memberid)) {
             $member_type .= " (Demo)";
         } else if (isset($_user->profile_memberid)&&ncn_admin_is_member_first_free($_user->profile_memberid)) {
             $member_type .= " (First Free)";
         }
-		
+        
         $users_roles = array();
         $roles_result = db_query('SELECT rid FROM {users_roles} WHERE uid = :uid', array(':uid' => $account->uid));
         foreach ($roles_result as $user_role) {
             $users_roles[] = $roles[$user_role->rid];
         }
         asort($users_roles);
-		
+        
         $options[$account->uid] = array(
           //  array('data' => array('#type' => 'link', '#title' => t($account->name), '#href' => "admin/config/ncn_create_user/all_user_list/detail/$account->uid")),
             'username' => $name,
@@ -846,9 +851,9 @@ function user_operations_unblock_callback($user_ary){
 
                     $login_mail_sent = true;
                     drupal_mail('ncn_admin', 'member_login', $_user1->mail, language_default(), $params);
-					
+                    
                     if ($_fblocked == 'first') {
-                        $_query = "UPDATE profile_value SET value='no first' WHERE fid=64 AND uid=".$_user1->uid;	// profile_fblocked : 64
+                        $_query = "UPDATE profile_value SET value='no first' WHERE fid=64 AND uid=".$_user1->uid;   // profile_fblocked : 64
                         $result = db_query($_query);
                     }
                 }
@@ -867,7 +872,7 @@ function user_operations_block_callback($user_ary){
         $user_ary = @array_pop($user_ary);
         foreach($user_ary as $usr){
             $_user1 = user_load($usr);
-            $_query = "UPDATE profile_value SET value='no first' WHERE fid=64 AND uid=".$_user1->uid;	// profile_fblocked : 64
+            $_query = "UPDATE profile_value SET value='no first' WHERE fid=64 AND uid=".$_user1->uid;   // profile_fblocked : 64
             $result = db_query($_query);
 
             $array['pass'] = get_member_password($_user1->profile_memberid, $_user1->profile_firstname);
@@ -887,9 +892,9 @@ function user_operations_block_callback($user_ary){
  * Submit the user administration update form.
  */
 function user_admins_account_submit($form, &$form_state) {
-	if (!empty($_POST['accounts']) && isset($_POST['operation']) && ($_POST['operation'] == 'cancel')) {
+    if (!empty($_POST['accounts']) && isset($_POST['operation']) && ($_POST['operation'] == 'cancel')) {
         return;
-    }	
+    }   
     $operations = module_invoke_all('user_operations', $form, $form_state);
     $operation = $operations[$form_state['values']['operation']];
     // Filter out unchecked accounts.
@@ -902,12 +907,12 @@ function user_admins_account_submit($form, &$form_state) {
         else {
             $args = array($accounts);
         }
-		
-		switch(trim($function)){
+        
+        switch(trim($function)){
             case 'user_user_operations_unblock': user_operations_unblock_callback($args);break;
             case 'user_user_operations_block': user_operations_block_callback($args);break;
         }
-		
+        
         call_user_func_array($function, $args);
 
         drupal_set_message(t('The update has been performed.'));
@@ -1040,15 +1045,15 @@ function all_user_list(){
 ////    );
 ////    $form['pager'] = array('#markup' => theme('pager'));
     $output = '';
-	if (!empty($_POST['accounts']) && isset($_POST['operation']) && ($_POST['operation'] == 'cancel')) {
+    if (!empty($_POST['accounts']) && isset($_POST['operation']) && ($_POST['operation'] == 'cancel')) {
         $cancel_form = drupal_get_form('user_multiple_cancel_confirm');
         $output .= render($cancel_form);
     } else {
         $filter_form = drupal_get_form('user_filters_form');
         $admin_account_form = drupal_get_form('user_admins_account');
-	    $output .= render($filter_form);
-    	$output .= render($admin_account_form);
-	}
+        $output .= render($filter_form);
+        $output .= render($admin_account_form);
+    }
 //    $output .= render(drupal_get_form(filter_form));
 //    $output .= render($form);
 //    $output .= theme('table', array('header'=>$header,'rows'=>$options));
@@ -1327,8 +1332,8 @@ function all_user_listOLD()
 //    return $form;
 
 
-	$result = array();
-	return theme('all_user_list',array('result'=>$result));
+    $result = array();
+    return theme('all_user_list',array('result'=>$result));
 }
 
 
@@ -1344,8 +1349,8 @@ function account_manager_list()
     ncn_admin_account_manager_list_action();
     ncn_admin_update_am_auto_assign();
 
-	$result = array();
-	return theme('account_manager_list',array('result'=>$result));
+    $result = array();
+    return theme('account_manager_list',array('result'=>$result));
 
 }
 function account_manager_list_view($member)
@@ -1366,19 +1371,19 @@ function unactivated_member_list_edit($id)
 {
     $a = $id;
 
-//    $p_status	 	= $_POST['status'];
-//    $p_first_name 	= $_POST['first_name'];
-//    $p_last_name 	= $_POST['last_name'];
-//    $p_legalname 	= $_POST['legalname'];
-//    $p_country	 	= $_POST['country'];
-//    $p_address	 	= $_POST['address'];
-//    $p_city		 	= $_POST['city'];
-//    $p_state	 	= $_POST['state'];
-//    $p_zip		 	= $_POST['zip'];
-//    $p_officephone	= $_POST['officephone'];
-//    $p_mobilephone	= $_POST['mobilephone'];
-//    $p_contactemail	= $_POST['contactemail'];
-//    $p_sales_rep	= $_POST['sales_rep'];
+//    $p_status     = $_POST['status'];
+//    $p_first_name     = $_POST['first_name'];
+//    $p_last_name  = $_POST['last_name'];
+//    $p_legalname  = $_POST['legalname'];
+//    $p_country        = $_POST['country'];
+//    $p_address        = $_POST['address'];
+//    $p_city           = $_POST['city'];
+//    $p_state      = $_POST['state'];
+//    $p_zip            = $_POST['zip'];
+//    $p_officephone    = $_POST['officephone'];
+//    $p_mobilephone    = $_POST['mobilephone'];
+//    $p_contactemail   = $_POST['contactemail'];
+//    $p_sales_rep  = $_POST['sales_rep'];
 //    $p_member_type= $_POST['member_type'];
 //
 
@@ -1396,16 +1401,16 @@ function unactivated_member_list_edit($id)
 //    $_owner = user_load($member['owner']);
 //    if (is_distributor($_owner)) {
 //        drupal_add_js("
-//			$(document).ready(function() {
-//			$('#dist_asso').val('distributor');
-//			onchange_dist_asso();
-//			});", 'inline');
+//          $(document).ready(function() {
+//          $('#dist_asso').val('distributor');
+//          onchange_dist_asso();
+//          });", 'inline');
 //    } else {
 //        drupal_add_js("
-//			$(document).ready(function() {
-//			$('#dist_asso').val('associate');
-//			onchange_dist_asso();
-//			});", 'inline');
+//          $(document).ready(function() {
+//          $('#dist_asso').val('associate');
+//          onchange_dist_asso();
+//          });", 'inline');
 //    }
 //    drupal_add_js(drupal_get_path('module', 'ncn_admin') . '/ncn_admin.js');
 
@@ -1436,7 +1441,7 @@ function unactivated_member_list_edit($id)
     if ( $assign_whose == 'distributor' ) {
         $dist = user_load($_POST['distributor']);
     } elseif ($assign_whose == 'associate' ) {
-        $dist = user_load($_POST['associate']);	// * add this code for associate role *
+        $dist = user_load($_POST['associate']); // * add this code for associate role *
     }
     if (!empty($dist)) {
         $distributor_name = $dist->profile_firstname.' '.$dist->profile_lastname;
@@ -1501,8 +1506,16 @@ function unactivated_member_list()
 
     $result = array();
 
-	return theme('unactivated_member_list',array('result'=>$result));
+    return theme('unactivated_member_list',array('result'=>$result));
 
+}
+
+function check_existing_username($username) {
+    $result = db_query("SELECT count(*) FROM users WHERE `name`=:username", 
+                        array(':username'=>$username))
+            ->fetchField();
+    if ($result > 0) { return true; }
+    return false;
 }
 
 function create_distributor()
@@ -1521,29 +1534,17 @@ function create_distributor()
             }
         }
 
-        // check valid username
+        // check valid username & email
         if ($error == false)
         {
-            $query = db_select('users', 'n')
-                ->fields('n')
-                ->condition('name', $_POST['name'],'=')
-                ->execute();
-            //   $query = "SELECT * FROM users WHERE `name`=\"".AddSlashes($_POST['name'])."\";";
-            $result = $query;
-
-            foreach($result as $row)
-            {
-                $row = (array)$row;
-                if(count($row) > 0)
-                {
-                    drupal_set_message("That username is taken.", 'error');
-                    $error = true;
-                }
-            }
-        }
-        if ($error == false) {
-            if (!valid_email_address($_POST['mail'])) {
+            if (check_existing_username($_POST['name'])) {
+                drupal_set_message("That username is taken. Please use another username.", 'error');
+                $error = true;
+            } else if (!valid_email_address($_POST['mail'])) {
                 drupal_set_message('Email address is invalid, Please retry to input email address.', 'error');
+                $error = true;
+            } else if (check_existing_email($_POST['mail'])) {
+                drupal_set_message("That email is taken. Please use another email.", 'error');
                 $error = true;
             }
         }
@@ -1566,26 +1567,10 @@ function create_distributor()
             }
         }
 
-        // check valid email
-        /*if ($error == false)
-        {
-            $query = "SELECT * FROM users WHERE `mail`=\"".AddSlashes($_POST['mail'])."\";";
-            $result = db_query($query);
-            foreach($result as $row)
-            {
-                $row = (array)$row;
-                if(count($row) > 0)
-                {
-                    drupal_set_message("Warining: That email address is already in use.", 'error');
-                    $error = true;
-                }
-            }
-        }*/
-
         // no errors, so try the card
         if ($error == false)
         {
-            $error = attempt_add_distributor_card();
+            $error = !attempt_add_distributor_card();
         }
 
         // add good, so add the distributor
@@ -1596,14 +1581,13 @@ function create_distributor()
             unset($section1['pass2']);
             unset($section1['tfunction']);
             $section1['status'] = 1;
-            $section1['roles'] = array(5 => 5, 2 => 1, 6 => 0, 7 => 0, 3 => 0, 4 => 0);
 
             $section2 = array(
                 'pass' => $_POST['pass'],
                 'init' => $_POST['mail'],
-                'roles' => array(5 => 5, 2 => 1)
+                'roles' => array(USER_ROLE_DISTRIBUTOR  => USER_ROLE_DISTRIBUTOR, 
+                                 USER_ROLE_AUTHENTICATE => USER_ROLE_AUTHENTICATE)
             );
-
 
             $account = user_save('', array_merge($section1, $section2));
 
@@ -1614,7 +1598,7 @@ function create_distributor()
                 $error = true;
             }
 
-            // send welcome email (account manager)	HERE
+            // send welcome email (account manager) HERE
             $params = array(
                 '!username' => $_POST['name'],
                 '!password' => $_POST['pass'],
@@ -1640,15 +1624,12 @@ function create_distributor()
             //  $query = "INSERT INTO users_parent (uid, parent) VALUES(".$account->uid.", ".$_POST['account_manager'].");";
             $result = $query;
 
-
             drupal_set_message("Distributor '".$_POST['name']."' added successfully", 'status');
-            unset($_POST);
+            $_POST = array();
         }
-
-
     }
 
-	$result = array();
+    $result = array();
     $result['name'] = (isset($_POST['name']) && trim($_POST['name'])!='' ? trim($_POST['name']) : '');
     $result['account_manager'] = (isset($_POST['account_manager']) && trim($_POST['account_manager'])!='' ? trim($_POST['account_manager']) : '');
     $result['mail'] = (isset($_POST['mail']) && trim($_POST['mail'])!='' ? trim($_POST['mail']) : '');
@@ -1674,7 +1655,7 @@ function create_distributor()
 
 function create_associate()
 {
-	// user tried to add a associate
+    // user tried to add a associate
     if (isset($_POST['tfunction']))
     {
         // error checking
@@ -1689,30 +1670,17 @@ function create_associate()
             }
         }
 
-        // check valid username
+        // check valid username & email
         if ($error == false)
         {
-            $query = db_select('users', 'n')
-                ->fields('n')
-                ->condition('name', $_POST['name'],'=')
-                ->execute();
-
-            //    $query = "SELECT * FROM users WHERE `name`=\"".AddSlashes($_POST['name'])."\";";
-            $result = $query;
-            foreach($result as $row)
-            {
-                $row = (array)$row;
-                if(count($row) > 0)
-                {
-                    drupal_set_message("That username is taken.", 'error');
-                    $error = true;
-                }
-            }
-        }
-
-        if ($error == false) {
-            if (!valid_email_address($_POST['mail'])) {
+            if (check_existing_username($_POST['name'])) {
+                drupal_set_message("That username is taken. Please use another username.", 'error');
+                $error = true;
+            } else if (!valid_email_address($_POST['mail'])) {
                 drupal_set_message('Email address is invalid, Please retry to input email address.', 'error');
+                $error = true;
+            } else if (check_existing_email($_POST['mail'])) {
+                drupal_set_message("That email is taken. Please use another email.", 'error');
                 $error = true;
             }
         }
@@ -1727,33 +1695,6 @@ function create_associate()
             }
         }
 
-        // check valid email
-        if ($error == false)
-        {
-
-            $query = db_select('users', 'n')
-                ->fields('n')
-                ->condition('mail', $_POST['mail'],'=')
-                ->execute();
-            //  $query = "SELECT * FROM users WHERE `mail`=\"".AddSlashes($_POST['mail'])."\";";
-            $result = db_query($query);
-            foreach($result as $row)
-            {
-                $row = (array)$row;
-                if(count($row) > 0)
-                {
-                    drupal_set_message("Warining: That email address is already in use.", 'error');
-                    // $error = true;
-                }
-            }
-        }
-
-        // no errors, so try the card // associate doesn't need credit card
-        /*if ($error == false)
-        {
-            $error = attempt_add_distributor_card();
-        }*/
-
         // add good, so add the associate
         if ($error == false)
         {
@@ -1762,12 +1703,12 @@ function create_associate()
             unset($section1['pass2']);
             unset($section1['tfunction']);
             $section1['status'] = 1;
-            $section1['roles'] = array(7 => 7, 2 => 1, 5 => 0, 6 => 0, 3 => 0, 4 => 0);
 
             $section2 = array(
                 'pass' => $_POST['pass'],
                 'init' => $_POST['mail'],
-                'roles' => array(7 => 7, 2 => 1)
+                'roles' => array(USER_ROLE_ASSOCIATE    => USER_ROLE_ASSOCIATE, 
+                                 USER_ROLE_AUTHENTICATE => USER_ROLE_AUTHENTICATE)
             );
 
 
@@ -1785,7 +1726,7 @@ function create_associate()
                 $error = true;
             }
 
-            // send welcome email (account manager)	HERE
+            // send welcome email (account manager) HERE
             $params = array(
                 '!username' => $_POST['name'],
                 '!password' => $_POST['pass'],
@@ -1809,13 +1750,12 @@ function create_associate()
                 ))
                 ->execute();
 
-
             //  $query = "INSERT INTO users_parent (uid, parent) VALUES(".$account->uid.", ".$_POST['account_manager'].");";
             $result = $query;
 
 
             drupal_set_message("Associate '".$_POST['name']."' added successfully", 'status');
-            unset($_POST);
+            $_POST = array();
         }
 
 
@@ -1824,22 +1764,22 @@ function create_associate()
     // ---- draw the form ----
 
 
-	$result = array();
-	$result['name'] = (isset($_POST['name']) && trim($_POST['name'])!='' ? trim($_POST['name']) : '');
-	$result['mail'] = (isset($_POST['mail']) && trim($_POST['mail'])!='' ? trim($_POST['mail']) : '');
+    $result = array();
+    $result['name'] = (isset($_POST['name']) && trim($_POST['name'])!='' ? trim($_POST['name']) : '');
+    $result['mail'] = (isset($_POST['mail']) && trim($_POST['mail'])!='' ? trim($_POST['mail']) : '');
     $result['account_manager'] = (isset($_POST['account_manager']) && trim($_POST['account_manager'])!='' ? trim($_POST['account_manager']) : '');
-	$result['pass'] = (isset($_POST['pass']) && trim($_POST['pass'])!='' ? trim($_POST['pass']) : '');
-	$result['profile_firstname'] = (isset($_POST['profile_firstname']) && trim($_POST['profile_firstname'])!='' ? trim($_POST['profile_firstname']) : '');
-	$result['profile_lastname'] = (isset($_POST['profile_lastname']) && trim($_POST['profile_lastname'])!='' ? trim($_POST['profile_lastname']) : '');
-	$result['profile_legalname'] = (isset($_POST['profile_legalname']) && trim($_POST['profile_legalname'])!='' ? trim($_POST['profile_legalname']) : '');
-	$result['profile_country'] = (isset($_POST['profile_country']) && trim($_POST['profile_country'])!='' ? trim($_POST['profile_country']) : '');
-	$result['profile_address'] = (isset($_POST['profile_address']) && trim($_POST['profile_address'])!='' ? trim($_POST['profile_address']) : '');
-	$result['profile_city'] = (isset($_POST['profile_city']) && trim($_POST['profile_city'])!='' ? trim($_POST['profile_city']) : '');
-	$result['profile_state'] = (isset($_POST['profile_state']) && trim($_POST['profile_state'])!='' ? trim($_POST['profile_state']) : '');
-	$result['profile_zip'] = (isset($_POST['profile_zip']) && trim($_POST['profile_zip'])!='' ? trim($_POST['profile_zip']) : '');
+    $result['pass'] = (isset($_POST['pass']) && trim($_POST['pass'])!='' ? trim($_POST['pass']) : '');
+    $result['profile_firstname'] = (isset($_POST['profile_firstname']) && trim($_POST['profile_firstname'])!='' ? trim($_POST['profile_firstname']) : '');
+    $result['profile_lastname'] = (isset($_POST['profile_lastname']) && trim($_POST['profile_lastname'])!='' ? trim($_POST['profile_lastname']) : '');
+    $result['profile_legalname'] = (isset($_POST['profile_legalname']) && trim($_POST['profile_legalname'])!='' ? trim($_POST['profile_legalname']) : '');
+    $result['profile_country'] = (isset($_POST['profile_country']) && trim($_POST['profile_country'])!='' ? trim($_POST['profile_country']) : '');
+    $result['profile_address'] = (isset($_POST['profile_address']) && trim($_POST['profile_address'])!='' ? trim($_POST['profile_address']) : '');
+    $result['profile_city'] = (isset($_POST['profile_city']) && trim($_POST['profile_city'])!='' ? trim($_POST['profile_city']) : '');
+    $result['profile_state'] = (isset($_POST['profile_state']) && trim($_POST['profile_state'])!='' ? trim($_POST['profile_state']) : '');
+    $result['profile_zip'] = (isset($_POST['profile_zip']) && trim($_POST['profile_zip'])!='' ? trim($_POST['profile_zip']) : '');
 
 
-	return theme('create_associate',array('result'=>$result));
+    return theme('create_associate',array('result'=>$result));
 }
 
 function create_lead_generation_user()
@@ -1861,35 +1801,24 @@ function create_lead_generation_user()
             }
         }
 
-        /*		if ($error == false) {
+        /*      if ($error == false) {
                 if ($_POST['parent_mid'] == '') {
                     drupal_set_message("Please select member.", 'error');
                     $error = true;
                 }
             }*/
 
-        // check valid username
+        // check valid username & email
         if ($error == false)
         {
-            $query = db_select('users', 'n')
-                ->fields('n')
-                ->condition('name', $_POST['name'],'=')
-                ->execute();
-            //   $query = "SELECT * FROM users WHERE `name`=\"".AddSlashes($lguser['name'])."\";";
-            $result = $query;
-            foreach($result as $row)
-            {
-                $row = (array)$row;
-                if(count($row) > 0)
-                {
-                    drupal_set_message("That username is taken.", 'error');
-                    $error = true;
-                }
-            }
-        }
-        if ($error == false) {
-            if (!valid_email_address($_POST['mail'])) {
+            if (check_existing_username($_POST['name'])) {
+                drupal_set_message("That username is taken. Please use another username.", 'error');
+                $error = true;
+            } else if (!valid_email_address($_POST['mail'])) {
                 drupal_set_message('Email address is invalid, Please retry to input email address.', 'error');
+                $error = true;
+            } else if (check_existing_email($_POST['mail'])) {
+                drupal_set_message("That email is taken. Please use another email.", 'error');
                 $error = true;
             }
         }
@@ -1903,38 +1832,11 @@ function create_lead_generation_user()
                 $error = true;
             }
         }
-//    if ($error == false)
-//    {
-//        if ($_POST['reportpass'] != $_POST['reportpass2'])
-//        {
-//            drupal_set_message("Report Passwords do not match.", 'error');
-//            $error = true;
-//        }
-//    }
 
-        // check valid email
-        if ($error == false)
-        {
-            $query = db_select('users', 'n')
-                ->fields('n')
-                ->condition('mail', $_POST['mail'],'=')
-                ->execute();
-            //   $query = "SELECT * FROM users WHERE `mail`=\"".AddSlashes($_POST['mail'])."\";";
-            $result = $query;
-            foreach($result as $row)
-            {
-                $row = (array)$row;
-                if(count($row) > 0)
-                {
-                    drupal_set_message("Warining: That email address is already in use.", 'error');
-                    $error = true;
-                }
-            }
-        }
 
         if (!$error) {
-		
-			require_once DRUPAL_ROOT . '/' . variable_get('password_inc', 'includes/password.inc');
+        
+            require_once DRUPAL_ROOT . '/' . variable_get('password_inc', 'includes/password.inc');
             $encrypted_pass = user_hash_password(trim($_POST['pass']));
 
             $name="'".$_POST['name']."'";
@@ -1972,7 +1874,7 @@ function create_lead_generation_user()
                 }
 
                 $success1 = db_query("INSERT INTO {users_lead} (`lead_id`,`user_id`,`distributor_id`,`company_name`,`firstname`,`lastname`) VALUES ($lead_id,$user_id,0,$company_name,$firstname,$lastname)");
-                $success2 = db_query("INSERT INTO {users_roles} (`uid`,`rid`) VALUES ($user_id,'23')");
+                $success2 = db_query("INSERT INTO {users_roles} (`uid`,`rid`) VALUES ($user_id, USER_ROLE_LEADUSER)");
             }
             else
             {
@@ -1980,7 +1882,7 @@ function create_lead_generation_user()
             }
 
             if ($success1) {
-                unset($_POST);
+                $_POST = array();
                 drupal_set_message("lead generation user added successfully");
             }
             else
@@ -1991,7 +1893,7 @@ function create_lead_generation_user()
         }
 
     }
-	$result = array();
+    $result = array();
     $result['name'] = (isset($_POST['name']) && trim($_POST['name'])!='' ? trim($_POST['name']) : '');
     $result['mail'] = (isset($_POST['mail']) && trim($_POST['mail'])!='' ? trim($_POST['mail']) : '');
     $result['pass'] = (isset($_POST['pass']) && trim($_POST['pass'])!='' ? trim($_POST['pass']) : '');
@@ -2001,7 +1903,7 @@ function create_lead_generation_user()
     $result['company_name'] = (isset($_POST['company_name']) && trim($_POST['company_name'])!='' ? trim($_POST['company_name']) : '');
 //    var_dump($result);
 //    exit;
-	return theme('create_lead_generation_user',array('result'=>$result));
+    return theme('create_lead_generation_user',array('result'=>$result));
 }
 
 function create_account_manager()
@@ -2009,8 +1911,6 @@ function create_account_manager()
 
     if (isset($_POST['tfunction']))
     {
-//        var_dump($_POST);
-//        exit;
         // error checking
         $error = false;
 
@@ -2023,30 +1923,17 @@ function create_account_manager()
             }
         }
 
-        // check valid username
+        // check valid username & email
         if ($error == false)
         {
-            $query = db_select('users', 'n')
-                ->fields('n')
-                ->condition('name', $_POST['name'],'=')
-                ->execute();
-
-            //      $query = "SELECT * FROM users WHERE `name`=\"".AddSlashes($edit['name'])."\";";
-            $result = $query;
-            foreach($result as $row)
-            {
-                $row = (array)$row;
-                if(count($row) > 0)
-                {
-                    drupal_set_message("That username is taken.", 'error');
-                    $error = true;
-                }
-            }
-        }
-
-        if ($error == false) {
-            if (!valid_email_address($_POST['mail'])) {
+            if (check_existing_username($_POST['name'])) {
+                drupal_set_message("That username is taken. Please use another username.", 'error');
+                $error = true;
+            } else if (!valid_email_address($_POST['mail'])) {
                 drupal_set_message('Email address is invalid, Please retry to input email address.', 'error');
+                $error = true;
+            } else if (check_existing_email($_POST['mail'])) {
+                drupal_set_message("That email is taken. Please use another email.", 'error');
                 $error = true;
             }
         }
@@ -2058,27 +1945,6 @@ function create_account_manager()
             {
                 drupal_set_message("Passwords do not match.", 'error');
                 $error = true;
-            }
-        }
-
-
-        // check valid email
-        if ($error == false)
-        {
-            $query = db_select('users', 'n')
-                ->fields('n')
-                ->condition('mail', $_POST['mail'],'=')
-                ->execute();
-            //    $query = "SELECT * FROM users WHERE `mail`=\"".AddSlashes($edit['mail'])."\";";
-            $result = $query;
-            foreach($result as $row)
-            {
-                $row = (array)$row;
-                if(count($row) > 0)
-                {
-                    drupal_set_message("That email address is already in use.", 'error');
-                    $error = true;
-                }
             }
         }
 
@@ -2094,16 +1960,13 @@ function create_account_manager()
             unset($section1['tfunction']);
             unset($section1['distributor']);
             $section1['status'] = 1;
-            //$section1['roles'] = array(5 => 0, 7 => 0, 2 => 1, 6 => 6, 3 => 0, 4 => 0);
 
             $section2 = array(
                 'pass' => $_POST['pass'],
                 'init' => $_POST['mail'],
-                // 'roles' => array($_POST['user_role'] => $_POST['user_role'], 2 => 1)
-                'roles' => array($_POST['user_role'] => $_POST['user_role'], 2 => 1)
+                'roles' => array($_POST['user_role'] => $_POST['user_role'], 
+                                 USER_ROLE_AUTHENTICATE => USER_ROLE_AUTHENTICATE)
             );
-//            var_dump($section2);
-//            exit;
 
             $account = user_save('', array_merge($section1, $section2));
 
@@ -2114,7 +1977,7 @@ function create_account_manager()
                 $error = true;
             }
 
-            // send welcome email (account manager)	HERE
+            // send welcome email (account manager) HERE
             $params = array(
                 '!username' => $_POST['name'],
                 '!password' => $_POST['pass'],
@@ -2122,10 +1985,9 @@ function create_account_manager()
                 '!lastname' => $_POST['profile_lastname'],
                 '!rolename' => ucwords($role_array[$_POST['user_role']]),
             );
-       //     var_dump($params);
-          //  exit;
+
             drupal_mail('ncn_create_user','accountmanager', $_POST['mail'], language_default(), $params);
-         //   exit;
+
         }
 
         // everything worked - show success
@@ -2134,7 +1996,7 @@ function create_account_manager()
             drupal_set_message(ucwords($role_array[$_POST['user_role']]). " " . $_POST['name']." added successfully", 'status');
         }
     }
-	$result = array();
+    $result = array();
 
     $result['name'] = (isset($_POST['name']) && trim($_POST['name'])!='' ? trim($_POST['name']) : '');
     $result['mail'] = (isset($_POST['mail']) && trim($_POST['mail'])!='' ? trim($_POST['mail']) : '');
@@ -2163,7 +2025,7 @@ function create_sub_user()
         $parent_mid = $_POST['parent_mid'];
         if ( module_exists('ncn_subuser') ) {
             if (ncn_subuser_create_subuser($parent_mid, $_POST)) {
-                unset($_POST);
+                $_POST = array();
             }
         }
     }
@@ -2216,12 +2078,12 @@ function update_profile_var($uid, $key, $val)
 
 
 function ncn_create_user_theme(){
-	return array(
-					'all_user_list' => array( 'template'=>'all-user-list',
-												 'variables' => array('result' => NULL),
-											 	 'path' => drupal_get_path('module', 'ncn_create_user'),
-											 	 //'base hook' => 'views_view_table',
-												),
+    return array(
+                    'all_user_list' => array( 'template'=>'all-user-list',
+                                                 'variables' => array('result' => NULL),
+                                                 'path' => drupal_get_path('module', 'ncn_create_user'),
+                                                 //'base hook' => 'views_view_table',
+                                                ),
                     'all_user_list_edit' => array( 'template'=>'all-user-list-edit',
                                                     'variables' => array('result' => NULL),
                                                     'path' => drupal_get_path('module', 'ncn_create_user'),
@@ -2237,51 +2099,51 @@ function ncn_create_user_theme(){
 //                                                    'path' => drupal_get_path('module', 'ncn_create_user'),
 //                                                    //'base hook' => 'views_view_table',
 //                                                ),
-					'account_manager_list' => array( 'template'=>'account-manager-list',
-												 'variables' => array('result' => NULL),
-											 	 'path' => drupal_get_path('module', 'ncn_create_user'),
-											 	 //'base hook' => 'views_view_table',
-												),
+                    'account_manager_list' => array( 'template'=>'account-manager-list',
+                                                 'variables' => array('result' => NULL),
+                                                 'path' => drupal_get_path('module', 'ncn_create_user'),
+                                                 //'base hook' => 'views_view_table',
+                                                ),
                     'account_manager_list_view' => array( 'template'=>'account-manager-list-view',
                                                 'variables' => array('result' => NULL),
                                                 'path' => drupal_get_path('module', 'ncn_create_user'),
                                                 //'base hook' => 'views_view_table',
                                                  ),
-                   	'unactivated_member_list' => array( 'template'=>'unactivated-member-list',
-												 'variables' => array('result' => NULL),
-											 	 'path' => drupal_get_path('module', 'ncn_create_user'),
-											 	 //'base hook' => 'views_view_table',
-												),
+                    'unactivated_member_list' => array( 'template'=>'unactivated-member-list',
+                                                 'variables' => array('result' => NULL),
+                                                 'path' => drupal_get_path('module', 'ncn_create_user'),
+                                                 //'base hook' => 'views_view_table',
+                                                ),
                     'unactivated_member_list_edit' => array( 'template'=>'unactivated-member-list-edit',
                                                 'variables' => array('result' => NULL),
                                                 'path' => drupal_get_path('module', 'ncn_create_user'),
                                                  //'base hook' => 'views_view_table',
                                                  ),
-					'create_distributor' => array( 'template'=>'create-distributor',
-												 'variables' => array('result' => NULL),
-											 	 'path' => drupal_get_path('module', 'ncn_create_user'),
-											 	 //'base hook' => 'views_view_table',
-												),
-					'create_associate' => array( 'template'=>'create-associate',
-												 'variables' => array('result' => NULL),
-											 	 'path' => drupal_get_path('module', 'ncn_create_user'),
-											 	 //'base hook' => 'views_view_table',
-												),
-					'create_lead_generation_user' => array( 'template'=>'create-lead-generation-user',
-												 'variables' => array('result' => NULL),
-											 	 'path' => drupal_get_path('module', 'ncn_create_user'),
-											 	 //'base hook' => 'views_view_table',
-												),
-					'create_account_manager' => array( 'template'=>'create-account-manager',
-												 'variables' => array('result' => NULL),
-											 	 'path' => drupal_get_path('module', 'ncn_create_user'),
-											 	 //'base hook' => 'views_view_table',
-												),
-					'create_sub_user' => array( 'template'=>'create-sub-user',
-												 'variables' => array('result' => NULL),
-											 	 'path' => drupal_get_path('module', 'ncn_create_user'),
-											 	 //'base hook' => 'views_view_table',
-												),
-				);
+                    'create_distributor' => array( 'template'=>'create-distributor',
+                                                 'variables' => array('result' => NULL),
+                                                 'path' => drupal_get_path('module', 'ncn_create_user'),
+                                                 //'base hook' => 'views_view_table',
+                                                ),
+                    'create_associate' => array( 'template'=>'create-associate',
+                                                 'variables' => array('result' => NULL),
+                                                 'path' => drupal_get_path('module', 'ncn_create_user'),
+                                                 //'base hook' => 'views_view_table',
+                                                ),
+                    'create_lead_generation_user' => array( 'template'=>'create-lead-generation-user',
+                                                 'variables' => array('result' => NULL),
+                                                 'path' => drupal_get_path('module', 'ncn_create_user'),
+                                                 //'base hook' => 'views_view_table',
+                                                ),
+                    'create_account_manager' => array( 'template'=>'create-account-manager',
+                                                 'variables' => array('result' => NULL),
+                                                 'path' => drupal_get_path('module', 'ncn_create_user'),
+                                                 //'base hook' => 'views_view_table',
+                                                ),
+                    'create_sub_user' => array( 'template'=>'create-sub-user',
+                                                 'variables' => array('result' => NULL),
+                                                 'path' => drupal_get_path('module', 'ncn_create_user'),
+                                                 //'base hook' => 'views_view_table',
+                                                ),
+                );
 }
 
