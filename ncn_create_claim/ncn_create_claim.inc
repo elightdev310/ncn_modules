@@ -890,7 +890,7 @@ function remove_unnecessary_file($claim_id)
     }
     foreach ($_SESSION['claim'][$claim_id]['scope'] as $key => $room) {
         foreach ($room as $image_id => $image_info) {
-            if ($image_info['resize_image_path']) {
+            if (isset($image_info['resize_image_path'])) {
                 $path = $image_info['resize_image_path'];
                 $path->uri  = str_replace("public://","public://styles/photo_album/public/",$path->uri);
                 $res = file_move($path, $image_info['path'], FILE_EXISTS_REPLACE);
@@ -923,7 +923,7 @@ function ncn_save_claim($claim_id = 0, $update = false, $claim_type = '', $claim
         // insert claim definition
         if($claim_lead=='') $claim_lead=0;
 
-       $claim_id = db_insert('claims')
+        $claim_id = db_insert('claims')
                  ->fields(array('user_id' => $user_id,
                                 'claim_type' => $claim_type,
                                 'claim_product' => $claim_product,

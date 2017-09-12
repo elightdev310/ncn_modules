@@ -103,17 +103,14 @@ function ncn_admin_update_room_data_by_renaming_room($claim_id, $room_name, $new
 {
 
     // Image Captions
-
     $result = db_query('UPDATE {claim_img_captions} SET roomname=:a WHERE claim_id=:b AND roomname=:c',
         array(':a'=>$new_name,':b'=>$claim_id,':c'=>$room_name));
 
     // Scope Image
-
     $result = db_query('UPDATE {claims_scope} SET roomname=:a WHERE claim_id=:b AND roomname=:c',
         array(':a'=>$new_name,':b'=>$claim_id,':c'=>$room_name));
 
     // Scopesheet Data
-
     $result = db_query('UPDATE {claims_room_data_extra} SET room_name=:a WHERE claim_id=:b AND room_name=:c',
         array(':a'=>$new_name,':b'=>$claim_id,':c'=>$room_name));
 }

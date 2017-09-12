@@ -26,7 +26,7 @@ function tab_click(id)
 
 				// setup image uploads
 				var options = { 
-				    success: imageResponse     
+				    success: imageResponse
 				};				
 				jQuery('.ar_form').ajaxForm(options);
 
@@ -157,7 +157,7 @@ function add_room(claim_id)
 				var onclick_call_rename = "rename_room("+tabindex+", "+claim_id+", '"+new_roomname+"');";
 				
 				jQuery('#add_room_tab').before('<li id="tab'+tabindex+'"><div class="delete_room_button" onclick="'+onclick_call+'"></div><a href="'+Drupal.settings.basePath+'account/roomtab/'+claim_id+'/'+new_roomname+'/'+tabindex+'" onclick="return tab_click('+tabindex+');" class="roomname" id="roomname_text_'+tabindex+'">'+new_roomname+'</a> <a href="#" onclick="'+onclick_call_rename+'" class="roomedit"  id="rename_roomname_text_'+tabindex+'">[edit]</a></li>');
-				tab_click(tabindex);				
+				tab_click(tabindex);
 			} else {
 				alert(json.msg);
 			}

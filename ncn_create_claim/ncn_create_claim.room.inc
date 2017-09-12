@@ -5,7 +5,7 @@ function ncn_create_claim_upload_roomimage()
     // check status
     //    $file = $_FILES['file'];
     $file = array();
-    //print_r($_FILES);die;
+    // print_r($_FILES);die;
     //  print "|error|";
     //  echo "<pre>";
     //  print_r($_FILES);
@@ -23,8 +23,8 @@ function ncn_create_claim_upload_roomimage()
     $validTypeArr = array("image/jpeg", "image/jpg", "image/pjpeg", "image/gif", "image/png");
 
     if (in_array($_FILES['files']['type']['file'], $validTypeArr) || strtolower(substr($filename, -4)) == ".bmp") {
-//        $res = file_move($file['tmp_name'], "sites/default/files/user_files/$claim_id/" . $filename, FILE_EXISTS_RENAME);
-      $resOfFile = file_save_upload('file', array(), "public://user_files/".$claim_id, FILE_EXISTS_RENAME);
+        //$res = file_move($file['tmp_name'], "sites/default/files/user_files/$claim_id/" . $filename, FILE_EXISTS_RENAME);
+        $resOfFile = file_save_upload('file', array(), "public://user_files/".$claim_id, FILE_EXISTS_RENAME);
 
       if($resOfFile){
         $teURI = @explode('/', $resOfFile->uri);
@@ -115,6 +115,9 @@ function ncn_create_claim_upload_roomimage()
     );
 
     global $user;
+    if (!isset($_SESSION['claim_log'][$claim_id])) {
+        $_SESSION['claim_log'][$claim_id] = '';
+    }
     $_SESSION['claim_log'][$claim_id] .= t("!user_name added a photo into the room(!roomname).", array('!user_name' => ncn_amin_get_user_role_and_name($user->uid), '!roomname' => arg(3)));
     $_SESSION['claim_log'][$claim_id] .= "\r\n";
 }

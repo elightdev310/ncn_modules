@@ -1,499 +1,805 @@
 <?php
-/*****************************************************************************/
-/*  Additional Claim Information
-/*****************************************************************************/
-
-function ncn_claims_manager_additional_claim_info_view($claim_id) {
-  drupal_set_title($claim_id." - View Claims Processing");  
-  ob_start();
-  
-?>
-<div id="page_loading"></div>
-<div id="page_results">
-  <div class="claims-detail additional-claim-info"> 
-    <div class="claims-section-wrapper">
-      <div class="aci-claim-info"><?php print ncn_claims_manager_aci_render_claim_info($claim_id, 'view'); ?></div>
-      <div class="title"><?php echo $section_title; ?></div>
-      <div class="aci-section-links"><?php print ncn_claims_manager_aci_render_section_links($claim_id); ?></div>
-      <div class="aci-section-content-wrapper"><?php print ncn_claims_manager_view_aci_render_section_content($claim_id); ?></div>
-    </div>
-  </div>
-</div>
-<?php 
-  $output = ob_get_contents();
-  ob_end_clean();
-  return $output;
-}
-
-/**
- * Page Handler ( account/additional_claim_info/% )
- */
-function ncn_claims_manager_additional_claim_info($claim_id) {
-	drupal_set_title($claim_id." - Edit Claims Processing");
-	ob_start();
-?>
-<div id="page_loading"></div>
-<div id="page_results">
-	<div class="claims-detail additional-claim-info"> 
-		<div class="claims-section-wrapper">
-			<div class="aci-claim-info"><?php print ncn_claims_manager_aci_render_claim_info($claim_id, 'edit'); ?></div>
-			<div class="title"><?php echo $section_title; ?></div>
-			<div class="aci-section-links"><?php print ncn_claims_manager_aci_render_section_links($claim_id); ?></div>
-			<div class="aci-section-content-wrapper"><?php print ncn_claims_manager_aci_render_section_content($claim_id); ?></div>
-		</div>
-	</div>
-</div>
-<?php 
-	$output = ob_get_contents();
-	ob_end_clean();
-	
-	return $output;
-}
-
-/**
- * Get ACI Sections
- */ 
-function ncn_claims_manager_get_aci_sections() {
-	return array(
-		'property_owner_info' => array('title'=>'Property Owner Information', 'short_title'=>'Property Owner Info', 'render_func'=>'ncn_admin_aci_render_property_owner_info'), 
-		'claim_information' => array('title'=>'Claim Information', 'render_func'=>'ncn_admin_aci_render_claim_information'), 
-		'daily_claim_log' => array('title'=>'Daily Claim Log', 'render_func'=>'ncn_admin_aci_render_daily_claim_log'), 
-		'insurance_claim_policy' => array('title'=>'Insurance Policy Information', 'render_func'=>'ncn_admin_aci_render_insurance_claim_policy'), 
-		'comments'=> array('title' =>'Comments', 'render_func'=>'ncn_admin_aci_render_comments'), 
-	);
-}
-
-/**
- * Render Claim Information (ACI)
- */ 
-function ncn_claims_manager_aci_render_claim_info($claim_id, $type="edit") {
-    GLOBAL $base_url;
-
-	$output = '<div class="aci-claim-info-wrapper">';
-	$output.= "<div class='aci-claim-info-item'>Claim ID: $claim_id</div>";
-	
-	$claim = get_claim_data($claim_id);
-	$disabled_string = "";
-	
-	if ( ($claim['claim_status'] != "receivables") && ($claim['claim_status'] != "paid in full") ) {
-		if ($claim['claim_status'] == 'approved') { 
-			$disabled_string = 'disabled-photo-album'; 
-		} else { 
-			$disabled_string = '';  
-		} 
-	} else {  
-		$disabled_string = 'disabled-photo-album';  
-	}
-	$output.= "<div class='aci-claim-info-item align-right claim-navigation' >";
-	
-	/*if ($type=='edit') {
-		$view_url = base_path()."account/additional_claim_info_view/$claim_id";
-		$output.= "<div class='switch-mode-claim-processing view-claim-processing-mode aci-claim-info-item-link'>
-		<a href='$view_url'><b>VIEW</b> Claims Processing</a></div>";
-	} else {
-		$edit_url = base_path()."account/additional_claim_info/$claim_id";
-		$output.= "<div class='switch-mode-claim-processing edit-claim-processing-mode aci-claim-info-item-link'>
-		<a href='$edit_url'><b>EDIT</b> Claims Processing</a></div>";
-	}*/
-
-    $edit_album_url = "{$base_url}/account/edit_claim_inline/{$claim_id}/tab/1?width=950&height=600";
-    $edit_album_class = "colorbox-node";
-
-	$output.= "<div class='edit-album-btn aci-claim-info-item-link'>";
-    $output.= "<a href='#' class='photo-album-link $disabled_string' onclick='open_edit_box({$claim_id}, true)'>Photo Album</a>";
-    //$output.= "<a href='{$edit_album_url}' class='{$edit_album_class} photo-album-link $disabled_string'>Photo Album</a>";
-    $output.= "</div>";
-	$output.= "</div><!-- END OF .aci-claim-info-item -->";
-	$output.= '</div><!-- END OF .aci-claim-info-wrapper -->';
-	return $output;
-}
-
-/**
- * Render Top Section Links (under Additional Claim Info)
- */ 
-function ncn_claims_manager_aci_render_section_links($claim_id) {
-	$output = '<ul class="clearfix">';
-	$sections = ncn_claims_manager_get_aci_sections();
-	foreach ($sections as $key=>$section) {
-		$class = 'aci-si-'.$key;
-		
-		$div_wrapper = "aci_".$key."_section";
-		$link_id = "aci_link_$key";
-		$output.= "<li class='aci-section-link-item $class'>";
-		$output.= "<a href='$div_wrapper' id='$link_id' onclick='show_aci_section(\"$link_id\"); return false;'><span>". ($section['short_title']? $section['short_title'] : $section['title']) ."</span></a>";
-		$output.= '</li>';
-	}
-	$output.= '</ul>';
-	
-	drupal_add_js("
-			jQuery(document).ready(function() {
-				show_aci_section('aci_link_property_owner_info');
-			});	", 'inline'
-	);
-	
-	return $output;
-	
-}
-
-function ncn_claims_manager_aci_render_section_content($claim_id) {
-	$old_a_data = array(
-    'poi' =>  unserialize(get_ncn_data_extra($claim_id, 'aci_property_owner_info')), 
-    'ci' =>   unserialize(get_ncn_data_extra($claim_id, 'aci_claim_information')), 
-    'icp' =>  unserialize(get_ncn_data_extra($claim_id, 'aci_insurance_claim_policy')), 
-    'comments' => unserialize(get_ncn_data_extra($claim_id, 'aci_comments')), 
-  );
-
-	if ($_POST['tfunction']=='additional_claims_data') {
-		$b_save_log = FALSE;
-		if (isset($_POST['poi'])) {
-			set_ncn_data_extra($claim_id, 'aci_property_owner_info', serialize($_POST['poi']));
-			$b_save_log = TRUE;
-		}
-		if (isset($_POST['ci'])) {
-			$_POST['ci']['cause_origin_of_loss'] = rtrim($_POST['ci']['cause_origin_of_loss'], " .");
-			set_ncn_data_extra($claim_id, 'aci_claim_information', serialize($_POST['ci']));
-			$b_save_log = TRUE;
-		}
-		if (isset($_POST['icp'])) {
-			set_ncn_data_extra($claim_id, 'aci_insurance_claim_policy', serialize($_POST['icp']));
-			$b_save_log = TRUE;
-		}
-		if (isset($_POST['comments'])) {
-			set_ncn_data_extra($claim_id, 'aci_comments', serialize($_POST['comments']));
-			$b_save_log = TRUE;
-		}
-		
-		if ($b_save_log) {
-      		ncn_admin_sync_claim_data($claim_id);      
-			$additional_claim_log = ncn_admin_get_claim_log_additional_data($old_a_data, $_POST);
-			$log_message = t("!user_name added additional data.", array('!user_name'=>ncn_amin_get_user_role_and_name()));
-			$log_message .="\r\n".$additional_claim_log;
-			ncn_admin_insert_claim_log($claim_id, date('U'), $log_message);
-		}
-	}
-	
-	ob_start();
-?>
-<form id='aci_addtional_claims_data_form' method='POST'>
-	<input type='hidden' name='tfunction' value='additional_claims_data' />
-	<div class="aci-section-content">
-	<?php 
-		$sections = ncn_admin_get_aci_sections();
-		$i=0;
-		foreach ($sections as $section => $s_info) {
-			
-			if ($s_info['render_func'] && function_exists($s_info['render_func'])) {
-				$div_wrapper = "aci_".$section."_section";
-				echo "<div id='$div_wrapper' class='aci-section'>";
-				print call_user_func($s_info['render_func'], $claim_id, $section);
-				echo "</div>";
-			}
-			$i++;
-			/*if($i>1){
-				break;
-			}*/
-			
-		}
-	?>
-	</div>
-	<div class='aci-actions'><input type='submit' value='Save'/></div>
-</form>
-
-<?php 
-	$output = ob_get_contents();
-	ob_end_clean();
-	return $output;
-}
-
-
-function ncn_claims_manager_view_aci_render_section_content($claim_id) {
-  ob_start();
-?>
-<div id='view_aci_addtional_claims_data'>
-  <div class="aci-section-content">
-  <?php 
-    $sections = ncn_admin_get_view_aci_sections();
-    foreach ($sections as $section=>$s_info) {
-      if ($s_info['render_func'] && function_exists($s_info['render_func'])) {
-        $div_wrapper = "aci_".$section."_section";
-        echo "<div id='$div_wrapper' class='aci-section' >";
-        print call_user_func($s_info['render_func'], $claim_id, $section);
-        echo "</div>";
-      }
+//------------------------------------------------------------------------------
+// complete user account edit page
+function ncn_claims_manager_get_account_header_menu()
+{
+    global $user;
+    $menu_data = menu_navigation_links('menu-account-header');
+    if (isset($_SESSION['admin_sandbox']) && $_SESSION['admin_sandbox'] == $user->uid) {
+        $menu_data['menu-310']['href'] = 'user/back_to_admin';
+        $menu_data['menu-310']['title'] = 'Back to Admin';
     }
-  ?>
-  </div>
-
-<?php 
-  $output = ob_get_contents();
-  ob_end_clean();
-  return $output;
+    return $menu_data;
 }
 
-
-
-/*****************************************************************************/
-/*  Scope Sheet
-/*****************************************************************************/
-
 /**
- * Page Handler ( account/scope_sheet/%/% )
+ * URL: account/my-account.html
  */
-/*
-function ncn_claims_manager_scope_sheet($claim_id, $room_name) {
-	drupal_set_title($claim_id." - Scope Sheet");
-	
-	ob_start();
-?>
-<div id="page_loading"></div>
-<div id="page_results">
-	<div class="claims-detail additional-claim-info scope-sheet"> 
-		<div class="claims-section-wrapper">
-			<div class="aci-claim-info ss-claim-info"><?php print ncn_claims_manager_scopesheet_render_claim_info($claim_id, $room_name); ?></div>
-			<div class="title"><?php echo $section_title; ?></div>
-			<div class="aci-section-links ss-section-links"><?php print ncn_claims_manager_scopesheet_render_section_links($claim_id, $room_name); ?></div>
-			<div class="aci-section-content-wrapper ss-section-content-wrapper"><?php print ncn_claims_manager_scopesheet_render_section_content($claim_id, $room_name); ?></div>
-		</div>
-	</div>
-</div>
-<?php 
-	$output = ob_get_contents();
-	ob_end_clean();
-	return $output;
-}*/
+function ncn_edit_my_account()
+{
+    GLOBAL $user;
 
-function ncn_claims_manager_scope_sheet($claim_id, $room_name) {
-  if (isset($_REQUEST['from_photo_album']) && $_REQUEST['from_photo_album']==1) {
-    ncn_save_claim($claim_id, true);
-  }
-  
-  drupal_set_title($claim_id." - Scope Sheet");
-  ob_start();
-?>
-  <div class="additional-claim-info-inline-page">
-    <div class="claims-section-wrapper ">
-      <div class="aci-claim-info ss-claim-info"><?php print ncn_claims_manager_scopesheet_render_claim_info($claim_id, $room_name); ?></div>
-      <div class="title"><?php echo $section_title; ?></div>
-      <div class="aci-section-links ss-section-links"><?php print ncn_claims_manager_scopesheet_render_section_links($claim_id, $room_name, "edit"); ?></div>
-      <div class="aci-section-content-wrapper ss-section-content-wrapper"><?php print ncn_claims_manager_scopesheet_render_section_content($claim_id, $room_name); ?></div>
+    ob_start();
+    ?>
+    <div id="my_account_page">
+        <div class="map-content">
+            <div class="map-header">
+                <div class="title">Edit My Profile</div>
+                <div class="help"><a href="#">Help</a></div>
+            </div>
+            <div class="map-content-wrapper">
+                <?php user_edit_new(false, $user->uid); // function from ncn_admin.module ?>
+            </div>
+        </div>
     </div>
-  </div>
-<?php 
-  $output = ob_get_contents();
-  ob_end_clean();
-  return $output;
+    <?php
+    $contents = ob_get_contents();
+    ob_end_clean();
+
+    return $contents;
+
 }
 
 /**
- * Render Claim & Room Information (Scope Sheet)
- */ 
-function ncn_claims_manager_scopesheet_render_claim_info($claim_id, $room_name, $mode="edit") {
-	global $base_url;
-	$output = '<div class="aci-claim-info-wrapper ss-claim-info-wrapper clearfix">';
-	$output.= "<div class='aci-claim-info-item ss-claim-info-item'>Claim ID: $claim_id</div>";
-	$output.= "<div class='aci-claim-info-item ss-claim-info-item'>Room Name: ".ncn_claims_manager_scopesheet_render_select_room_name($claim_id, "ncn_cm_ss_room_name", $room_name, $mode)."</div>";
-	
-	$photo_album_url = base_path()."account/edit_claim_inline/$claim_id/room/".$room_name;
-	$output.= "<div class='aci-claim-info-item ss-claim-info-item align-right'>";
-	if ($mode=='edit') {
-		$view_url = base_path()."account/scope_sheet_view/$claim_id/$room_name";
-		$output.= "<a href='$view_url'><b>VIEW</b> Scopesheet</a>";
-	} else {
-		$edit_url = base_path()."account/scope_sheet/$claim_id/$room_name";
-		$output.= "<a href='$edit_url'><b>EDIT</b> Scopesheet</a>";
-	}
-	$output.= "&nbsp;&nbsp;|&nbsp;&nbsp;<a href='$photo_album_url'><b>Back to Photo Album</b></a>";
-	$output.= "</div>";
-	$output.= '</div>';	
-	drupal_add_js("
-		jQuery(document).ready(function() {
-			jQuery('#ncn_cm_ss_room_name').bind('change', function() {
-				var url = jQuery('#ncn_cm_ss_room_name').val();
-				window.location = url;
-			});
-		});
-	", "inline");
-	
-	return $output;
-}
+ * URL: account/my-extra-profile.html
+ */
+function ncn_edit_extra_profile()
+{
+    GLOBAL $user;
 
-function ncn_claims_manager_scopesheet_render_select_room_name($claim_id, $id, $value, $mode="edit") {
-	global $base_url;
-	$rooms = ncn_api_cm_room_get_claim_rooms_data($claim_id, FALSE);
-	$select_field = "<select id=\"$id\" name=\"$id\"> \r\n";
-	foreach ($rooms as $room) {
-		$room_name = $room['name'];
-		$selected = ($room_name==$value)? "selected" : "";
-		if ($mode=="edit") {
-			$ss_url = base_path()."account/scope_sheet/$claim_id/".rawurlencode($room_name);
-		} else {
-			$ss_url = base_path()."account/scope_sheet_view/$claim_id/".rawurlencode($room_name);
-	}
-	$select_field .= "<option value=\"".$ss_url."\" $selected >".$room_name."</option>";
-	}
-	$select_field .= "</select> \r\n";
-	
-	return $select_field;
-}
-/**
- * Render Top Section Links (under Scope Sheet)
- */ 
-function ncn_claims_manager_scopesheet_render_section_links($claim_id, $room_name, $mode="edit") {
-	$output = '<ul class="clearfix">';
-	$sections = ncn_claims_manager_get_scopesheet_sections();
-	foreach ($sections as $key=>$section) {
-		$class = 'ss-si-'.$key;
-		
-		$div_wrapper = "scopesheet_".$key."_section";
-		$link_id = "scopesheet_link_$key";
-		$output.= "<li class='aci-section-link-item ss-section-link-item $class'>";  
-		$output.= "<a href='$div_wrapper' id='$link_id' onclick='show_aci_section(\"$link_id\"); return false;'><span>". ($section['short_title']? $section['short_title'] : $section['title']) ."</span></a>";
-		$output.= '</li>';
-	}
-	$output.= '</ul>';
-	
-	drupal_add_js("
-			jQuery(document).ready(function() {
-				show_aci_section('scopesheet_link_room_dimensions');
-			});	", 'inline'
-	);
-	
-	return $output;
-	
-}
-
-function ncn_claims_manager_get_scopesheet_sections() {
-	return array(
-		'room_dimensions' 								=> array('title'=>'Room dimensions', 'render_func'=>'ncn_admin_ss_render_room_dimensions' ), 
-		'exterior_interior_temperatures'	=> array('title'=>'Exterior & Interior Temperatures', 'render_func'=>'ncn_admin_ss_render_ext_inter_temperatures'), 
-		'structural_moisture_reading' 		=> array('title'=>'Structural Moisture Readings', 'render_func'=>'ncn_admin_ss_render_structural_moisture_readings'), 
-		'equipment_placement'							=> array('title'=>'Equipment Placement', 'render_func'=>'ncn_admin_ss_render_equipment_placement'), 
-		'services'												=> array('title'=>'Services', 'render_func'=>'ncn_admin_ss_render_services'), 
-		'comments' 												=> array('title'=>'Comments', 'render_func'=>'ncn_admin_ss_render_comments'), 
-	);
-}
-
-function ncn_claims_manager_scopesheet_render_section_content($claim_id, $room_name) {
-	if ($_POST['tfunction']=='room_scope_sheet') {
-		$b_save_log = FALSE;
-		if (isset($_POST['ss_rd'])) {
-			//set_ncn_claim_room_data_extra($claim_id, $room_name, 'ss_room_dimensions', serialize($_POST['ss_rd']));
-			//$b_save_log = TRUE;
-		}
-		if (isset($_POST['ss_smr'])) {
-			set_ncn_claim_room_data_extra($claim_id, $room_name, 'ss_structural_moisture_readings', serialize($_POST['ss_smr']));
-			$b_save_log = TRUE;
-		}
-		if (isset($_POST['ss_ep'])) {
-			//set_ncn_claim_room_data_extra($claim_id, $room_name, 'ss_equipment_placement', serialize($_POST['ss_ep']));
-			//$b_save_log = TRUE;
-		}
-		if (isset($_POST['ss_services'])) {
-			set_ncn_claim_room_data_extra($claim_id, $room_name, 'ss_services', serialize($_POST['ss_services']));
-			$b_save_log = TRUE;
-		}
-		if (isset($_POST['ss_comments'])) {
-			set_ncn_claim_room_data_extra($claim_id, $room_name, 'ss_comments', serialize($_POST['ss_comments']));
-			$b_save_log = TRUE;
-		}
-		
-		if ($b_save_log) {
-			$log_message = t("!user_name added scopesheet data for room(!room_name).", array('!user_name'=>ncn_amin_get_user_role_and_name(), '!room_name'=>$room_name));
-			ncn_admin_insert_claim_log($claim_id, date('U'), $log_message);
-		}
-	}
-	
-	ob_start();
-?>
-<form id='ss_claim_room_scope_sheet_form' method='POST'>
-	<input type='hidden' name='tfunction' value='room_scope_sheet' />
-	<div class="aci-section-content ss-section-content">
-	<?php 
-		$sections = ncn_claims_manager_get_scopesheet_sections();
-		foreach ($sections as $section=>$s_info) {
-			if ($s_info['render_func'] && function_exists($s_info['render_func'])) {
-				$div_wrapper = "scopesheet_".$section."_section";
-				echo "<div id='$div_wrapper' class='aci-section ss-section tinyscrollbar' >";
-          echo '<div class="scrollbar"><div class="track"><div class="thumb"><div class="end"></div></div></div></div>';
-          echo '<div class="viewport">';
-            echo '<div class="overview">';
-				    print call_user_func($s_info['render_func'], $claim_id, $room_name, $section);
-				    echo '</div>';
-          echo '</div>';
-        echo '</div>';
-			}
-		}
-	?>
-	</div>
-	<div class='aci-actions'><input type='submit' value='  Save  ' onclick="return check_row_required();" /></div>
-</form>
-
-<script>
-jQuery(document).ready(function() {
-  ncn_scopesheet_sections_tinyscrollbar();
-});
-</script>
-
-<?php 
-	$output = ob_get_contents();
-	ob_end_clean();
-	return $output;
-}
-
-function ncn_claims_manager_scope_sheet_view($claim_id, $room_name) {
-  if (isset($_REQUEST['from_photo_album']) && $_REQUEST['from_photo_album']==1) {
-    ncn_save_claim($claim_id, true);
-  }
-  
-  drupal_set_title($claim_id." - Scope Sheet");
-  ob_start();
-?>
-  <div class="additional-claim-info-inline-page">
-    <div class="claims-section-wrapper ">
-      <div class="aci-claim-info ss-claim-info"><?php print ncn_claims_manager_scopesheet_render_claim_info($claim_id, $room_name, "view"); ?></div>
-      <div class="title"><?php echo $section_title; ?></div>
-      <div class="aci-section-links ss-section-links"><?php print ncn_claims_manager_scopesheet_render_section_links($claim_id, $room_name, "view"); ?></div>
-      <div class="aci-section-content-wrapper ss-section-content-wrapper"><?php print ncn_claims_manager_scopesheet_view_render_section_content($claim_id, $room_name); ?></div>
+    ob_start();
+    ?>
+    <div id="my_account_page">
+        <div class="map-content">
+            <div class="map-header">
+                <div class="title">Edit My Extra Profile</div>
+                <div class="help"><a href="#">Help</a></div>
+            </div>
+            <div class="map-content-wrapper">
+                <?php user_edit_extra_profile($user->uid, false); // function from ncn_admin.module ?>
+            </div>
+        </div>
     </div>
-  </div>
-<?php 
-  $output = ob_get_contents();
-  ob_end_clean();
-  return $output;
+    <?php
+    $contents = ob_get_contents();
+    ob_end_clean();
+
+    return $contents;
 }
 
-function ncn_claims_manager_scopesheet_view_render_section_content($claim_id, $room_name) {  
-  ob_start();
-?>
-<div id='ss_claim_room_scope_sheet_form'>
-  <div class="aci-section-content ss-section-content">
-  <?php 
-    $sections = ncn_admin_get_scopesheet_section_views();
-    foreach ($sections as $section=>$s_info) {
-      if ($s_info['render_func'] && function_exists($s_info['render_func'])) {
-        $div_wrapper = "scopesheet_".$section."_section";
-        echo "<div id='$div_wrapper' class='aci-section ss-section tinyscrollbar' >";
-          echo '<div class="scrollbar"><div class="track"><div class="thumb"><div class="end"></div></div></div></div>';
-          echo '<div class="viewport">';
-            echo '<div class="overview">';
-            print call_user_func($s_info['render_func'], $claim_id, $room_name, $section);
-            echo '</div>';
-          echo '</div>';
-        echo '</div>';
-      }
+
+/**
+ * URL: account/confirm_submit_claim
+ */
+function ncn_claims_manager_submit_claim_confirm()
+{
+    GLOBAL $user, $custom_theme;
+
+    // add the css file (always required for this)
+//    drupal_add_css(drupal_get_path('module', 'ncn_claims_manager') . '/ncn_claims_manager.css', 'module', 'all', FALSE);
+    drupal_add_css(drupal_get_path('module', 'ncn_claims_manager') . '/ncn_claims_manager.css', array('group' => CSS_DEFAULT, 'type' => 'file'));
+    //drupal_add_js(drupal_get_path('module', 'ncn_claims_manager') . '/ncn_claims_manager.js');
+
+    $custom_theme = "ncn_account";
+    $GLOBALS['in_edit'] = true;
+    $GLOBALS['claim_id'] = arg(2);
+
+    return theme('ncn_confirm_submit_claim', array('stat'=>1));
+}
+
+//------------------------------------------------------------------------------
+// preprocess function for "ncn_add_room.tpl.php"
+function template_preprocess_ncn_confirm_submit_claim(&$vars)
+{
+}
+
+
+//------------------------------------------------------------------------------
+function ncn_claim_manager_homepage()
+{
+    ?>
+    <div id="page_loading"></div>
+    <div id="page_results" class="clearfix">
+        <?php ncn_claim_manager_homepage_innerpage(); ?>
+    </div>
+    <?php
+    // Splash Page
+    if (module_exists('ncn_splash')) {
+        ncn_splash_open_prompt_pages();
     }
-  ?>
-  </div>
-</div>
+}
 
-<script>
-jQuery(document).ready(function() {
-  ncn_scopesheet_sections_tinyscrollbar();
-});
-</script>
+// -----------------------------------------------
+function ncn_claim_manager_homepage_innerpage()
+{
+    GLOBAL $user;
+    global $base_url;
+    if(in_array("leaduser",$user->roles)===true){
+        $GLOBALS['account_role'] = "leaduser";
+    } else if (in_array("associate",$user->roles)===true) {
+        $GLOBALS['account_role'] = "associate";
+    } else {
+        $GLOBALS['account_role'] = "user";
+    }
+    ?>
+    <div class="page-content clearfix">
+        <script type="text/javascript">
+            var reload_url = "<?php echo $base_url; ?>/account/update_claim_preview/account-home";
+        </script>
+        <div>
 
-<?php 
-  $output = ob_get_contents();
-  ob_end_clean();
-  return $output;
+            <?php
+            if ($GLOBALS['account_role'] != "leaduser") {
+                ?>
+                <div class="add-claim-section clearfix"><?php _ncn_claim_manager_homepage_add_claim(); ?></div>
+            <?php } ?>
+
+
+
+            <?php if ($GLOBALS['account_role'] == "leaduser") { ?>
+                <div class="claim-list-lead clearfix">
+                    <div class="my-active-claims list"><?php _ncn_claim_manager_homepage_my_active_claims(4); ?></div>
+                    <div class="out-for-review list"><?php _ncn_claim_manager_homepage_out_for_reviews(4); ?></div>
+                    <div class="receivables list"><?php _ncn_claim_manager_homepage_receivables(3) ?></div>
+                </div>
+            <?php } else { ?>
+                <div class="claim-list clearfix">
+                    <div class="my-active-claims list"><?php _ncn_claim_manager_homepage_my_active_claims(4); ?></div>
+                    <div class="out-for-review list"><?php _ncn_claim_manager_homepage_out_for_reviews(4); ?></div>
+                    <div class="receivables list"><?php _ncn_claim_manager_homepage_receivables(3) ?></div>
+                </div>
+            <?php } ?>
+
+
+        </div>
+    </div>
+    <div class="sponsor-section">
+        <div class="sponsor-section-content">
+            <div class="title">OUR SPONSOR</div>
+            <?php _ncn_claim_manager_homepage_sponsor() ?>
+        </div>
+    </div>
+<?php
+}
+
+//----------------------------------------------------------------------
+
+function _ncn_claim_manager_homepage_sponsor()
+{
+    echo ncn_sponsor_section();
+}
+
+
+function _ncn_claim_manager_homepage_add_claim()
+{
+    GLOBAL $user;
+    global $base_url;
+    if (isset($user->roles[23])) {
+        $GLOBALS['account_role'] = "leaduser";
+    } else if (isset($user->roles[7])) {
+        $GLOBALS['account_role'] = "associate";
+    } else {
+        $GLOBALS['account_role'] = "user";
+    }
+
+    ?>
+    <div class="ahome-section-wrapper">
+        <!--        KT start        -->
+        <div>
+            <a href="<?php echo  $base_url ?>/account/create-new-claim.html" id="ahome-addclaim-top-btn"
+               class="clearfix"><span>Add a Claim</span></a>
+
+            <div id="bottom-text">To create a new claim click the button above</div>
+        </div>
+        <div>
+            <div id="message-title">Messages and Alerts</div>
+            <div id="message-body" style="<?php if ($GLOBALS['account_role'] == "leaduser") {
+                echo 'height:365px;';
+            } ?>">
+                <h2><?= nl2br(variable_get('ncn_msg_alert_title', '')); ?></h2>
+
+                <p><?= nl2br(variable_get('ncn_msg_alert_text', '')); ?></p>
+            </div>
+        </div>
+        <div>
+        </div>
+    </div>
+<?php
+}
+
+//----------------------------------------------------------------------
+function _ncn_claim_manager_homepage_my_active_claims($min_row) {
+
+// param
+    $order_by = "last_modified";
+    //$additional_sql = ' AND `claim_status`!="out for review" AND `claim_status`!="returned" AND `claim_status`!="approved" AND `claim_status`!="archived" ';
+    $additional_sql = " AND claim_status= 'incomplete' ";
+    $editable = true;
+    $send_to_archive = false;
+    $send_to_admin = true;
+    $approve_deny = false;
+
+    ?>
+
+<?php if ($GLOBALS['account_role'] == "leaduser"){ ?>
+<div class="ahome-section-wrapper-lead">
+<?php }else{ ?>
+    <div class="ahome-section-wrapper">
+        <?php } ?>
+        <div class="clearfix">
+            <div class="title">My Active Claims</div>
+            <div class="help"><a href="#">Help</a></div>
+        </div>
+        <div class="table clearfix">
+            <div class="table-header">
+                <table>
+                    <tr>
+                        <td width="120px">Customer Name</td>
+                        <td width="100px">Photo Album</td>
+                        <td width="100px">Claims Processing</td>
+                        <td>Create My Invoice</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="table-body">
+                <table>
+                    <?php
+                    GLOBAL $user;
+                    GLOBAL $base_url;
+
+                    if ($editable == true) {
+                        $_editable = 1;
+                    } else {
+                        $_editable = 0;
+                    }
+
+                    if ($send_to_admin == true) {
+                        $_send_to_admin = 1;
+                    } else {
+                        $_send_to_admin = 0;
+                    }
+
+                    if ($approve_deny == true) {
+                        $_approve_deny = 1;
+                    } else {
+                        $_approve_deny = 0;
+                    }
+                    //echo "<pre>";print_r($user->roles[23]);
+                    if (isset($user->roles[23])) {
+                        $query = "SELECT * FROM claims WHERE leaduser=" . $user->uid . " AND deleted=0 AND claim_status!='unpurchased' $additional_sql ORDER BY `$order_by` DESC limit 0, 4;";
+                    } else {
+                        $query = "SELECT * FROM claims WHERE user_id=" . $user->uid . " AND deleted=0 AND (claim_status!='unpurchased' ".$additional_sql.") ORDER BY `$order_by` DESC limit 0, 4;";
+                    }
+                    //echo $query;exit;
+                    $result = db_query($query);                 
+                    $row_count = $result->rowCount();
+                    
+                    $orders_total = 0;
+                    $payment_received_total = 0;
+
+                    $result_rec = $result->fetchAll();
+                    foreach($result_rec as $row )
+                    {
+                        // get data from sql
+                        $row = (array)$row;                     
+                        $claim_id = $row['claim_id'];
+
+                        // does the file note exists/not blank
+                        if ($row['file_note'] == '') // give the file notes some default value
+                        {
+                            $row['file_note'] = base64_encode('[no note]');
+                        }
+
+
+                        // does an invoice exist?
+                     //   $query2 = "SELECT * FROM claims_invoices WHERE claim_id=" . $claim_id . " AND `live`=2;";
+                        $result2 = db_query('SELECT * FROM {claims_invoices} WHERE claim_id=:a AND live=2',
+                            array(':a'=>$claim_id));
+                        $live_invoice_count = $result2->rowCount();
+
+                       // $query2 = "SELECT * FROM claims_invoices WHERE claim_id=" . $claim_id . " AND `live`=1;";
+                        $result2 = db_query('SELECT * FROM {claims_invoices} WHERE claim_id=:a AND live=1',
+                        array(':a'=>$claim_id));
+                        $live_claim_count = $result2->rowCount();
+
+                        // draw the row
+                        ?>
+                        <tr>
+                            <td width="120px"><?php echo ncn_cd($claim_id, 'customer_name'); ?></td>
+
+                            <?php // edit controls
+                            if ($editable == true && !isset($user->roles[23])) {
+                                ?>
+                                <td width="100px">
+                                    <?php    if (($row['claim_status'] != "receivables") && ($row['claim_status'] != "paid in full")) {
+                                        /*if ( ($row['claim_status'] == 'out for review') || ($row['claim_status'] == 'approved'))  {*/
+                                        $disabled_string = 'enabled';
+                                    } else {
+                                        $disabled_string = 'disabled';
+                                    }
+                                    ?>
+                                    <div class="edit-album-btn clearfix">
+                                        <a href="#"
+                                           class="<?php echo $disabled_string; ?>" <?php if ($row['claim_status'] == 'out for review') print 'disabled'; ?> <?php if ($disabled_string != 'disabled' && $row['claim_status'] != 'out for review') { ?> onclick='open_edit_box(<?php echo $claim_id; ?>, true)' <?php } ?>>
+                                            Edit Album
+                                        </a>
+                                    </div>
+                                    <?php //} ?>
+                                </td>
+                            <?php
+                            } //editable==true;
+                            else {
+                                ?>
+                                <td width="100px">
+                                    <div class="edit-album-btn clearfix">
+                                        <a href="#"
+                                           class="<?php echo $disabled_string; ?>" <?php if ($row['claim_status'] == 'out for review') print 'disabled'; ?> >
+                                            Edit Album
+                                        </a>
+                                    </div>
+                                </td>
+                            <?php } ?>
+                            <?php
+                            if (!isset($user->roles[23])) {
+                                ?>
+                                <td width="100px">
+                                    <a href="<?php echo base_path() . "account/additional_claim_info/$claim_id"; ?>"
+                                       class="edit-additional-data-btn">Edit</a>
+                                </td>
+                            <?php
+                            } else {
+                                ?>
+                                <td width="100px">
+                                    <a href="#"
+                                       class="edit-additional-data-btn">Edit</a>
+                                </td>
+                            <?php
+                            }?>
+                            <?php
+                            if (!isset($user->roles[23])) {
+                                ?>
+                                <td>
+                                    <!--<a href="#" class="create-invoice-btn enabled" onclick="open_submit_box(<?= $claim_id; ?>);return false;">Create My Invoice</a>-->
+                                    <a class="create-invoice-btn enabled colorbox-node" href="<?php echo $base_url; ?>/account/confirm_submit_claim/<?= $claim_id; ?>?width=700&height=540">Create My Invoice</a>
+                                </td>
+                            <?php
+                            } else {
+                                ?>
+                                <td><a href="#" class="create-invoice-btn enabled">Create My Invoice</a>
+                                </td>
+                            <?php
+                            }?>
+                        </tr>
+
+                    <?php
+                    } //end of for
+                    for ($i = 0; $i < ($min_row - $row_count); $i++) {
+                        print ('<tr>');
+                        print ('<td colspan="4">&nbsp</td>');
+                        print ('</tr>');
+                    }
+                    ?>
+                </table>
+            </div>
+        </div>
+        <div class="view-details clearfix">
+            <a href="<?php echo $base_url ?>/account/my-active-claims.html">View Details</a>
+        </div>
+    </div>
+<?php
+}
+//----------------------------------------------------------------------
+function _ncn_claim_manager_homepage_out_for_reviews($min_row)
+{
+
+// param
+    $order_by = "last_modified";
+    $additional_sql = " AND (`claim_status`='out for review' OR `claim_status`='returned' OR `claim_status`='approved' ) ";
+    $editable = true;
+    $send_to_archive = false;
+    $send_to_admin = false;
+    $approve_deny = true;
+
+    ?>
+
+    <div class="ahome-section-wrapper">
+        <div class="clearfix">
+            <div class="title">Out for Review</div>
+            <div class="help"><a href="#">Help</a></div>
+        </div>
+        <div class="table clearfix">
+            <div class="table-header">
+                <table>
+                    <tr>
+                        <td width="120px">Customer Name</td>
+                        <td>Claim Status</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="table-body">
+                <table>
+                    <?php
+                    GLOBAL $user;
+                    GLOBAL $base_url;
+
+                    if ($editable == true) {
+                        $_editable = 1;
+                    } else {
+                        $_editable = 0;
+                    }
+
+                    if ($send_to_admin == true) {
+                        $_send_to_admin = 1;
+                    } else {
+                        $_send_to_admin = 0;
+                    }
+
+                    if ($approve_deny == true) {
+                        $_approve_deny = 1;
+                    } else {
+                        $_approve_deny = 0;
+                    }
+
+                    if (isset($user->roles[23])) {
+                        $query = "SELECT * FROM claims WHERE leaduser=" . $user->uid . " AND deleted=0 AND claim_status!='unpurchased' $additional_sql ORDER BY `$order_by` DESC limit 0, 4;;";
+                    } else {
+                        $query = "SELECT * FROM claims WHERE user_id=" . $user->uid . " AND deleted=0 AND claim_status!='unpurchased' $additional_sql ORDER BY `$order_by` DESC limit 0, 4;;";
+                    }
+                    $result = db_query($query);
+                    $row_count = $result->rowCount();
+                    
+                    $orders_total = 0;
+                    $payment_received_total = 0;
+
+                    $result_rec = $result->fetchAll();
+                    foreach($result_rec as $row)
+                    {
+                        // get data from sql
+                        $row = (array)$row;
+                        $claim_id = $row['claim_id'];
+
+                        // does the file note exists/not blank
+                        if ($row['file_note'] == '') // give the file notes some default value
+                        {
+                            $row['file_note'] = base64_encode('[no note]');
+                        }
+
+
+                        // does an invoice exist?
+                      //  $query2 = "SELECT * FROM claims_invoices WHERE claim_id=" . $claim_id . " AND `live`=2;";
+                        $result2 = db_query('SELECT * FROM {claims_invoices} WHERE claim_id=:a AND live=2',
+                        array(':a'=>$claim_id));
+                        $live_invoice_count = $result2->rowCount();
+
+                      //  $query2 = "SELECT * FROM claims_invoices WHERE claim_id=" . $claim_id . " AND `live`=1;";
+                        $result2 = db_query('SELECT * FROM {claims_invoices} WHERE claim_id=:a AND live=1',
+                        array(':a'=>$claim_id));
+                        $live_claim_count = $result2->rowCount();
+
+                        // draw the row
+                        ?>
+                        <tr>
+                            <td width="120px"><?php echo ncn_cd($claim_id, 'customer_name'); ?></td>
+                            <td><?= ncn_claim_manager_claim_status_style($row['claim_status']); ?></td>
+                        </tr>
+
+                    <?php
+                    } //end of for
+                    for ($i = 0; $i < ($min_row - $row_count); $i++) {
+                        print ('<tr>');
+                        print ('<td colspan="2">&nbsp</td>');
+                        print ('</tr>');
+                    }
+                    ?>
+                </table>
+            </div>
+        </div>
+        <div class="view-details clearfix">
+            <a href="<?php echo $base_url ?>/account/out-for-review.html">View Details</a>
+        </div>
+    </div>
+<?php
+}
+
+//----------------------------------------------------------------------
+function _ncn_claim_manager_homepage_receivables($min_row) {
+
+// param
+    $order_by = "last_modified";
+    $additional_sql = " AND claim_status= 'receivables' ";
+    $editable = false;
+    $send_to_archive = true;
+    $send_to_admin = false;
+    $approve_deny = false;
+
+    ?>
+
+<?php if ($GLOBALS['account_role'] == "leaduser"){ ?>
+<div class="ahome-section-wrapper-lead">
+<?php }else{ ?>
+    <div class="ahome-section-wrapper">
+        <?php } ?>
+        <div class="clearfix">
+            <div class="title">Receivables</div>
+            <div class="help"><a href="#">Help</a></div>
+        </div>
+        <div class="table clearfix">
+            <div class="table-header">
+                <table>
+                    <tr>
+                        <td width="140px">Customer Name</td>
+                        <td width="150px">Functions</td>
+                        <td width="150px">Claim Amounts</td>
+                        <td>File Notes</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="table-body">
+                <table>
+                    <?php
+                    GLOBAL $user;
+                    GLOBAL $base_url;
+
+                    if ($editable == true) {
+                        $_editable = 1;
+                    } else {
+                        $_editable = 0;
+                    }
+
+                    if ($send_to_admin == true) {
+                        $_send_to_admin = 1;
+                    } else {
+                        $_send_to_admin = 0;
+                    }
+
+                    if ($approve_deny == true) {
+                        $_approve_deny = 1;
+                    } else {
+                        $_approve_deny = 0;
+                    }
+
+                    if (isset($user->roles[23])) {
+                        $query = "SELECT * FROM claims WHERE leaduser=" . $user->uid . " AND deleted=0 AND claim_status!='unpurchased' $additional_sql ORDER BY `$order_by` DESC limit 0, 3;";
+                    } else {
+                        $query = "SELECT * FROM claims WHERE user_id=" . $user->uid . " AND deleted=0 AND claim_status!='unpurchased' $additional_sql ORDER BY `$order_by` DESC limit 0, 3;";
+                    }
+                    $result = db_query($query);
+                    $row_count = $result->rowCount();
+
+                    $orders_total = 0;
+                    $payment_received_total = 0;
+
+                    $result_rec = $result->fetchAll();                  
+                    foreach($result_rec as $row)
+                    {
+                        // get data from sql
+                        $row = (array)$row;
+                        $claim_id = $row['claim_id'];
+
+                        // does the file note exists/not blank
+                        if ($row['file_note'] == '') // give the file notes some default value
+                        {
+                            $row['file_note'] = base64_encode('[no note]');
+                        }
+
+
+                        // does an invoice exist?
+                      //  $query2 = "SELECT * FROM claims_invoices WHERE claim_id=" . $claim_id . " AND `live`=2;";
+                        $result2 = db_query('SELECT * FROM {claims_invoices} WHERE claim_id=:a AND live=2',
+                        array(':a'=>$claim_id));
+                        $live_invoice_count = $result2->rowCount();
+
+                      //  $query2 = "SELECT * FROM claims_invoices WHERE claim_id=" . $claim_id . " AND `live`=1;";
+                        $result2 = db_query('SELECT * FROM {claims_invoices} WHERE claim_id=:a AND live=1',
+                        array(':a'=>$claim_id));
+                        $live_claim_count = $result2->rowCount();
+
+                        // draw the row
+                        ?>
+                        <tr>
+                            <td width="120px"><?php echo ncn_cd($claim_id, 'customer_name'); ?></td>
+                            <td width="150px">
+                                <?php    if ($send_to_archive == true && !isset($user->roles[23])) // payment received functions
+                                {
+                                    ?>
+                                    <a href="#" class="pay-full"
+                                       onclick="archive_claim('<?= $base_url; ?>', <?= $claim_id; ?>, '<?= $row['payment_received']; ?>');return false;">Pay
+                                        in Full</a>
+                                    <a href="#" class="pay-partial"
+                                       onclick="partial_payment('<?= $base_url; ?>', <?= $claim_id; ?>);return false;">Partial
+                                        Payment Received</a>
+                                <?php }else if ($send_to_archive == true){
+        ?>
+
+                                <a href="#" class="pay-full">Paid In Full</a>
+                                <a href="#" class="pay-partial">Partial Payment Received</a>
+
+                            <?php } ?>
+                            </td>
+                            <td width="150px">
+                                <?php    if ($row['claim_amount'] > 0) // only show claim amount if > 0
+                                {
+                                    //$orders_total += $row['claim_amount'];
+                                    print '$' . number_format($row['claim_amount'], 2);
+                                }
+                                ?>
+                            </td>
+                            <td>
+                                <!-- <a class="file-notes" href="#" onclick="set_file_note('<?= $base_url; ?>', <?= $claim_id; ?>, true);return false;">Set File Notes</a> -->
+                                <!--<span class="file-notes">file-note</span>-->
+                                <?php    if (!isset($user->roles[23])){ ?>
+                                    <a class="file-notes" href="#" onclick="set_file_note('<?= $base_url; ?>', <?= $claim_id; ?>, true);return false;">Set File Notes</a>
+                                <?php }else{ ?>
+                                    <a class="file-notes" href="#">Set File Notes</a>
+                                <?php } ?>
+                            </td>
+                        </tr>
+                    <?php
+                    } //end of for
+                    for ($i = 0; $i < ($min_row - $row_count); $i++) {
+                        print ('<tr>');
+                        print ('    <td colspan="4">&nbsp</td>');
+                        print ('</tr>');
+                    }
+                    ?>
+                </table>
+            </div>
+        </div>
+        <div class="view-details clearfix">
+            <a href="<?php echo $base_url ?>/account/receivables.html">View Details</a>
+        </div>
+    </div>
+<?php
+}
+
+function ncn_claim_manager_claim_status_style($claim_status)
+{
+    $str_status = ucwords($claim_status);
+    return "<span class=\"claim_status $claim_status\">$str_status</span>";
+}
+
+function draw_sales_report_table($data)
+{
+    ?>
+    <div class="clear-block">
+        <div class="ncn-pager-ranger" style="font-weight: bold; margin-bottom:5px;"></div>
+    </div>
+    <div class="table-header">
+        <table>
+            <tr class="header">
+                <td class="td-company-name"><strong>Company Name</strong></td>
+                <td class="td-member-name"><strong>Member Name</strong></td>
+                <td class="td-start-up-fee"><strong>Start-up Fee</strong></td>
+                <td class="td-monthly-membership-fee"><strong>Monthly Membership Fee</strong></td>
+                <td class="td-date"><strong>Date</strong></td>
+                <td class="td-total-earned"><strong>Total Earned</strong></td>
+            </tr>
+        </table>
+    </div>
+    <div class="table-body">
+        <?php
+        drupal_add_css(drupal_get_path('module', 'ncn_message') . '/ncn_message.css', 'module', 'all', FALSE);
+        drupal_add_js(drupal_get_path('module', 'ncn_message') . '/ncn_message.js');
+
+        $page_records = 10;
+        $row_count = count($data);
+        $page_num = 0;
+
+        $member_count = 0;
+        foreach ($data as $key => $data_part) {
+            if ($member_count % $page_records == 0) {
+                $page_num++; ?>
+                <table class="ncn-pager ncn-pager-page-<?php echo $page_num; ?>">
+            <?php } ?>
+            <tr>
+                <td class="td-company-name"><?php echo $data_part[0]; ?></td>
+                <td class="td-member-name"><?php echo $data_part[1]; ?></td>
+                <td class="td-start-up-fee"><?php echo $data_part[2]; ?></td>
+                <td class="td-monthly-membership-fee"><?php echo $data_part[3]; ?></td>
+                <td class="td-date"><?php echo date('d M Y H:i:s', $data_part[4]); ?></td>
+                <td class="td-total-earned"><?php echo render_payment_cost($data_part[5]); ?></td>
+            </tr>
+            <?php if ($member_count % $page_records == ($page_records - 1)): ?>
+                </table>
+            <?php endif; ?>
+            <?php
+            $member_count += 1;
+        }
+        if ($member_count == 0) {
+            ?>
+            <table class="">
+                <?php
+                for ($i = $member_count; $i < $page_records; $i++) {
+                    ?>
+                    <tr>
+                        <td colspan="6">&nbsp;</td>
+                    </tr>
+                <?php } ?>
+            </table>
+        <?php
+        } else if (($member_count % $page_records) != 0) {
+            for ($i = $member_count; $i < (ceil($member_count / $page_records) * $page_records); $i++) {
+                ?>
+                <tr>
+                    <td colspan="6">&nbsp;</td>
+                </tr>
+            <?php
+            }
+            echo "</table>";
+        }
+        ?>
+    </div>
+    <div class="ncn-pager-control clearfix">    <!-- pager_control -->
+        <div style="float: right">
+            <a class="first" href="#" onclick="pm_page_action('first');">first</a>
+            <a class="prev" href="#" onclick="pm_page_action('prev');">prev</a>
+            <a class="next" href="#" onclick="pm_page_action('next');">next</a>
+            <a class="last" href="#" onclick="pm_page_action('last');">last</a>
+        </div>
+    </div>
+    <script type="text/javascript">
+        var total_records = <?php echo $member_count ?>;
+        var page_records = <?php echo $page_records; ?>;
+        var page_number = 1;    //global;
+        var page_count = <?php echo $page_num; ?>;
+        jQuery(document).ready(function () {
+            pm_select_page(page_number);
+            if (total_records <= page_records) {
+                jQuery('.ncn-pager-ranger').css('display', 'none');
+                jQuery('.ncn-pager-control').css('display', 'none');
+            }
+        });
+    </script>
+<?php
+}
+
+
+function ncn_claims_manager_draw_signup_fee_select($name, $default)
+{
+    // #options
+    $payments = array();
+    $pnode = node_load(SKU_SUF_DF);
+    $pnode->data = unserialize($pnode->data);
+    $payments[SKU_SUF_DF] = $pnode; // NCN Membership Kit ($279)
+    $pnode = node_load(SKU_SUF_DP);
+    $pnode->data = unserialize($pnode->data);
+    $payments[SKU_SUF_DP] = $pnode; // NCN Membership Kit Options ($99)
+
+    /* NCN GOLD MEMBER SPECIAL  */
+    $pnode = node_load(SKU_SUF_GMSD);
+    $pnode->data = unserialize($pnode->data);
+    $payments[SKU_SUF_GMSD] = $pnode; // NCN Membership Kit Options ($49)
+
+    /*$pnode = node_load(57);   $pnode->data = unserialize($pnode->data);
+    $payments['57'] = $pnode;   // NCN Gold First Special($0)*/
+
+    $select_field = "<select id=\"$name\" name=\"$name\"> \r\n";
+    foreach ($payments as $key => $product) {
+        $selected = ($key == $default) ? "selected" : "";
+        $select_field .= "<option value=\"$key\" $selected >" . $product->title . " ($" . number_format($product->cost, 2) . ")</option>";
+    }
+    $select_field .= "</select> \r\n";
+
+    return $select_field;
+}
+
+//------------------------------------------------------------------------------
+function render_claim_time($time)
+{
+
+    $str = sprintf("%02d", $time['hour']) . ':' . sprintf("%02d", $time['minute']) . " " . $time['meridiem'];
+
+    return $str;
+}
+
+//------------------------------------------------------------------------------
+function render_claim_date($date)
+{
+    return date("F j Y", strtotime($date)); //return $date;
+
+    if (!is_numeric($date)) {
+        return '';
+    }
+
+    return date("m/d/Y", strtotime($date));
 }

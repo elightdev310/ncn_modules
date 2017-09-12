@@ -29,28 +29,22 @@
                             }
                         }
                         ?>
+
                         <li id="tab<?= ($c) ?>">
-                            <?php
-                            if ($c > 1)
-                            {
-                                ?><div class="delete_room_button" onclick="delete_room(<?= $c; ?>, <?= $claim_id ?>, '<?= $roomname ?>');"></div><?php
-                            }
-                            ?>
+                            <?php if ($c > 1): ?>
+                                <div class="delete_room_button" onclick="delete_room(<?= $c; ?>, <?= $claim_id ?>, '<?= $roomname ?>');"></div>
+                            <?php endif; ?>
+
                             <a href="<?= base_path() ?>account/roomtab/<?= $claim_id ?>/<?= $roomname ?>/<?= ($c); ?>" onclick="return tab_click(<?= ($c); ?>);" class="roomname" id="roomname_text_<?= $c; ?>"><?= $roomname; ?></a>
-                            <?php
 
-                            if ($c > 1)
-                            {
-                                ?><a href="#" onclick="rename_room(<?= $c; ?>, <?= $claim_id ?>, '<?= $roomname ?>');" class="roomedit" id="rename_roomname_text_<?= $c; ?>">[edit]</a><?php
-                            }
-                            ?>
-
+                            <?php if ($c > 1): ?>
+                                <a href="#" onclick="rename_room(<?= $c; ?>, <?= $claim_id ?>, '<?= $roomname ?>');" class="roomedit" id="rename_roomname_text_<?= $c; ?>">[edit]</a>
+                            <?php endif; ?>
                         </li>
+
                         <?php
                         $c++;
-
                     }
-
                     ?>
                     <li id="add_room_tab"><a href="#" onclick="add_room(<?= $claim_id ?>);return false;">Add Room</a></li>
                 </ul>
@@ -111,7 +105,7 @@
                     <?php else: ?>
                     jQuery("#tabloading").css('display', 'none'); //Hide all content
                     <?php endif; ?>
-                }, 2000);
+                }, 500);
             });
         </script>
     </div>

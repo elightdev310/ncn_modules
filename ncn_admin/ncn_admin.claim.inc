@@ -1779,7 +1779,6 @@ function ncn_admin_list_claims()
     }
   }
     
-  
     $filter = arg(4);
     $filter_user = arg(6);
     $filter_claim_workflow = arg(8);
@@ -1816,7 +1815,7 @@ function ncn_admin_list_claims()
     array_unshift($statuses, "show all"); 
     
     // get active users
-//  $query = "SELECT DISTINCT user_id FROM claims WHERE claim_status != 'unpurchased' AND deleted=0;";
+    // $query = "SELECT DISTINCT user_id FROM claims WHERE claim_status != 'unpurchased' AND deleted=0;";
     $result = db_query('SELECT DISTINCT user_id FROM claims WHERE claim_status != :a AND deleted=0',array(':a'=>'unpurchased'));
     $users = array();
     $result_rec = $result->fetchAll();
@@ -1831,14 +1830,13 @@ function ncn_admin_list_claims()
                 $users[$row['user_id']] .= (" (".$_user->profile_legalname.")");
             }
             if ($_user->profile_firstname == '' && $_user->profile_lastname == '' && $_user->profile_legalname == '') {
-                 $users[$row['user_id']] = $_user->name;
+                $users[$row['user_id']] = $_user->name;
             }
         }
     }
     
     asort($users);      // sort users by value (username)
-    $users = array("show all" => "Show All", "show_members"=>"Show All Real Members")+$users;  
-
+    $users = array("show all" => "Show All", "show_members"=>"Show All Real Members")+$users;
 
     ?>
     <div>
@@ -1855,7 +1853,7 @@ function ncn_admin_list_claims()
                     <?php $ce_auto_assign = variable_get('ce_auto_assign', FALSE); ?>
                     <select name="auto_assign_mode" id="auto_assign_mode">
                         <option value="0" <?php if (!$ce_auto_assign){echo "selected";} ?> >Off</option>
-                        <option value="1" <?php if ( $ce_auto_assign){echo "selected";} ?>>On</option>
+                        <option value="1" <?php if ( $ce_auto_assign){echo "selected";} ?> >On</option>
                     </select>
                 </td>
                 <td><input type="submit" value="Save"></td>
@@ -1881,7 +1879,6 @@ function ncn_admin_list_claims()
                             {   $checked = " selected ";    }
                             else
                             {   $checked = '';  }
-
                             ?>
                             <option value="<?= $status; ?>" <?= $checked; ?>><?= ucwords($status); ?></option>
                             <?php
