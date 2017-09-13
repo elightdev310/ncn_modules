@@ -337,6 +337,7 @@ function render_claim_timer($claim_id, $mode=0) {
     
     $content = "";
     $before = 2*3600;   //2hrs
+    $red_class = '';
     if ($remained_time > 0) {
         if ($remained_time < $before) {
             $red_class = "timer_alert";

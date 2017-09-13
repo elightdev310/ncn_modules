@@ -228,7 +228,7 @@ function _ncn_image_api($action, $params) {
 		
 		if ($action == 'scale') {
 			//$bAction = imageapi_image_scale($image, $params['width'], $params['height'], $params['upscale']);
-			$bAction = image_scale($image, $params['width'], $params['height'], $params['upscale']);			
+			$bAction = image_scale($image, isset($params['width'])?$params['width']:0, isset($params['height'])?$params['height']:0, $params['upscale']);			
 		} else if ($action =='crop') {
 			//$bAction = imageapi_image_crop($image, $params['x'], $params['y'], $params['width'], $params['height']);
 			//$bAction = image_scale_and_crop($image, $params['width'], $params['height']);
@@ -312,7 +312,7 @@ function ncn_image_clean_tmp() {
 
 function ncn_image_get_scope_data($claim_id) {
 //	$query = "SELECT * FROM claims_data WHERE claim_id=".$claim_id." AND `key`='scope'";
-	$result = db_query('SELECT * FROM {claims_data} WHERE claim_id=:a AND `key`=:b',array(':a'=>$claim_id,':b'=>scope));
+	$result = db_query('SELECT * FROM {claims_data} WHERE claim_id=:a AND `key`=:b',array(':a'=>$claim_id,':b'=>'scope'));
 	$row_count = $result->rowCount();
 	
 	if ($row_count == 0) { return ''; }
@@ -541,7 +541,7 @@ function ncn_image_change_image_save() {
 		
 		$scope = serialize($row['val']);
 	//	$query1 = "UPDATE claims_data SET `val`='$scope' WHERE claim_id=".$claim_id." AND `key`='scope'";
-		$result1 = db_query('UPDATE {claims_data} SET val=:a WHERE claim_id=:b AND `key`=:c',array(':a'=>$scope,':b'=>$claim_id ,':c'=>scope));
+		$result1 = db_query('UPDATE {claims_data} SET val=:a WHERE claim_id=:b AND `key`=:c',array(':a'=>$scope,':b'=>$claim_id ,':c'=>'scope'));
 		if (!$result1) {
 			$result['flag'] = 'error2';
 			$result['msg']  = t('Failed to change image.');

@@ -81,3 +81,7 @@ function pm_page_action(action_name)
 	}
 	pm_select_page(page_num);
 }
+
+function backToHistoryReload() {
+	window.location.href = document.referrer;
+}

@@ -186,38 +186,40 @@ function _get_blank_room_image_url($type, $index){
     
 function convert_pdf_to_jpg($file, $dir_url) {
     
-    $old_file_path = $file->filepath;
+    $old_file_path = $file->uri;
     
     $base_abs_path = $_SERVER['DOCUMENT_ROOT'];
-    $pdf_full_path = $base_abs_path."/".$file->filepath;
-    $folder_full_path = $base_abs_path."/".$dir_url;
+    $pdf_full_path = drupal_realpath($file->uri);
+    $folder_full_path = drupal_realpath($dir_url);
     $jpg_prefix = $file->filename."-";
     
     
     //$command = "java -jar c:/AspriseJavaPDF-free.jar $pdf_full_path $folder_full_path $jpg_prefix";
-    $command = "java -jar ../AspriseJavaPDF-free.jar $pdf_full_path $folder_full_path $jpg_prefix";
-    
+    // $command = "java -jar ../AspriseJavaPDF-free.jar $pdf_full_path $folder_full_path $jpg_prefix";
+    $command = "java -jar ".$_SERVER["DOCUMENT_ROOT"]."/AspriseJavaPDF-free.jar $pdf_full_path $folder_full_path $jpg_prefix";
     //$command = "c:/pdf2image -o $folder_full_path $pdf_full_path --format jpg --prefix $jpg_prefix --verb 3 ";
     //$command = "./../pdf2image -o $folder_full_path $pdf_full_path --format jpg --prefix $jpg_prefix --verb 3 ";
-                                         
+    watchdog('java-cmd', $command);
     $output = shell_exec($command);
+
     //echo $output;
     //exit;
     file_delete($file);
     $error = false;
-    $file->filepath .=".jpg";
+    $file->uri .=".jpg";
     $file->filename .=".jpg";
     $file->filemime = "image/jpg";
+    $file->filepath = str_replace("public://", "sites/default/files/", $file->uri);
     if (!is_file("$dir_url/$jpg_prefix"."1.jpg")){
     
     if (is_file("$dir_url/$jpg_prefix".".jpg")){
-        $res = copy("$dir_url/$jpg_prefix".".jpg" , $file->filepath);
+        $res = copy("$dir_url/$jpg_prefix".".jpg" , drupal_realpath($file->uri));
         if (!$res) { $error=true; }
         } else {
             return FALSE;       
         }
     } else {
-        $res = copy("$dir_url/$jpg_prefix"."1.jpg" , $file->filepath);
+        $res = copy("$dir_url/$jpg_prefix"."1.jpg" , drupal_realpath($file->uri));
         if (!$res) { $error=true; }
     }
     

@@ -545,7 +545,7 @@ function payment_transaction_add_additional_page()
     $r_data['page_id'] = 'payment_transaction_add_additional_page';
     $r_data['form_id'] = 'add_additional_transaction_form';
     $r_data['tfunction'] = 'add_additional';
-    if ($_POST['tfunction'] == $r_data['tfunction'])
+    if (isset($_POST['tfunction']) && $_POST['tfunction'] == $r_data['tfunction'])
     {
         $r_data['member_id'] = $_POST['p_member_id'];
         $r_data['amount'] = floatval($_POST['p_amount']);
@@ -577,7 +577,7 @@ function payment_transaction_edit_additional_page($pid)
     $r_data['page_id'] = 'payment_transaction_add_additional_page';
     $r_data['form_id'] = 'add_additional_transaction_form';
     $r_data['tfunction'] = 'edit_additional';
-    if ($_POST['tfunction'] == $r_data['tfunction'])
+    if (isset($_POST['tfunction']) && $_POST['tfunction'] == $r_data['tfunction'])
     {
         $r_data['member_id'] = $_POST['p_member_id'];
         $r_data['amount'] = floatval($_POST['p_amount']);
@@ -673,7 +673,7 @@ function payment_transaction_add_standard_page()
     $r_data['page_id'] = 'payment_transaction_add_standard_page';
     $r_data['form_id'] = 'add_standard_transaction_form';
     $r_data['tfunction'] = 'add_standard';
-    if ($_POST['tfunction'] == $r_data['tfunction'])
+    if (isset($_POST['tfunction']) && $_POST['tfunction'] == $r_data['tfunction'])
     {
         $r_data['product_id'] = $_POST['product_id'];
         $r_data['amount'] = floatval($_POST['p_amount']);

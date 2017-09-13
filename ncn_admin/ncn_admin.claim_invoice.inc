@@ -23,7 +23,7 @@ function ncn_admin_invoiceform_3_submit($form, &$form_state)
     if ($res)
     {
         if ($live == 3 || $live == 4) {
-            $res_file = convert_pdf_to_jpg($file, $claim_dir);
+            $res_file = convert_pdf_to_jpg($res, $invoice_dir);
             if ($res_file === FALSE) {
                 drupal_set_message('Failed to convert uploaded PDF file to Image', 'error');
                 return;
@@ -165,7 +165,7 @@ function ncn_admin_invoiceform_1_submit($form, &$form_state)
         // add entry to logfile
         
         $log_message = ncn_amin_get_user_role_and_name()." uploaded new file: ".$file->filename." ( $claim_file_title - revision #".$revision. " )";
-    ncn_admin_insert_claim_log($claim_id, date('U'), $log_message);     
+        ncn_admin_insert_claim_log($claim_id, date('U'), $log_message);
         
         // success!
         $log_message = "Uploaded new file: ".$file->filename." ( $claim_file_title - revision #".$revision. " )";
@@ -174,8 +174,9 @@ function ncn_admin_invoiceform_1_submit($form, &$form_state)
         if ($live == 1 && ncn_admin_is_claim_first_free($claim_id) ) {
             $base_abs_path = $_SERVER['DOCUMENT_ROOT'];
             $final_invoice_name = $file->filepath;
-            //$command = "java -jar C:/pdfwatermark/ncn_pdf_watermark.jar $base_abs_path/$final_invoice_name";
-            $command = "java -jar ../pdfwatermark/ncn_pdf_watermark.jar $base_abs_path/$final_invoice_name";
+            // $command = "java -jar C:/pdfwatermark/ncn_pdf_watermark.jar $base_abs_path/$final_invoice_name";
+            // $command = "java -jar ../pdfwatermark/ncn_pdf_watermark.jar $base_abs_path/$final_invoice_name";
+            $command = "java -jar ".$_SERVER["DOCUMENT_ROOT"]."/pdfwatermark/ncn_pdf_watermark.jar $base_abs_path/$final_invoice_name";
 
             $output = shell_exec($command);
             //$final_locked_invoice_name = ncn_admin_get_locked_invoice_filename($final_invoice_name);
@@ -534,46 +535,46 @@ function ncn_admin_invoice_data_datepicker(objStr) {
         <input type="hidden" name="current_scroll_position" class="current_scroll_position" value="" />
         <table style="border: solid 0px;">
         <tbody style="border:0px;">
-            <tr class="even"><td><label for="claim_invoice_type">Claim Invoice Type: &nbsp;</label></td><td><?php echo draw_select_claim_invoice_type('claim_invoice_type', $data['claim_invoice_type']); ?></td></tr>
+            <tr class="even"><td><label for="claim_invoice_type">Claim Invoice Type: &nbsp;</label></td><td><?php echo draw_select_claim_invoice_type('claim_invoice_type', isset($data['claim_invoice_type'])?$data['claim_invoice_type']:''); ?></td></tr>
             
-            <tr class="odd"><td><label for="company_fax_number">Company Fax Number: &nbsp;</label></td><td><input id="company_fax_number" name="company_fax_number" size="20" value="<?php echo $data['company_fax_number']; ?>" /></td></tr>
+            <tr class="odd"><td><label for="company_fax_number">Company Fax Number: &nbsp;</label></td><td><input id="company_fax_number" name="company_fax_number" size="20" value="<?php echo isset($data['company_fax_number'])?$data['company_fax_number']:''; ?>" /></td></tr>
 
-            <tr class="even"><td width="30%"><label for="data_entered">Data Entered: &nbsp;</label></td><td><input id="data_entered" name="data_entered" size="20" value="<?php echo $data['data_entered']; ?>" /></td></tr>
-            <tr class="odd"><td width="30%"><label for="price_list">Price List: &nbsp;</label></td><td><input id="price_list" name="price_list" size="20" value="<?php echo $data['price_list']; ?>"  /></td></tr>
+            <tr class="even"><td width="30%"><label for="data_entered">Data Entered: &nbsp;</label></td><td><input id="data_entered" name="data_entered" size="20" value="<?php echo isset($data['data_entered'])?$data['data_entered']:''; ?>" /></td></tr>
+            <tr class="odd"><td width="30%"><label for="price_list">Price List: &nbsp;</label></td><td><input id="price_list" name="price_list" size="20" value="<?php echo isset($data['price_list'])?$data['price_list']:''; ?>"  /></td></tr>
             <tr class="even"><td width="40%"><label for="iop_type">Insured's Other Phone: &nbsp;</label></td><td>
                 <select id="iop_type" name="iop_type" >
-                    <option value="Work" <?php if($data['iop_type']=="Work") {echo "selected";}?> >-Work-</option>
-                    <option value="Mobile" <?php if($data['iop_type']=="Mobile") {echo "selected";}?> >-Mobile-</option>
+                    <option value="Work" <?php if(isset($data['iop_type'])&&$data['iop_type']=="Work") {echo "selected";}?> >-Work-</option>
+                    <option value="Mobile" <?php if(isset($data['iop_type'])&&$data['iop_type']=="Mobile") {echo "selected";}?> >-Mobile-</option>
                 </select>
-                <input id="iop_number" name="iop_number" size="12" value="<?php echo $data['iop_number']; ?>"  />
+                <input id="iop_number" name="iop_number" size="12" value="<?php echo isset($data['iop_number'])?$data['iop_number']:''; ?>"  />
             </td></tr>
             <tr class="odd"><td><label for="type_of_loss">Type of Loss: &nbsp;</label></td><td>
                 <select id="type_of_loss" name="type_of_loss" style="width: 100px;"  >
-                    <option value="Water" <?php if($data['type_of_loss']=="Water") {echo "selected";}?>>- Water -</option>
-                    <option value="Mold" <?php if($data['type_of_loss']=="Mold") {echo "selected";}?>>- Mold -</option>
+                    <option value="Water" <?php if(isset($data['type_of_loss'])&&$data['type_of_loss']=="Water") {echo "selected";}?>>- Water -</option>
+                    <option value="Mold" <?php if(isset($data['type_of_loss'])&&$data['type_of_loss']=="Mold") {echo "selected";}?>>- Mold -</option>
                 </select>
             </td></tr>
-            <tr class="even"><td><label for="insurance_company">Insurance Company: &nbsp;</label></td><td><input id="insurance_company" name="insurance_company" size="20" value="<?php echo $data['insurance_company']; ?>"  /></td></tr>
-            <tr class="odd"><td><label for="claim_number">Claim Number: &nbsp;</label></td><td><input id="claim_number" name="claim_number" size="20" value="<?php echo $data['claim_number']; ?>"  /></td></tr>
+            <tr class="even"><td><label for="insurance_company">Insurance Company: &nbsp;</label></td><td><input id="insurance_company" name="insurance_company" size="20" value="<?php echo isset($data['insurance_company'])?$data['insurance_company']:''; ?>"  /></td></tr>
+            <tr class="odd"><td><label for="claim_number">Claim Number: &nbsp;</label></td><td><input id="claim_number" name="claim_number" size="20" value="<?php echo isset($data['claim_number'])?$data['claim_number']:''; ?>"  /></td></tr>
             
-            <tr class="even" ><td><label for="claim_adjuster">Claim Adjuster: &nbsp;</label></td><td><input id="claim_adjuster" name="claim_adjuster" size="20" value="<?php echo $data['claim_adjuster']; ?>"  /></td></tr>
+            <tr class="even" ><td><label for="claim_adjuster">Claim Adjuster: &nbsp;</label></td><td><input id="claim_adjuster" name="claim_adjuster" size="20" value="<?php echo isset($data['claim_adjuster'])?$data['claim_adjuster']:''; ?>"  /></td></tr>
             <tr class="odd"><td><label for="claim_adjuster_phone">Claim Adjuster Phone: &nbsp;</label></td><td>
                 <select id="cap_type" name="cap_type" >
-                    <option value="Work" <?php if($data['cap_type']=="Work") {echo "selected";}?> >-Work-</option>
-                    <option value="Mobile" <?php if($data['cap_type']=="Mobile") {echo "selected";}?> >-Mobile-</option>
+                    <option value="Work" <?php if(isset($data['cap_type'])&&$data['cap_type']=="Work") {echo "selected";}?> >-Work-</option>
+                    <option value="Mobile" <?php if(isset($data['cap_type'])&&$data['cap_type']=="Mobile") {echo "selected";}?> >-Mobile-</option>
                 </select>
-                <input id="claim_adjuster_phone" name="claim_adjuster_phone" size="20" value="<?php echo $data['claim_adjuster_phone']; ?>"  /></td></tr>
-            <tr class="even"><td><label for="claim_adjuster_fax">Claim Adjuster Fax: &nbsp;</label></td><td><input id="claim_adjuster_fax" name="claim_adjuster_fax" size="20" value="<?php echo $data['claim_adjuster_fax']; ?>" /></td></tr>
+                <input id="claim_adjuster_phone" name="claim_adjuster_phone" size="20" value="<?php echo isset($data['claim_adjuster_phone'])?$data['claim_adjuster_phone']:''; ?>"  /></td></tr>
+            <tr class="even"><td><label for="claim_adjuster_fax">Claim Adjuster Fax: &nbsp;</label></td><td><input id="claim_adjuster_fax" name="claim_djuster_fax" size="20" value="<?php echo isset($data['claim_adjuster_fax'])?$data['claim_adjuster_fax']:''; ?>" /></td></tr>
 
             <tr class="odd"><td><label for="category">Category: &nbsp;</label></td><td>
                 <select id="category" name="category" style="width: 100px;"  >
-                    <option value="1" <?php if($data['category']=="1") {echo "selected";}?> >-1-</option>
-                    <option value="2" <?php if($data['category']=="2") {echo "selected";}?> >-2-</option>
-                    <option value="3" <?php if($data['category']=="3") {echo "selected";}?> >-3-</option>
+                    <option value="1" <?php if(isset($data['category'])&&$data['category']=="1") {echo "selected";}?> >-1-</option>
+                    <option value="2" <?php if(isset($data['category'])&&$data['category']=="2") {echo "selected";}?> >-2-</option>
+                    <option value="3" <?php if(isset($data['category'])&&$data['category']=="3") {echo "selected";}?> >-3-</option>
                 </select>
             </td></tr>
-            <tr class="even"><td><label for="start_date">Start Date: &nbsp;</label></td><td><input id="start_date" name="start_date" size="20" value="<?php echo $data['start_date']; ?>" /></td></tr>
-            <tr class="odd"><td><label for="completion_date">Completion Date: &nbsp;</label></td><td><input id="completion_date" name="completion_date" size="20" value="<?php echo $data['completion_date']; ?>" /></td></tr>
+            <tr class="even"><td><label for="start_date">Start Date: &nbsp;</label></td><td><input id="start_date" name="start_date" size="20" value="<?php echo isset($data['start_date'])?$data['start_date']:''; ?>" /></td></tr>
+            <tr class="odd"><td><label for="completion_date">Completion Date: &nbsp;</label></td><td><input id="completion_date" name="completion_date" size="20" value="<?php echo isset($data['completion_date'])?$data['completion_date']:''; ?>" /></td></tr>
             <tr class="even"><td><label for="cause" style="vertical-align: top;">Cause:&nbsp;</label></td><td><textarea id="cause" name="cause" style="width: 90%; height: 100px;" ><?php echo isset($data['cause'])? $data['cause']:''; ?></textarea></td></tr>
             <?php if ($pvc_disabled!='disabled'): ?>
                 <tr class="odd"><td colspan="2"><input type="submit" onclick="return on_set_scroll_position();" value="  Save  "/></td></tr>
@@ -652,7 +653,7 @@ function ncn_admin_draw_invoice_upload($claim_id, $type, $pvc_disabled='')
                     <?php
                     // get latest 5 invoice revisions
                     
-                //  $query = "SELECT * FROM claims_invoices WHERE claim_id=".$claim_id." AND `live`=".$type." ORDER BY revision DESC LIMIT 0,5";
+                    // $query = "SELECT * FROM claims_invoices WHERE claim_id=".$claim_id." AND `live`=".$type." ORDER BY revision DESC LIMIT 0,5";
                     $result = db_query('SELECT * FROM {claims_invoices} WHERE claim_id=:a AND `live`= :b ORDER BY revision DESC,invoice_id DESC LIMIT 0,5',array(':a'=>$claim_id ,':b'=>$type));
                     $row_count = $result->rowCount();
                     
@@ -660,7 +661,7 @@ function ncn_admin_draw_invoice_upload($claim_id, $type, $pvc_disabled='')
                     //for ($i=0; $i<$row_count; $i++)
                     $result_rec = $result->fetchAll();
                     $i = 0;
-                    foreach($result as $row)
+                    foreach($result_rec as $row)
                     {
                         $row = (array)$row;
                         $id = uniqid();

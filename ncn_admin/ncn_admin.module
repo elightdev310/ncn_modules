@@ -2,6 +2,7 @@
 
 //------------------------------------------------------------------------------
 require_once('ncn_admin.define.inc');
+require_once('ncn_admin.fpdf.inc');
 require_once('ncn_admin_api.inc');
 require_once('ncn_admin.inc');
 require_once('ncn_admin.page.inc');
@@ -1086,10 +1087,12 @@ function ncn_admin_mail_alter(&$message) {
 
     /////////////////////////////////////////
     // For Test
-    $message['subject'] = '[TEST - '.$message['to'].']-'.$message['subject'];
-    $message['to'] = 'forward.morning@gmail.com';
-    unset($message['headers']['Bcc']);
-    unset($message['headers']['CC']);
+    if (defined('NCN_TEST')) {
+        $message['subject'] = '[TEST - '.$message['to'].']-'.$message['subject'];
+        $message['to'] = 'forward.morning@gmail.com';
+        unset($message['headers']['Bcc']);
+        unset($message['headers']['CC']);
+    }
     
 }
 //------------------------------------------------------------------------------

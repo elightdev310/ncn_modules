@@ -658,7 +658,7 @@ function ncn_admin_is_first_claim_for_member($claim_id) {
 
 function ncn_admin_get_first_claim_id($user_id) {
     $result = db_query('SELECT * FROM {claims} WHERE user_id=:a AND claim_status!=:b ORDER BY claim_id ASC',
-    array(':a'=>$user_id,':b'=>unpurchased));
+    array(':a'=>$user_id,':b'=>'unpurchased'));
 //  if ($result && $row = db_fetch_array($result) )
 
     if($result->rowCount()>0)

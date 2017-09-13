@@ -549,6 +549,7 @@ GLOBAL $base_url;
 		
 		// run through messages TO/FROM current user that relate to CLAIM
 		//for ($i=0; $i<$row_count; $i++)
+		$i=0;
 		foreach($result as $row)
 		{
 			// get data
@@ -579,6 +580,7 @@ GLOBAL $base_url;
 				</td>
 			</tr>
 			<?php
+			$i++;
 		}
 		
 		?>
@@ -586,7 +588,7 @@ GLOBAL $base_url;
 		</div> <!-- end of table-body -->
 		<div class="ncn-control-back clearfix">
 			<div style="float: right;"> 
-			<a href="javascript:history.back(1)">Back</a>
+			<a href="javascript:backToHistoryReload()">Back</a>
 			</div>
 		</div>
 		</div>

@@ -447,7 +447,7 @@ function draw_impression_weight($name, $value='', $attributes='')
 
 function ncn_sponsor_add_sponsor_page_action() {
 //add sponsor
-	if ($_POST['tfunction'] == 'add_sponsor') {
+	if (isset($_POST['tfunction']) && $_POST['tfunction'] == 'add_sponsor') {
 		$image_url		= $_POST['sponsor_image'];
 		$link_url 		= $_POST['link_url'];
 		$sponsor_name	= $_POST['sponsor_name'];

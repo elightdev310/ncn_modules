@@ -35,6 +35,42 @@ function get_account_manager_id($distributor_id)
     return $lowest_key;
 }
 
+function get_claim_file($claim_id, $live) {
+    //  $query = "SELECT * FROM claims_invoices WHERE claim_id=$claim_id AND live=$live ORDER BY timestamp DESC";
+    $result = db_query('SELECT * FROM {claims_invoices} WHERE claim_id=:a AND live=:b ORDER BY revision DESC',
+                        array(':a'=>$claim_id,':b'=>$live));
+
+    if ($result && $result->rowCount()>0)
+    {
+        $row = $result->fetchAssoc();
+        return $row;
+    }
+    return array(); 
+}
+
+function get_claim_file_count($claim_id, $live) {
+    $count = db_query('SELECT count(*) FROM {claims_invoices} WHERE claim_id=:a AND live=:b',
+                        array(':a'=>$claim_id,':b'=>$live))
+                ->fetchField();
+    return $count;
+}
+
+function get_claim_scope_file($claim_id) {
+//  $query = "SELECT * FROM claims_scope WHERE claim_id=$claim_id ORDER BY timestamp DESC";
+    $result = db_query('SELECT * FROM {claims_scope} WHERE claim_id=:a ORDER BY timestamp DESC',array(':a'=>$claim_id ));
+    if ($result)
+    {   
+        $row_count = $result->rowCount();
+        $files = array();
+        for ($i=0; $i<$row_count; $i++) {
+            $row = $result->fetchAssoc();
+            $files[$row['roomname']] = $row;
+        }
+        return $files;
+    }
+    return array(); 
+}
+
 /**
  * URL-AJAX: account/save_file_note
  */
@@ -192,11 +228,11 @@ function ncn_claims_manager_approve_invoice($claim_id=0,$uid=0,$ret=false)
     //echo '<pre>';print_r(ncn_amin_get_user_role_and_name());exit;
     
 
-    if (!is_numeric($revision)) {
-        $revision_sql = "";
-    } else {
-        $revision_sql = " AND claims_invoices.revision=" . $revision . " ";
-    }
+    // if (!is_numeric($revision)) {
+    //     $revision_sql = "";
+    // } else {
+    //     $revision_sql = " AND claims_invoices.revision=" . $revision . " ";
+    // }
     $user_query = "SELECT users.mail FROM users as users inner join users_roles as users_roles  on users.uid = users_roles.uid and users_roles.rid=9";
     $user_result = db_query($user_query);
     foreach($user_result as $object)
@@ -206,12 +242,13 @@ function ncn_claims_manager_approve_invoice($claim_id=0,$uid=0,$ret=false)
         send_approve_invoice_mail($to,$claim_id);
     }
     $updated_user = $GLOBALS['user']->name;
-    $log_message = "Status updated by " . ncn_amin_get_user_role_and_name() . " to 'approved'.Claim#'.$claim_id.' has been moved from 'Out for Review' to 'Receivables'";                               
+    $log_message = "Status updated by " . ncn_amin_get_user_role_and_name() . " to 'approved'.Claim#'.$claim_id.' has been moved from 'Out for Review' to 'Receivables'";
     ncn_admin_insert_claim_log($claim_id, date('U'), $log_message);
-//exit;
+
     watchdog('claim', 'approve invoice notification(claim moved from "Out for Review" to "Receivables") for %name.', array('%name' => $user->name));
     
     // get live/preview
+    $user_id_sql = '';
     $query = "SELECT claim_status FROM claims WHERE claim_id=" . $claim_id . $user_id_sql;
     $result = db_query($query);
     $row_count = $result->rowCount();
@@ -319,11 +356,11 @@ function ncn_claims_manager_reject_invoice()
     $claim_id = arg(2);
 
 
-    if (!is_numeric($revision)) {
-        $revision_sql = "";
-    } else {
-        $revision_sql = " AND claims_invoices.revision=" . $revision . " ";
-    }
+    // if (!is_numeric($revision)) {
+    //     $revision_sql = "";
+    // } else {
+    //     $revision_sql = " AND claims_invoices.revision=" . $revision . " ";
+    // }
 
     // get live/preview
     $query = "SELECT claim_status FROM claims WHERE claim_id=" . $claim_id . $user_id_sql;
@@ -432,12 +469,12 @@ function ncn_claims_manager_submit_claim_outforreview($claim_id=0,$uid=0,$ret=fa
     }
 
     // get the revision
-    $revision = arg(3);
-    if (!is_numeric($revision)) {
-        $revision_sql = "";
-    } else {
-        $revision_sql = " AND claims_invoices.revision=" . $revision . " ";
-    }
+    // $revision = arg(3);
+    // if (!is_numeric($revision)) {
+    //     $revision_sql = "";
+    // } else {
+    //     $revision_sql = " AND claims_invoices.revision=" . $revision . " ";
+    // }
 
     // get live/preview
     $query = "SELECT claim_status FROM claims WHERE claim_id=" . $claim_id . $user_id_sql;
@@ -529,7 +566,10 @@ function ncn_claims_manager_submit_claim_outforreview($claim_id=0,$uid=0,$ret=fa
 
 }
 
-//------------------------------------------------------------------------------
+/**
+ * Download claim file
+ * URL: account/serve_invoice_file/{$claim_id}/{$live}/[$revision]/[$invoice_id]
+ */
 function ncn_claims_manager_serve_invoice_file()
 {
     GLOBAL $user;
@@ -580,7 +620,10 @@ function ncn_claims_manager_serve_invoice_file()
     */
 
     // setup data
-    $query = "SELECT * FROM claims_invoices,claims WHERE claims_invoices.claim_id=claims.claim_id AND claims.claim_id=" . $claim_id . " AND claims_invoices.`live`=" . $live . " " . $user_id_sql . " " . $revision_sql . " ORDER BY claims_invoices.revision DESC LIMIT 0,1";
+    $query = "SELECT * FROM claims_invoices,claims 
+                WHERE claims_invoices.claim_id=claims.claim_id AND claims.claim_id=" . $claim_id . " 
+                AND claims_invoices.`live`=" . $live . " " . $user_id_sql . " " . $revision_sql . " 
+                ORDER BY claims_invoices.revision DESC LIMIT 0,1";
     $result = db_query($query);
     $row_count = $result->rowCount();
 
@@ -736,493 +779,6 @@ function ncn_claims_manager_update_handler()
 
         echo ncn_claim_manager_page_internal($page_title, $class_name, $order_by, $additional_sql, $editable, false, $send_to_admin, $approve_deny);
     }
-}
-
-//------------------------------------------------------------------------------
-// overview/list page(s)
-function ncn_claim_manager_page($page_title, $class_name, $order_by = "created", $additional_sql = "", $editable = true, $send_to_archive = false, $send_to_admin = false, $approve_deny = false)
-{
-    ?>
-    <div id="page_loading"></div>
-    <div id="page_results">
-    <div class="claims-detail <?php echo $class_name; ?>">
-        <?php           
-            ncn_claim_manager_page_internal($page_title, $class_name, $order_by, $additional_sql, $editable, $send_to_archive, $send_to_admin, $approve_deny);
-        ?></div></div><?php
-}
-
-//------------------------------------------------------------------------------
-// overview/list page(s)
-function ncn_claim_manager_page_internal($page_title, $class_name, $order_by = "created", $additional_sql = "", $editable = true, $send_to_archive = false, $send_to_admin = false, $approve_deny = false)
-{
-    GLOBAL $user;
-    GLOBAL $base_url;
-
-    $colcount = 10;
-    if ($class_name == 'my-active-claims-detail') {
-        $colcount = 9;
-    } else if ($class_name == 'out-for-review-detail') {
-        $colcount = 10;
-    } elseif ($class_name == 'archived-claims-detail') {
-        $colcount = 10;
-    } elseif ($class_name == 'recievables-detail') {
-        $colcount = 11;
-    }
-
-
-    if ($editable == true) {
-        $_editable = 1;
-    } else {
-        $_editable = 0;
-    }
-
-    if ($send_to_admin == true) {
-        $_send_to_admin = 1;
-    } else {
-        $_send_to_admin = 0;
-    }
-
-    if ($approve_deny == true) {
-        $_approve_deny = 1;
-    } else {
-        $_approve_deny = 0;
-    }
-    drupal_add_css(drupal_get_path('module', 'ncn_claims_manager') . '/ncn_claims_manager.css', array('group' => CSS_DEFAULT, 'type' => 'file'));
-    ?>
-    <script type="text/javascript">
-        var reload_url = "/account/update_claim_preview/<?= base64_encode($order_by); ?>/<?= base64_encode($_editable); ?>/<?= base64_encode($_send_to_admin); ?>/<?= base64_encode($_approve_deny); ?>/<?= base64_encode($additional_sql); ?>";
-    </script>
-    <div class="claims-section-wrapper <?php echo $class_name; ?>">
-    <div class="clearfix">
-        <div class="title"><?php echo $page_title; ?></div>
-        <div class="help"><a href="#">Help</a></div>
-    </div>
-    <div class="table clearfix">
-    <div class="table-header">
-        <table>
-            <tr>
-                <td class="td-id">ID</td>
-                <td class="td-date">Date of Loss</td>
-                <td class="td-customer-name">Customer Name</td>
-                <td class="td-claim-file">Claim File</td>
-
-                <?php
-                if ($editable == true) {
-                    ?>
-                    <td class="td-photo-album">Photo Album</td>
-                <?php
-                }
-                ?>
-                <td class="td-claim-status">Claim Status</td>
-
-                <?php
-                if ($send_to_archive == true) {
-                    ?>
-                    <td class="td-payment-function">Functions</td>
-                <?php
-                }
-                ?>
-                <?php if ($class_name != 'my-active-claims-detail'): ?>
-                    <td class="td-claim-amount">Claim Amount</td>
-                <?php endif; ?>
-
-                <?php
-                if (($send_to_archive == true) || ($editable == false)) {
-                    ?>
-                    <td class="td-payment-received">Payment Received</td>
-                    <td class="td-file-notes">File Notes</td>
-                <?php
-                }
-                ?>
-
-                <td class="td-inbox">Inbox</td>
-                <?php if ($class_name != 'my-active-claims-detail'): ?>
-                    <td class="td-invoice">Service Invoice</td>
-                <?php endif; ?>
-
-                <?php
-                if ($approve_deny == true) {
-                    ?>
-                    <td class="td-final-approval">Final Approval</td>
-                <?php
-                }
-                ?>
-
-                <?php
-                if ($send_to_admin == true) {
-                    ?>
-                    <td class="td-create-my-invoice">Create My Invoice</td>
-                    <td class="td-edit-additional-data">Claims Processing</td>
-                <?php
-                }
-                ?>
-            </tr>
-        </table>
-    </div>
-    <div class="table-body">
-    <table class="claims_manager">
-    <?php
-
-    $user_id = $user->uid;
-    
-    if (is_subuser($user)) {    
-        $parent_mid = ncn_subuser_get_memberid_from_subuid($user_id);
-        $user_id = get_uid_from_memberid($parent_mid);
-    }
-    
-    if (isset($user->roles[23])) {
-        $query = "SELECT * FROM claims WHERE leaduser=" . $user->uid . " AND deleted=0 AND claim_status!='unpurchased' ". $additional_sql." ORDER BY `$order_by` DESC";
-    } else {
-        $query = "SELECT * FROM claims WHERE user_id=" . $user_id . " AND deleted=0 AND claim_status!='unpurchased' ". $additional_sql." ORDER BY `$order_by` DESC";
-    }
-    
-    $result = db_query($query);
-    $row_count = $result->rowCount();
-
-    $orders_total = 0;
-    $payment_received_total = 0;
-
-    $result_rec = $result->fetchAll();
-    $i = 0;
-    foreach($result_rec as $row)
-    {
-        // get data from sql
-        $row = (array)$row;
-        $claim_id = $row['claim_id'];
-
-        // does the file note exists/not blank
-        if ($row['file_note'] == '') // give the file notes some default value
-        {
-            $row['file_note'] = base64_encode('[no note]');
-        }
-
-
-        // does an invoice exist?
-     //   $query2 = "SELECT * FROM claims_invoices WHERE claim_id=" . $claim_id . " AND `live`=2;";
-        $result2 = db_query('SELECT * FROM {claims_invoices} WHERE claim_id=:a AND live=2',array(':a'=>$claim_id));
-        $live_invoice_count = $result2->rowCount();
-
-      //  $query2 = "SELECT * FROM claims_invoices WHERE claim_id=" . $claim_id . " AND `live`=1;";
-        //echo "SELECT * FROM claims_invoices WHERE claim_id=".$claim_id." AND `live`=1";
-        $result2 = db_query('SELECT * FROM {claims_invoices} WHERE claim_id=:a AND `live`=1',array(':a'=>$claim_id));
-        $live_claim_count = $result2->rowCount();
-
-        $claim_locked = false;
-        if (ncn_admin_get_claim_first_free_locked($claim_id) == 'LOCKED') {
-            $claim_locked = true;
-        }
-        // draw the row
-        ?>
-        <tr>
-        <td class="td-id">
-            <a href="#" onclick="toggle_slide('basic_<?= $claim_id; ?>', 1);return false;"><?= $claim_id; ?></a>
-        </td>
-        <td class="td-date"><?= render_claim_date(ncn_cd($claim_id, 'date_of_loss')) ?></td>
-        <td class="td-customer-name">
-            <a href="#" onclick="toggle_slide('basic_<?= $claim_id; ?>', 1);return false;"><?= ncn_cd($claim_id, 'customer_name'); ?></a>
-        </td>
-        <td class="td-claim-file">
-            <?php
-            //if ( (($live_invoice_count > 0) && ($row['claim_status']=='approved')) || ( ($live_invoice_count > 0) && (($row['claim_status']=='receivables') || ($row['claim_status']=='paid in full')) ) )
-            if ($live_invoice_count > 0) {
-                ?>
-                <a href="serve_invoice_file/<?= $claim_id; ?>/2" class="pdf-icon-link"></a>
-            <?php
-            } else {
-                echo "<span>Not Received<span>";
-            }
-            ?>
-        </td>
-        <?php
-        // edit controls
-        if ($editable == true && !isset($user->roles[23])) {
-            ?>
-            <!-- updated by *** -->
-            <td class="td-photo-album">
-                <?php    if (($row['claim_status'] != "receivables") && ($row['claim_status'] != "paid in full")) {
-                    if ( ($row['claim_status'] == 'out for review') || ($row['claim_status'] == 'approved')){ // Uncommented by KEYiDEAS on 28.10.2014
-                    /*if ($row['claim_status'] == 'approved') {*/  // Commented by KEYiDEAS on 28.10.2014
-                        $disabled_string = 'disabled';
-                    } else {
-                        $disabled_string = 'enabled';
-                    }
-                } else {
-                    $disabled_string = 'disabled';
-                }
-                ?>
-                <div class="edit-album-btn clearfix">
-                    <!-- <a href="#" class="<?php echo $disabled_string; ?>" <?php if ($row['claim_status'] == 'out for review') print 'disabled'; ?> <?php if($disabled_string!='disabled' && $row['claim_status'] != 'out for review') { ?> onclick='open_edit_box(<?php echo $claim_id; ?>)' <?php } ?>> -->
-                    <a href="#" class="<?php echo $disabled_string; ?>" <?php if ($disabled_string == 'disabled') print 'disabled'; ?> <?php if ($disabled_string != 'disabled') { ?> onclick='open_edit_box(<?php echo $claim_id; ?>)' <?php } ?>> Edit Album </a>
-                </div>
-                <?php //} ?>
-            </td>
-        <?php
-        } // end editable == true;
-        else if ($editable == true) {
-            ?>
-            <td class="td-photo-album">
-                <div class="edit-album-btn clearfix">
-                    <a href="#" class="<?php echo $disabled_string; ?>">
-                        Edit Album
-                    </a>
-                </div>
-            </td>
-        <?php
-        }
-        ?>
-
-        <!-- <td><div class='status_<?= str_replace(' ', '_', $row['claim_status']); ?>'></div></td> -->
-        <td class="td-claim-status"><?= ncn_claim_manager_claim_status_style($row['claim_status']); ?></td>
-
-        <?php
-        if ($send_to_archive == true && !isset($user->roles[23])) // payment received functions
-        {
-            ?>
-            <td class="td-payment-function">
-                <a href="#" class="pay-full"
-                   onclick="archive_claim('<?= $base_url; ?>', <?= $claim_id; ?>, '<?= $row['payment_received']; ?>');return false;">Paid
-                    In Full</a><br/>
-                <a href="#" class="pay-partial"
-                   onclick="partial_payment('<?= $base_url; ?>', <?= $claim_id; ?>);return false;">Partial Payment
-                    Received</a>
-            </td>
-        <?php
-        }else if ($send_to_archive == true){
-        ?>
-            <td class="td-payment-function">
-                <a href="#" class="pay-full">Paid In Full</a><br/>
-                <a href="#" class="pay-partial">Partial Payment Received</a>
-            </td>
-        <?php } ?>
-        <?php if ($class_name != 'my-active-claims-detail'): ?>
-            <td class="td-claim-amount">
-                <?php
-                if ($row['claim_amount'] > 0) // only show claim amount if > 0
-                {
-                    $orders_total += $row['claim_amount'];
-                    print '$' . number_format($row['claim_amount'], 2);
-                }
-                ?>
-            </td>
-        <?php endif; ?>
-
-        <?php
-        if (($send_to_archive == true) || ($editable == false)) // payment received
-        {
-            ?>
-            <td class="td-payment-received"><?php
-
-                if ($row['payment_received'] > 0) // only show claim amount if > 0
-                {
-                    $payment_received_total += $row['payment_received'];
-                    print '$' . number_format($row['payment_received'], 2);
-                }
-
-                ?></td>
-
-            <td class="td-file-notes">
-                <?php if (!isset($user->roles[23])) { ?>
-                    <a class="file-notes" href="#" onclick="set_file_note('<?= $base_url; ?>', <?= $claim_id; ?>);return false;">Set File Notes</a>
-                <?php }else{ ?>
-                    <a class="file-notes" href="#">Set File Notes</a>
-                <?php } ?>
-            </td>
-
-        <?php
-        }
-        ?>
-
-
-        <td class="td-inbox">    <!-- Inbox -->
-            <?php
-            // get number of read messages in thread
-         //  $query2 = "SELECT * FROM pm_message WHERE `claim_id`=" . $claim_id . " AND `read`=1 AND `to`=" . $user->uid . ";";
-            $result2 = db_query('SELECT * FROM {pm_message} WHERE `claim_id`=:a AND `read`=1 AND `to`=:b',array(':a'=>$claim_id,':b'=>$user->uid));
-            $read = $result2->rowCount();
-
-            if ($read > 0) {
-                $class = "message-icon-link-read";
-            }
-
-            // get number of read messages in thread
-      //      $query2 = "SELECT * FROM pm_message WHERE `claim_id`=" . $claim_id . " AND `read`=0 AND `to`=" . $user->uid . ";";
-            $result2 = db_query('SELECT * FROM {pm_message} WHERE `claim_id`=:a AND `read`=0 AND `to`=:b',
-                array(':a'=>$claim_id,':b'=>$user->uid));
-            $unread = $result2->rowCount();
-
-            if ($unread > 0) {
-                $class = "message-icon-link-unread";
-            }
-
-
-            // display the inbox button
-            if (($unread > 0) || ($read > 0)) {
-                ?>
-                <a href="<?= $base_url; ?>/account/message-center/viewthread/<?= $claim_id; ?>"
-                   class="<?= $class; ?>"></a>
-            <?php
-            }
-            ?>
-        </td>
-        <?php if ($class_name != 'my-active-claims-detail'): ?>
-            <td class="td-invoice">
-                <?php
-                // only show invoice download if an invoice exists
-                if ($live_claim_count > 0) {
-                    ?>
-                    <a href="serve_invoice_file/<?= $claim_id; ?>/1" class="pdf-icon-link-32"></a>
-                <?php
-                }
-                ?>
-            </td>
-        <?php endif; ?>
-
-        <?php
-        if ($approve_deny == true && $row['claim_status'] != 'returned') {
-            print "<td class=\"td-final-approval\">";
-            //var_dump($live_claim_count);
-            if ($live_claim_count > 0) {
-                if ($claim_locked == true) {
-                    echo "<a href='#' class='purchase-btn' onclick=\"window.location = '".$base_url."/account/purchase_invoice/$claim_id';\">Purchase</a>";
-                } else {
-                    echo "<a href='#' class='approve-btn' onclick=\"window.location = '".$base_url."/account/approve_invoice/$claim_id';\">Approve</a>";
-                }
-                ?>
-                <?php $_change_order_request_url = $base_url . "/account/ncn_change_order_request/" . $claim_id; ?>
-                <a href="<?php echo $_change_order_request_url; ?>" class="reject-btn">Change Order</a>
-                <!-- <a href="#" class="reject-btn" onclick="if (confirm('Please confirm you wish to change this invoice and notify the administrator.')) { window.location = '/account/reject_invoice/<?= $claim_id; ?>'; }">Reject</a> -->
-            <?php
-            }
-            print "</td>";
-        }
-        ?>
-
-        <?php
-
-        if ($row['claim_status'] == "incomplete" && !isset($user->roles[23]) /*&& $live_invoice_count > 0*/) {
-            ?>
-            <td class="td-create-my-invoice">
-                <!--<a href="#" class="create-invoice-btn enabled" onclick="open_submit_box(<?= $claim_id; ?>);return false;">Create My Invoice</a>-->
-                <a class="create-invoice-btn enabled colorbox-node" href="<?php echo $base_url; ?>/account/confirm_submit_claim/<?= $claim_id; ?>?width=700&height=540">Create My Invoice</a>
-            </td>
-        <?php
-        } else
-            if ($send_to_admin == true) {
-                ?>
-                <td class="td-create-my-invoice">
-                    <a href="#" class="create-invoice-btn disabled">Create My Invoice</a>
-                </td>
-            <?php
-            } ?>
-        <?php if ($send_to_admin == true && !isset($user->roles[23])) { ?>
-            <td class="td-edit-additional-data">
-                <a href="<?php echo base_path() . "account/additional_claim_info/$claim_id"; ?>"
-                   class="edit-additional-data-btn">Edit</a>
-            </td>
-        <?php } else if ($send_to_admin == true) { ?>
-            <td class="td-edit-additional-data">
-                <a href="#" class="edit-additional-data-btn">Edit</a>
-            </td>
-        <?php } ?>
-        </tr>
-        <tr class="hidden-row">
-            <td colspan="2" style="padding:0;"></td>
-            <td colspan="<?php echo($colcount - 2); ?>" style="padding:0;">
-                <div class="basic_info" id="basic_<?= $claim_id; ?>">
-                    <table cellpadding="0" cellspacing="0" style="padding:0;margin:0;">
-                        <tr>
-                            <td width="150px"><span
-                                    style="font-weight: bold;">Date of Loss:&nbsp;</span><?= ncn_cd($claim_id, 'date_of_loss'); ?>
-                            </td>
-                            <td width="150px"><span
-                                    style="font-weight: bold;">Address:&nbsp;</span><?= ncn_cd($claim_id, 'insured_address'); ?>
-                            </td>
-                            <td width="100px"><span
-                                    style="font-weight: bold;">State:&nbsp;</span><?= ncn_cd($claim_id, 'insured_state'); ?>
-                            </td>
-                            <td width="40px" rowspan="2" style="text-align:right;"><span style="font-weight: bold;">Notes:&nbsp;</span>
-                            </td>
-                            <td rowspan="2">
-                                <?php
-                                if (ncn_admin_note_check_mode($claim_id) == 'new') {
-                                    print ncn_claims_manager_note_render_claim_notes_table($claim_id, $GLOBALS['user']->uid);
-                                } else {
-                                    $_file_note = str_replace("<br/>", "\n", base64_decode($row['file_note']));
-                                    echo nl2br(htmlspecialchars($_file_note));
-                                } ?>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><span
-                                    style="font-weight: bold;">Insured's Name:&nbsp;</span><?= ncn_cd($claim_id, 'customer_name'); ?>
-                            </td>
-                            <td><span
-                                    style="font-weight: bold;">City:&nbsp;</span><?= ncn_cd($claim_id, 'insured_city'); ?>
-                            </td>
-                            <td><span
-                                    style="font-weight: bold;">Zip Code:&nbsp;</span><?= ncn_cd($claim_id, 'insured_zip'); ?>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </td>
-        </tr>
-        <?php    
-            $min_row = 9; //insert empty row
-            if ($i == $row_count - 1) {
-                for ($index = 0; $index < ($min_row - $row_count); $index++) {
-                    print ('<tr>');
-                    print ("    <td colspan=\"$colcount\">&nbsp</td>");
-                    print ('</tr>');
-                }
-            } 
-        ?>
-        <?php    if ($i == $row_count - 1 && $orders_total > 0) {
-            $colspan = 0;
-            $colskip = 0;
-            if ($class_name == 'out-for-review-detail') {
-                $colspan = 5;
-                $colskip = 1;
-            } elseif ($class_name == 'archived-claims-detail') {
-                $colspan = 4;
-                $colskip = 2;
-            } elseif ($class_name == 'recievables-detail') {
-                $colspan = 5;
-                $colskip = 2;
-            }
-            ?>
-            <tr class="header">
-                <td>Total:</td>
-                <td colspan="<?php echo $colspan; ?>"></td>
-                <td><?= '$' . number_format($orders_total, 2); ?></td>
-
-                <?php
-                if (($send_to_archive == true) || ($editable == false)) {
-                    ?>
-                    <td><?= '$' . number_format($payment_received_total, 2); ?></td>
-                <?php
-                }
-                ?>
-
-                <td colspan="<?php echo($colcount - $colspan - $colskip - 1); ?>"></td>
-            </tr>
-        <?php
-        }
-        $i++;
-    } // end foreach
-    ?>
-    <?php    $min_row = 9; // insert empty row
-    if ($row_count == 0) {
-        for ($index = 0; $index < ($min_row - $row_count); $index++) {
-            print ('<tr>');
-            print ("    <td colspan=\"$colcount\">&nbsp</td>");
-            print ('</tr>');
-        }
-    } ?>
-    </table>
-    </div>
-    </div>
-<?php
 }
 
 //------------------------------------------------------------------------------

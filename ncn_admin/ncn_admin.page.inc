@@ -982,7 +982,7 @@ function ncn_admin_aci_render_sections($claim_id) {
     'comments' => unserialize(get_ncn_data_extra($claim_id, 'aci_comments')), 
   );
   
-    if ($_POST['tfunction']=='additional_claims_data') {
+    if (isset($_POST['tfunction']) && $_POST['tfunction']=='additional_claims_data') {
         $b_save_log = FALSE;
         if (isset($_POST['poi'])) {
       $_POST['poi']['insured_name'] = ncn_admin_remove_special_char_from_customer_name($_POST['poi']['insured_name']);

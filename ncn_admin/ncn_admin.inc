@@ -2458,7 +2458,7 @@ function ncn_admin_viewclaim_scopefile_crop($claim_id, $room_name)
     $filepath = base64_decode(arg(7));
     drupal_add_js(drupal_get_path('module', 'ncn_image') . '/jquery.Jcrop.js');
     drupal_add_css(drupal_get_path('module', 'ncn_image') . '/jquery.Jcrop.css', 'module', 'all', FALSE);
-    if ($_POST['tfunction'] == 'viewclaim_scopefile_crop')
+    if (isset($_POST['tfunction']) && $_POST['tfunction'] == 'viewclaim_scopefile_crop')
     {
         $dest_file['filepath'] = substr($filepath, 0, -4) . "_cut.jpg";
         $dest_file['filename'] = basename($dest_file['filepath']);
@@ -2666,11 +2666,14 @@ function ncn_admin_make_cover_sheet($pdf_file_url, $data, $b_logo = false)
 
     $base_abs_path = $_SERVER['DOCUMENT_ROOT'];
     $tmp_doc_name = file_directory_temp() . "/tmp" . $GLOBALS['user']->uid . date('U') . microtime(true) . ".doc";
+
+    watchdog('ncn_debug', 'tpl_path: '.$tpl_path);
     $cs = file_get_contents($tpl_path);
-    /*echo "<pre>";
-    print_r($cs);
-    echo "</pre>";
-    exit;*/
+    if (!$cs) {
+        drupal_set_message('Failed to open coversheet template', 'error');
+        return FALSE;
+    }
+
     $metadata = array(
         'company_name' => array(
             'label' => 'Company name (user profile: legal name)',
@@ -2779,30 +2782,54 @@ function ncn_admin_make_cover_sheet($pdf_file_url, $data, $b_logo = false)
     // ------------------------------------------------------------------------
     // variables
 
-    $cs = str_replace('{=====================company_name=============================================}', str_pad($data['company_name'], $metadata['company_name']['len'], "\n") , $cs);
-    $cs = str_replace('{===========tax_id_number==============}', str_pad(_get_format_tax_id_string($data['tax_id_number']) , $metadata['tax_id_number']['len'], "\n") , $cs);
-    $cs = str_replace('{===========company_address1===========}', str_pad($data['company_address1'], $metadata['company_address1']['len'], "\n") , $cs);
-    $cs = str_replace('{===========company_address2===========}', str_pad($data['company_address2'], $metadata['company_address2']['len'], "\n") , $cs);
-    $cs = str_replace('{===company_office_phone=====}', str_pad(get_format_phone_string($data['company_office_phone']) , $metadata['company_office_phone']['len'], "\n") , $cs);
-    $cs = str_replace('{=====company_fax_number=====}', str_pad(get_format_phone_string($data['company_fax_number']) , $metadata['company_fax_number']['len'], "\n") , $cs);
-    $cs = str_replace('{============data_entered==============}', str_pad($data['data_entered'], $metadata['data_entered']['len'], "\n") , $cs);
-    $cs = str_replace('{=============price_list==========}', str_pad($data['price_list'], $metadata['price_list']['len'], "\n") , $cs);
-    $cs = str_replace('{==============================client_name===========================}', str_pad($data['client_name'], $metadata['client_name']['len'], "\n") , $cs);
-    $cs = str_replace('{=============property1================}', str_pad($data['property1'], $metadata['property1']['len'], "\n") , $cs);
-    $cs = str_replace('{=============property2================}', str_pad($data['property2'], $metadata['property2']['len'], "\n") , $cs);
-    $cs = str_replace('{===========home_phone=======}', str_pad(get_format_phone_string($data['home_phone']) , $metadata['home_phone']['len'], "\n") , $cs);
-    $cs = str_replace('{================iop_number============}', str_pad($data['iop_type'] . ': ' . get_format_phone_string($data['iop_number']) , $metadata['iop_number']['len'], "\n") , $cs);
-    $cs = str_replace('{=======type_of_loss=========}', str_pad($data['type_of_loss'], $metadata['type_of_loss']['len'], "\n") , $cs);
-    $cs = str_replace('{=======date_of_loss=========}', str_pad($data['date_of_loss'], $metadata['date_of_loss']['len'], "\n") , $cs);
-    $cs = str_replace('{=====================insurance_company========================================}', str_pad($data['insurance_company'], $metadata['insurance_company']['len'], "\n") , $cs);
-    $cs = str_replace('{============claim_number==============}', str_pad($data['claim_number'], $metadata['claim_number']['len'], "\n") , $cs);
-    $cs = str_replace('{============claim_adjuster============}', str_pad($data['claim_adjuster'], $metadata['claim_adjuster']['len'], "\n") , $cs);
-    $cs = str_replace('{========claim_adjuster_phone==========}', str_pad($data['cap_type'] . ': ' . get_format_phone_string($data['claim_adjuster_phone']) , $metadata['claim_adjuster_phone']['len'], "\n") , $cs);
-    $cs = str_replace('{===claim_adjuster_fax=======}', str_pad(get_format_phone_string($data['claim_adjuster_fax']) , $metadata['claim_adjuster_fax']['len'], "\n") , $cs);
-    $cs = str_replace('{===========start_date=======}', str_pad($data['start_date'], $metadata['start_date']['len'], "\n") , $cs);
-    $cs = str_replace('{======category====}', str_pad($data['category'], $metadata['category']['len'], "\n") , $cs);
-    $cs = str_replace('{=====================cause========================================================================}', str_pad($data['cause'], $metadata['cause']['len'], "\n") , $cs);
-    $cs = str_replace('{========completion_date=====}', str_pad($data['completion_date'], $metadata['completion_date']['len'], "\n") , $cs);
+    $cs = str_replace('{=====================company_name=============================================}', 
+                        str_pad((isset($data['company_name'])?$data['company_name']:''), $metadata['company_name']['len'], "\n") , $cs);
+    $cs = str_replace('{===========tax_id_number==============}', 
+                        str_pad(_get_format_tax_id_string((isset($data['tax_id_number'])?$data['tax_id_number']:'')) , $metadata['tax_id_number']['len'], "\n") , $cs);
+    $cs = str_replace('{===========company_address1===========}', 
+                        str_pad((isset($data['company_address1'])?$data['company_address1']:''), $metadata['company_address1']['len'], "\n") , $cs);
+    $cs = str_replace('{===========company_address2===========}', 
+                        str_pad((isset($data['company_address2'])?$data['company_address2']:''), $metadata['company_address2']['len'], "\n") , $cs);
+    $cs = str_replace('{===company_office_phone=====}', 
+                        str_pad(get_format_phone_string((isset($data['company_office_phone'])?$data['company_office_phone']:'')) , $metadata['company_office_phone']['len'], "\n") , $cs);
+    $cs = str_replace('{=====company_fax_number=====}', 
+                        str_pad(get_format_phone_string((isset($data['company_fax_number'])?$data['company_fax_number']:'')) , $metadata['company_fax_number']['len'], "\n") , $cs);
+    $cs = str_replace('{============data_entered==============}', 
+                        str_pad((isset($data['data_entered'])?$data['company_fax_number']:''), $metadata['data_entered']['len'], "\n") , $cs);
+    $cs = str_replace('{=============price_list==========}', 
+                        str_pad((isset($data['price_list'])?$data['price_list']:''), $metadata['price_list']['len'], "\n") , $cs);
+    $cs = str_replace('{==============================client_name===========================}', 
+                        str_pad((isset($data['client_name'])?$data['client_name']:''), $metadata['client_name']['len'], "\n") , $cs);
+    $cs = str_replace('{=============property1================}', 
+                        str_pad((isset($data['property1'])?$data['property1']:''), $metadata['property1']['len'], "\n") , $cs);
+    $cs = str_replace('{=============property2================}', 
+                        str_pad((isset($data['property2'])?$data['property2']:''), $metadata['property2']['len'], "\n") , $cs);
+    $cs = str_replace('{===========home_phone=======}', 
+                        str_pad(get_format_phone_string((isset($data['home_phone'])?$data['home_phone']:'')) , $metadata['home_phone']['len'], "\n") , $cs);
+    $cs = str_replace('{================iop_number============}', 
+                        str_pad((isset($data['iop_type'])?$data['iop_type']:'') . ': ' . get_format_phone_string((isset($data['iop_number'])?$data['iop_number']:'')) , $metadata['iop_number']['len'], "\n") , $cs);
+    $cs = str_replace('{=======type_of_loss=========}', 
+                        str_pad((isset($data['type_of_loss'])?$data['type_of_loss']:''), $metadata['type_of_loss']['len'], "\n") , $cs);
+    $cs = str_replace('{=======date_of_loss=========}', 
+                        str_pad((isset($data['date_of_loss'])?$data['date_of_loss']:''), $metadata['date_of_loss']['len'], "\n") , $cs);
+    $cs = str_replace('{=====================insurance_company========================================}', 
+                        str_pad((isset($data['insurance_company'])?$data['insurance_company']:''), $metadata['insurance_company']['len'], "\n") , $cs);
+    $cs = str_replace('{============claim_number==============}', 
+                        str_pad((isset($data['claim_number'])?$data['claim_number']:''), $metadata['claim_number']['len'], "\n") , $cs);
+    $cs = str_replace('{============claim_adjuster============}', 
+                        str_pad((isset($data['claim_adjuster'])?$data['claim_adjuster']:''), $metadata['claim_adjuster']['len'], "\n") , $cs);
+    $cs = str_replace('{========claim_adjuster_phone==========}', 
+                        str_pad((isset($data['cap_type'])?$data['cap_type']:'') . ': ' . get_format_phone_string((isset($data['claim_adjuster_phone'])?$data['claim_adjuster_phone']:'')) , $metadata['claim_adjuster_phone']['len'], "\n") , $cs);
+    $cs = str_replace('{===claim_adjuster_fax=======}', 
+                        str_pad(get_format_phone_string((isset($data['claim_adjuster_fax'])?$data['claim_adjuster_fax']:'')) , $metadata['claim_adjuster_fax']['len'], "\n") , $cs);
+    $cs = str_replace('{===========start_date=======}', 
+                        str_pad((isset($data['start_date'])?$data['start_date']:''), $metadata['start_date']['len'], "\n") , $cs);
+    $cs = str_replace('{======category====}', 
+                        str_pad((isset($data['category'])?$data['category']:''), $metadata['category']['len'], "\n") , $cs);
+    $cs = str_replace('{=====================cause========================================================================}', 
+                        str_pad((isset($data['cause'])?$data['cause']:''), $metadata['cause']['len'], "\n") , $cs);
+    $cs = str_replace('{========completion_date=====}', 
+                        str_pad((isset($data['completion_date'])?$data['completion_date']:''), $metadata['completion_date']['len'], "\n") , $cs);
 
     // ------------------------------------------------------------------------
 
@@ -2823,8 +2850,11 @@ function ncn_admin_make_cover_sheet($pdf_file_url, $data, $b_logo = false)
     // drupal_set_message($tmp_doc_name);
     // convert
     // $command = "java -jar c:/jod/lib/jodconverter-core-3.0-beta-3.jar ".$tmp_doc_name." ".($base_abs_path."/".$pdf_file_url);
-
-    $command = "java -jar ../jod/lib/jodconverter-core-3.0-beta-3.jar " . $tmp_doc_name . " " . ($base_abs_path . "/" . $pdf_file_url);
+    // 
+    // $command = "java -jar ../jod/lib/jodconverter-core-3.0-beta-3.jar " . $tmp_doc_name . " " . ($base_abs_path . "/" . $pdf_file_url);
+    // $command = "java -jar ".$_SERVER["DOCUMENT_ROOT"]."/jod/lib/jodconverter-core-3.0-beta-3.jar " . $tmp_doc_name . " " . ($base_abs_path . "/" . $pdf_file_url);
+    $command = "java -jar ".$_SERVER["DOCUMENT_ROOT"].JAR_JODCONVERTER . " $tmp_doc_name " . ($base_abs_path . "/" . $pdf_file_url);
+    watchdog('java-cmd', $command);
     $output = shell_exec($command);
     return TRUE;
 }
@@ -3780,7 +3810,7 @@ function ncn_admin_multi_file_list_form($form,&$form_state, $pvc_disabled, $clai
         );
     }
 
-    if (is_array($form['rows']) && $pvc_disabled != 'disabled')
+    if (isset($form['rows']) && is_array($form['rows']) && $pvc_disabled != 'disabled')
     {
         $form['current_scroll_position'] = array(
             '#type' => 'hidden',
@@ -3797,15 +3827,12 @@ function ncn_admin_multi_file_list_form($form,&$form_state, $pvc_disabled, $clai
     return $form;
 }
 
-function set_theme_ncn_admin_multi_file_list_form($form){
-
-
-//    echo "<pre>";
-//    print_r($form);
+function set_theme_ncn_admin_multi_file_list_form($form)
+{
     $claim_id = $form['#claim_id'];
     $pvc_disabled = $form['#pvc_disabled'];
     $table_rows = array();
-    if (is_array($form['rows']))
+    if (isset($form['rows']) && is_array($form['rows']))
     {
         foreach($form['rows']['weight'] as $str_id => $row)
         {
@@ -3898,7 +3925,8 @@ function _get_additional_docs_pdf($claim_id, $dir_url, &$additional_file_removed
 
     // $command = "java -jar C:/pdfsam/lib/pdfsam-console-2.3.1e.jar $foption $out_option concat";
 
-    $command = "java -jar ../pdfsam/lib/pdfsam-console-2.3.1e.jar $foption $out_option concat";
+    // $command = "java -jar ../pdfsam/lib/pdfsam-console-2.3.1e.jar $foption $out_option concat";
+    $command = "java -jar ".$_SERVER["DOCUMENT_ROOT"]."/pdfsam/lib/pdfsam-console-2.3.1e.jar $foption $out_option concat";
     $output = shell_exec($command);
     if (file_exists($base_abs_path . "/" . $pdf_file_url))
     {

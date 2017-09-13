@@ -2240,7 +2240,7 @@ function ncn_admin_get_scopesheet_sections() {
 }
 
 function ncn_admin_room_ss_render_room_scopesheet($claim_id, $room_name) {
-	if ($_POST['tfunction']=='room_scope_sheet') {
+	if (isset($_POST['tfunction']) && $_POST['tfunction']=='room_scope_sheet') {
 		if (isset($_POST['ss_rd'])) {
 			//set_ncn_claim_room_data_extra($claim_id, $room_name, 'ss_room_dimensions', serialize($_POST['ss_rd']));
 		}
@@ -3137,8 +3137,7 @@ function ncn_admin_ss_make_scopesheet_pdf($claim_id, $room_name) {
 		mkdir($claim_dir, 0755);
 	}
 	
-	require_once('sites/all/libraries/PDFMerger/fpdf/pdf.php');
-	$pdf=new PDF();
+	$pdf=new NCNPDF();
 	$pdf->AddPage();
 
 	$pdf->SetFont('Arial', '', 9);	

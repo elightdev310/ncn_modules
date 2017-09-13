@@ -1,4 +1,6 @@
 <?php
+define('NCN_TEST', 'TEST');
+
 // User Role
 define('USER_ROLE_AUTHENTICATE',                     2);
 define('USER_ROLE_EDITOR_USER',                      3);
@@ -38,3 +40,6 @@ define('SKU_SUF_G_DEMO',                            68);    // $0
 define('SKU_SUF_GMAS',                              88);    // $49
 define('SKU_SUF_GC',                               154);    // $153.90
 define('SKU_SUF_COC',                              155);    // $54.90
+
+
+define('JAR_JODCONVERTER', '/jod/lib/jodconverter-core-3.0-beta-4.jar');

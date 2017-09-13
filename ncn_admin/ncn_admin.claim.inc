@@ -85,7 +85,7 @@ function ncn_admin_view_claim($claim_id)
         ncn_admin_ss_make_scopesheet_image(arg(4), $roomname);
     }
     
-    if (isset($_POST['scope_upload_function']) && $_POST['claims_data_update'] == 'claims_data_update') {
+    if (isset($_POST['claims_data_update']) && $_POST['claims_data_update'] == 'claims_data_update') {
         ncn_admin_claimsdata_update($claim_id);
     }
     
@@ -562,7 +562,7 @@ function ncn_admin_view_claim($claim_id)
                         //$claim_docs_rejected_msg = ncn_admin_get_claim_docs_rejected_message($claim_id);
                     ?>
                     <div id="ncn_admin_rejected_claim_docs_mail_body" <?php if ($row['workflow']!='rejected_claim_docs') {echo 'style="display: none;"';} ?>>
-                        <textarea name="rejected_claim_docs_mail_body" style="height:120px; min-width: 500px;"><?php echo $claim_docs_rejected_msg; ?></textarea>
+                        <textarea name="rejected_claim_docs_mail_body" style="height:120px; min-width: 500px;"><?php echo isset($claim_docs_rejected_msg)?$claim_docs_rejected_msg:''; ?></textarea>
                     </div>
                     <script>
                         jQuery(document).ready(function() {
@@ -680,79 +680,83 @@ function ncn_admin_view_claim($claim_id)
         $row['val'] = unserialize($row['val']);
         $res = "";
 
-        if (!isset($row['val']['type']))
-        {   $row['val']['type'] = "scope";  }
-        
-        // convert the data
-        switch ($row['val']['type'])
-        {
-            case "checkboxes":
-                $res = "";
-                
-                foreach ($row['val'] as $k=> $v)
-                {
-                    if (trim($v) != "0")
-                    {   $res .= "<li> ".$v; }
-                }
-                
-                if ($res != "")
-                {   $res = "<ul>".$res."</ul>";     }
-            break;
-        
-            case "phone_field_phone":
-                $res = implode(" ", $row['val']);
-            break;
-
-            case "time_field_time":
-                $res = render_claim_time($row['val']);
-            break;
-
-            case "date":
-                $res = render_claim_date($row['val']);
-            break;
-        
-            case "image_upload_element":
-                $image_url = $base_url."/".$row['val']->filepath; 
-                $img_info = image_get_info($row['val']->filepath);
-                
-                $res = "<a href='".$image_url."?width=".$img_info['width']."&height=".$img_info['height']."&iframe=false' class='colorbox-load'>"; 
-                $res .= "<img src='".str_replace('default/files', 'default/files/imagecache/ncnadmin', $image_url)."' />";
-                $res .= "</a>"; 
-                $res .= "<br /><small style='margin:0;padding:0;'>(click to enlarge)</small>";
-            break;
+        if (empty($row['val'])||!is_array($row['val'])) {
             
-            case "scope":
-            break;
-            default:
-                //echo $row['key']."<br/>";
-                if ($row['key'] == 'date_of_loss') {
-                    /* Hack for Mobile App Data */
-                    if((int)$row['val']['val'][1]==0){
-                        $xchng_ary = array($row['val']['val'][1],$row['val']['val'][0],$row['val']['val'][2]);
-                        $row['val']['val'] = $xchng_ary;
-                    }
-                    /* Hack for Mobile App Data */
-                    $res = ncn_admin_render_date_loss($row['key'], $row['val']['val']);
-                } else if ($row['key'] == 'insured_state') {
-                    /* Hack for Mobile App Data */
-                    preg_match('/\(([^\)]*)\)/', $row['val']['val'], $ins_match);
-                    if(isset($ins_match[1]) && trim($ins_match[1])!=''){
-                        $row['val']['val'] = $ins_match[1];
-                    }
-                    /* Hack for Mobile App Data */
-                    $res = ncn_loc_state($row['key'], 'claim_data_field_'.$row['key'], false, false, $row['val']['val'], 'US');
-                } else {
-                    if (is_array($row['val']['val']))
+        } else {
+            if (!isset($row['val']['type']))
+            {   $row['val']['type'] = "scope";  }
+            
+            // convert the data
+            switch ($row['val']['type'])
+            {
+                case "checkboxes":
+                    $res = "";
+                    
+                    foreach ($row['val'] as $k=> $v)
                     {
-                            $res = '<input name="'.$row['key'].'" value="'.implode(" ", $row['val']['val']).'" />';
+                        if (trim($v) != "0")
+                        {   $res .= "<li> ".$v; }
                     }
-                    else
-                    {
-                        $res = '<input name="'.$row['key'].'" value="'. $row['val']['val'].'" size="50"  />';
-                        
+                    
+                    if ($res != "")
+                    {   $res = "<ul>".$res."</ul>";     }
+                break;
+            
+                case "phone_field_phone":
+                    $res = implode(" ", $row['val']);
+                break;
+
+                case "time_field_time":
+                    $res = render_claim_time($row['val']);
+                break;
+
+                case "date":
+                    $res = render_claim_date($row['val']);
+                break;
+            
+                case "image_upload_element":
+                    $image_url = $base_url."/".$row['val']->filepath; 
+                    $img_info = image_get_info($row['val']->filepath);
+                    
+                    $res = "<a href='".$image_url."?width=".$img_info['width']."&height=".$img_info['height']."&iframe=false' class='colorbox-load'>"; 
+                    $res .= "<img src='".str_replace('default/files', 'default/files/imagecache/ncnadmin', $image_url)."' />";
+                    $res .= "</a>"; 
+                    $res .= "<br /><small style='margin:0;padding:0;'>(click to enlarge)</small>";
+                break;
+                
+                case "scope":
+                break;
+                default:
+                    //echo $row['key']."<br/>";
+                    if ($row['key'] == 'date_of_loss') {
+                        /* Hack for Mobile App Data */
+                        if((int)$row['val']['val'][1]==0){
+                            $xchng_ary = array($row['val']['val'][1],$row['val']['val'][0],$row['val']['val'][2]);
+                            $row['val']['val'] = $xchng_ary;
+                        }
+                        /* Hack for Mobile App Data */
+                        $res = ncn_admin_render_date_loss($row['key'], $row['val']['val']);
+                    } else if ($row['key'] == 'insured_state') {
+                        /* Hack for Mobile App Data */
+                        preg_match('/\(([^\)]*)\)/', $row['val']['val'], $ins_match);
+                        if(isset($ins_match[1]) && trim($ins_match[1])!=''){
+                            $row['val']['val'] = $ins_match[1];
+                        }
+                        /* Hack for Mobile App Data */
+                        $res = ncn_loc_state($row['key'], 'claim_data_field_'.$row['key'], false, false, $row['val']['val'], 'US');
+                    } else {
+                        if (is_array($row['val']['val']))
+                        {
+                                $res = '<input name="'.$row['key'].'" value="'.implode(" ", $row['val']['val']).'" />';
+                        }
+                        else
+                        {
+                            $res = '<input name="'.$row['key'].'" value="'. $row['val']['val'].'" size="50"  />';
+                            
+                        }
                     }
-                }
-            break;
+                break;
+            }
         }
         
         // display the data
@@ -818,10 +822,10 @@ function ncn_admin_view_claim($claim_id)
     </thead>
     <tbody>
     <?php 
-//      $query = "SELECT * FROM claims_data WHERE claim_id=".$claim_id." AND field_type!='hidden' AND field_type!='submit' AND field_type!='token' ORDER BY `weight` ASC;";
+        // $query = "SELECT * FROM claims_data WHERE claim_id=".$claim_id." AND field_type!='hidden' AND field_type!='submit' AND field_type!='token' ORDER BY `weight` ASC;";
         $result = db_query('SELECT * FROM {claims_data} WHERE claim_id=:a AND field_type!=:b AND field_type!=:c AND field_type!=:d ORDER BY weight ASC',
         array(':a'=>$claim_id,':b'=>'hidden',':c'=>'submit',':d'=>'token'));
-    //   $result = db_query($query);
+        // $result = db_query($query);
         if ($result == false) {
             $row_count = 0;
         } else {
@@ -836,9 +840,13 @@ function ncn_admin_view_claim($claim_id)
             
             $row['val'] = unserialize($row['val']);
             $res = "";
+            if (empty($row['val'])||!is_array($row['val'])) {
+                continue;
+            }
+
             if (!isset($row['val']['type']))
-            {   $row['val']['type'] = "scope";  }   
-        
+            {   $row['val']['type'] = "scope";  }
+
             switch ($row['val']['type'])
             {
                 case "scope":
@@ -1220,7 +1228,9 @@ GLOBAL $base_url;
             exit;
         }
 
-        $command = "java -jar ../jod/lib/jodconverter-core-3.0-beta-3.jar ".$tmp_xls_name." ".$tmp_pdf_name;
+        // $command = "java -jar ../jod/lib/jodconverter-core-3.0-beta-3.jar ".$tmp_xls_name." ".$tmp_pdf_name;
+        $command = "java -jar ".$_SERVER["DOCUMENT_ROOT"].JAR_JODCONVERTER." $tmp_xls_name $tmp_pdf_name";
+        watchdog('java-cmd', $command);
         $output = shell_exec($command);
 
         echo $output;
@@ -1386,7 +1396,7 @@ function ncn_admin_auto_scopeform_full_pdf_submit($claim_id, $roomname) {
     $json_data['error'] = '';
     $json_data['roomname'] = $source;
     
-    if ($file == 0 ) {
+    if (!$file) {
         drupal_set_message("File of missing for upload (room name :$roomname)", "error");
         return;
     } else if ($file->filemime != 'application/pdf') {
@@ -1405,10 +1415,10 @@ function ncn_admin_auto_scopeform_full_pdf_submit($claim_id, $roomname) {
 
     $res = file_copy($file, "public://invoices/{$claim_id}", FILE_EXISTS_RENAME);
 
-    $dest_file['uri'] = drupal_realpath($res->uri);
+    $dest_file['uri'] = $res->uri;
     $dest_file['filename'] = $res->filename;
     
-    $img_file = convert_pdf_to_jpg($file, $claim_dir);
+    $img_file = convert_pdf_to_jpg($res, $claim_dir);
     if ($img_file == FALSE) {
         drupal_set_message(t("Failed to convert PDF to Image, after uploading scope pdf file(room name :!roomname)", array('!roomname'=>$roomname)), "error");
         return;
@@ -1511,7 +1521,7 @@ function ncn_admin_scopeform_full_pdf_submit($claim_id, $roomname) {
     $dest_file['uri'] = drupal_realpath($res->uri);
     $dest_file['filename'] = $res->filename;
     
-    $img_file = convert_pdf_to_jpg($file, $claim_dir);
+    $img_file = convert_pdf_to_jpg($res, $claim_dir);
     if ($img_file == FALSE) {
         //drupal_set_message(t("Failed to convert PDF to Image, after uploading scope pdf file(room name :!roomname)", array('!roomname'=>$roomname)), "error");
         $json_data['error'] = "Failed to convert PDF to Image, after uploading scope pdf file(room name :$roomname)";
@@ -2249,34 +2259,6 @@ GLOBAL $user;
     exit;
 }
 
-function get_claim_file($claim_id, $live) {
-//  $query = "SELECT * FROM claims_invoices WHERE claim_id=$claim_id AND live=$live ORDER BY timestamp DESC";
-    $result = db_query('SELECT * FROM {claims_invoices} WHERE claim_id=:a AND live=:b ORDER BY timestamp DESC',
-    array(':a'=>$claim_id,':b'=>$live));
-    if ($result && $result->rowCount()>0)
-    {
-        $row = $result->fetchAssoc();
-        return $row;
-    }
-    return array(); 
-}
-
-function get_claim_scope_file($claim_id) {
-//  $query = "SELECT * FROM claims_scope WHERE claim_id=$claim_id ORDER BY timestamp DESC";
-    $result = db_query('SELECT * FROM {claims_scope} WHERE claim_id=:a ORDER BY timestamp DESC',array(':a'=>$claim_id ));
-    if ($result)
-    {   
-        $row_count = $result->rowCount();
-        $files = array();
-        for ($i=0; $i<$row_count; $i++) {
-            $row = $result->fetchAssoc();
-            $files[$row['roomname']] = $row;
-        }
-        return $files;
-    }
-    return array(); 
-}
-
 function _add_pdf_invoice($file, $claim_id) {
     
     $live = 1;
@@ -2295,19 +2277,20 @@ function _add_pdf_invoice($file, $claim_id) {
     }
     
     // insert new data
-//  $query = "INSERT INTO claims_invoices VALUES(NULL, ".$claim_id.", ".$revision.", \"".AddSlashes($file['filename'])."\", \"".AddSlashes($file['filepath'])."\", \"".AddSlashes($file['filemime'])."\", ".date('U').", ".$live.");";
+    // $query = "INSERT INTO claims_invoices VALUES(NULL, ".$claim_id.", ".$revision.", \"".AddSlashes($file['filename'])."\", \"".AddSlashes($file['filepath'])."\", \"".AddSlashes($file['filemime'])."\", ".date('U').", ".$live.");";
     $result = db_query('INSERT INTO {claims_invoices} VALUES(NULL,:a,:b,:c,:d,:e,:f,:g)',
         array(':a'=>$claim_id,':b'=>$revision,':c'=>$file['filename'],':d'=>$file['filepath'],':e'=>$file['filemime'],
             ':f'=>date('U'),':g'=>$live));
     
     // add entry to logfile
     if ($live == 1)
-    {   $log_message = ncn_amin_get_user_role_and_name()." created new file: ".$file->filename.", revision #".$revision;    }
+    {   $log_message = ncn_amin_get_user_role_and_name()." created new file: ".$file['filename'].", revision #".$revision;    }
     else
-    {   $log_message = ncn_amin_get_user_role_and_name()." created new file: ".$file->filename.", revision #".$revision;    }
+    {   $log_message = ncn_amin_get_user_role_and_name()." created new file: ".$file['filename'].", revision #".$revision;    }
     
     ncn_admin_insert_claim_log($claim_id, date('U'), $log_message);
 }
+
 /**
 Generate Final Invoice
 */
@@ -2323,7 +2306,10 @@ function generate_final_invoice($claim_id) {
     $file3_info = get_claim_file($claim_id, 3);     // Service Contract
     $file4_info = get_claim_file($claim_id, 4);     // Certificate of Completion
     $file5_info = get_claim_file($claim_id, 5);     // Completed Invoice
-        
+    
+    $additional_file_removed = false;
+    $scope_pdf_count = 0;
+    
     $base_abs_path = $_SERVER['DOCUMENT_ROOT'];
     $foption = "";
     $error = false;
@@ -2366,7 +2352,6 @@ function generate_final_invoice($claim_id) {
             }
             
             // 5th pdf
-            $scope_pdf_count = 0;
             $pdf_file_url_pattern = _get_scope_pdf($claim_id, $dir_url, $scope_pdf_count);
             if ($scope_pdf_count) {
                 for ($index = 0; $index<$scope_pdf_count; $index+=1) {
@@ -2395,7 +2380,8 @@ function generate_final_invoice($claim_id) {
                 
         if ($foption != "") {
             //$command = "java -jar C:/pdfsam/lib/pdfsam-console-2.3.1e.jar $foption $out_option concat";
-            $command = "java -jar ../pdfsam/lib/pdfsam-console-2.3.1e.jar $foption $out_option concat";
+            //$command = "java -jar ../pdfsam/lib/pdfsam-console-2.3.1e.jar $foption $out_option concat";
+            $command = "java -jar ".$_SERVER["DOCUMENT_ROOT"]."/pdfsam/lib/pdfsam-console-2.3.1e.jar $foption $out_option concat";
             
             $output = shell_exec($command);
             
@@ -2408,7 +2394,8 @@ function generate_final_invoice($claim_id) {
                 if (ncn_admin_is_claim_first_free($claim_id)) {
                     // generate locked pdf // 2011-08-02
                     //$command = "java -jar C:/pdfwatermark/ncn_pdf_watermark.jar $base_abs_path/$final_invoice_name";
-                    $command = "java -jar ../pdfwatermark/ncn_pdf_watermark.jar $base_abs_path/$final_invoice_name";
+                    //$command = "java -jar ../pdfwatermark/ncn_pdf_watermark.jar $base_abs_path/$final_invoice_name";
+                    $command = "java -jar ".$_SERVER["DOCUMENT_ROOT"]."/pdfwatermark/ncn_pdf_watermark.jar $base_abs_path/$final_invoice_name";
 
                     $output = shell_exec($command);
                     $final_locked_invoice_name = ncn_admin_get_locked_invoice_filename($final_invoice_name);
@@ -2425,23 +2412,23 @@ function generate_final_invoice($claim_id) {
     }
     
     // clear temporary files
-    if ($first_pdf_url && $first_pdf_url!='[no-coversheet]') {  
+    if (isset($first_pdf_url) && $first_pdf_url && $first_pdf_url!='[no-coversheet]') {  
         $first_pdf_file = new stdClass();
-        $first_pdf_file->filepath = $pdf_file_url;
-        $first_pdf_file->filename = basename($pdf_file_url);
-        $first_pdf_file->uri = str_replace("sites/default/files/","public://",$pdf_file_url);
+        $first_pdf_file->filepath = $first_pdf_url;
+        $first_pdf_file->filename = basename($first_pdf_url);
+        $first_pdf_file->uri = str_replace("sites/default/files/","public://",$first_pdf_url);
         //file_delete($first_pdf_url);
         file_delete($first_pdf_file);
     }
     
-    if ($third_pdf_url) {   
+    if (isset($third_pdf_url) && $third_pdf_url) {   
         $third_pdf_file = new stdClass();
         $third_pdf_file->uri = str_replace("sites/default/files/","public://",$third_pdf_url);
         //file_delete($third_pdf_url);
         file_delete($third_pdf_file);
     }   
     
-    if ($additional_file_removed && $pdf_file_additional_pdfs ) {
+    if ($additional_file_removed && isset($pdf_file_additional_pdfs) && $pdf_file_additional_pdfs ) {
         $additional_pdf_file = new stdClass();
         $additional_pdf_file->uri = str_replace("sites/default/files/","public://",$pdf_file_additional_pdfs);
         //file_delete($pdf_file_additional_pdfs);
@@ -2462,7 +2449,7 @@ function generate_final_invoice($claim_id) {
     
     drupal_set_message("Final Invoice Created, Successfully.");
     drupal_set_message("File : $final_invoice_name");
-    if (is_file($final_locked_invoice_name)) {
+    if (isset($final_locked_invoice_name)&&is_file($final_locked_invoice_name)) {
         drupal_set_message("Locked Invoice File : $final_locked_invoice_name");
     }
     
@@ -2563,7 +2550,7 @@ function _get_first_pdf($claim_id, $dir_url) {
             
         $final_cv_pdf = generate_pdf_with_member_logo($_user->profile_memberid, $file, $logo_params);
 
-        file_delete($pdf_file_url);
+        //file_delete($pdf_file_url);
         if ($final_cv_pdf) {
             return $final_cv_pdf;
         } else {
@@ -2572,7 +2559,6 @@ function _get_first_pdf($claim_id, $dir_url) {
     } else if ($result !== FALSE) {
         drupal_set_message('Failed to make a cover sheet.', 'error');
     }
-    
     
     return '';
     
@@ -2596,8 +2582,7 @@ function _get_third_pdf($file3, $file4, $dir_url) {
     
     $pdf_file_url = $dir_url.time()."_third.pdf";
     
-    require_once('sites/all/libraries/PDFMerger/fpdf/pdf.php');
-    $pdf=new PDF();
+    $pdf=new NCNPDF();
     $pdf->AddPage();
     if ($both_image == 7) {
         $pdf->Image($file3['filepath'], 0, 20, 120);
@@ -2622,7 +2607,7 @@ function _get_scope_pdf($claim_id, $dir_url, &$pdf_count) {
     $scope_file = get_claim_scope_file($claim_id);
     
 //  $query = "SELECT * FROM claims_data WHERE claim_id=".$claim_id." AND `key`='scope'";
-    $result = db_query('SELECT * FROM {claims_data} WHERE claim_id=:a AND `key`=:b',array(':a'=>$claim_id,':b'=>scope));
+    $result = db_query('SELECT * FROM {claims_data} WHERE claim_id=:a AND `key`=:b',array(':a'=>$claim_id,':b'=>'scope'));
     $row_count = $result->rowCount();
     
     if ($row_count == 0) { return ''; }
@@ -2633,9 +2618,7 @@ function _get_scope_pdf($claim_id, $dir_url, &$pdf_count) {
     
     $customer_name = ncn_cd($claim_id, 'customer_name');
     
-    require_once('sites/all/libraries/PDFMerger/fpdf/pdf.php');
-    
-    $pdf=new PDF();
+    $pdf=new NCNPDF();
   
     $pdf_count = 0;
     $room_count = 0;
@@ -2831,20 +2814,21 @@ function save_extended_data($claim_id) {
     $data['claim_adjuster']     = $_POST['claim_adjuster'];
     $data['cap_type']           = $_POST['cap_type'];
     $data['claim_adjuster_phone']= $_POST['claim_adjuster_phone'];
-    $data['claim_adjuster_fax'] = $_POST['claim_adjuster_fax'];
+    $data['claim_adjuster_fax'] = isset($_POST['claim_adjuster_fax'])?$_POST['claim_adjuster_fax']:'';
     $data['category']           = $_POST['category'];
     $data['start_date']         = $_POST['start_date'];
     $data['completion_date']    = $_POST['completion_date'];
     $data['cause']              = $_POST['cause'];
-    
-    $query = "DELETE FROM invoice_extended_data WHERE claim_id = $claim_id";
-    $result = db_query($query); 
 
     foreach( $data as $fname=>$fval ) {
         if ($fval != '') {
             /*$query = "INSERT INTO invoice_extended_data VALUES(NULL, $claim_id, '$fname', '$fval')";
             $result = db_query($query);*/
             save_extended_data_item($claim_id, $fname, trim((string)$fval));
+        } else {
+            $query = "DELETE FROM invoice_extended_data 
+                      WHERE claim_id = $claim_id AND fname = '$fname'";
+            $result = db_query($query); 
         }
     }
     drupal_set_message("Save invoice data, successfully.");

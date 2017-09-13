@@ -12,7 +12,7 @@ function ncn_change_order_request($claim_id) {
 
     $type = '';
 
-    if ($_POST['tfunction']=='cor_action_add_room') {
+    if (isset($_POST['tfunction']) && $_POST['tfunction']=='cor_action_add_room') {
 
         $new_room = trim($_POST['new_room_name']);
 
@@ -24,7 +24,7 @@ function ncn_change_order_request($claim_id) {
 
         }
 
-    } else if ($_POST['tfunction']=='cor_action_remove_room') {
+    } else if (isset($_POST['tfunction']) && $_POST['tfunction']=='cor_action_remove_room') {
 
         $r_id = $_POST['r_id'];
 
@@ -132,7 +132,7 @@ function ncn_change_order_request($claim_id) {
 
                             </div >
 
-                        </div>	<!-- END OF content -->
+                        </div>  <!-- END OF content -->
 
                     </div>
 
@@ -149,10 +149,10 @@ function ncn_change_order_request($claim_id) {
     $output = ob_get_contents();
     ob_end_clean();
     drupal_add_js("
-		jQuery(document).ready(function() {
-			jQuery('#cor_rf_action').bind('change', on_change_action_select);
-		});
-	", 'inline');
+        jQuery(document).ready(function() {
+            jQuery('#cor_rf_action').bind('change', on_change_action_select);
+        });
+    ", 'inline');
     return $output;
 
 }
@@ -216,10 +216,10 @@ function ncn_change_order_render_room_select($claim_id, $name, $val='', $attr=ar
     $output.= "<span id='add_room_section' style='display:none;'>&nbsp;&nbsp;&nbsp;<input type='text' size='30' name='new_room_name' id='new_room_name' />&nbsp;&nbsp;&nbsp;<input type='submit' value='  OK  ' /></span>";
     $output.= "</form>";
     drupal_add_js("
-		jQuery(document).ready(function() {
-			jQuery('#cor_arf_room_sel').bind('change', on_change_room_select);
-		});
-		", 'inline');
+        jQuery(document).ready(function() {
+            jQuery('#cor_arf_room_sel').bind('change', on_change_room_select);
+        });
+        ", 'inline');
 
     $output.="<form id='cor_remove_room_form' method='POST'>";
     $output.= "<input type='hidden' name='tfunction' value='cor_action_remove_room'>";
@@ -291,23 +291,23 @@ function ncn_change_order_render_request_header($claim_id) {
 
     $output.="<tr>
 
-		<td class='action'>Action</td>
+        <td class='action'>Action</td>
 
-		<td class='line'>Line #</td>
+        <td class='line'>Line #</td>
 
-		<td class='detail'>Please provide detail</td>
+        <td class='detail'>Please provide detail</td>
 
-		<td class='ooss'>On Original Scope Sheets</td>
+        <td class='ooss'>On Original Scope Sheets</td>
 
-		<td class='price'>Amount</td>
+        <td class='price'>Amount</td>
 
-		<td class='paid'>Chargable</td>
+        <td class='paid'>Chargable</td>
 
-		<td class='operation'>Operation</td>
+        <td class='operation'>Operation</td>
 
-		</tr>
+        </tr>
 
-	";
+    ";
 
     $output.="</tbody>";
 
@@ -387,11 +387,11 @@ function ncn_change_order_render_request_action($claim_id, $roomname, $type='', 
 
         $action_select.= "<option value=''>-Select Change-</option>";
 
-        $action_select.= "<option value='add' ".(($r_info['action']=='add')? 'SELECTED':'')." >Add</option>";
+        $action_select.= "<option value='add' ".((isset($r_info['action'])&&$r_info['action']=='add')? 'SELECTED':'')." >Add</option>";
 
-        $action_select.= "<option value='change' ".(($r_info['action']=='change')? 'SELECTED':'')." >Change</option>";
+        $action_select.= "<option value='change' ".((isset($r_info['action'])&&$r_info['action']=='change')? 'SELECTED':'')." >Change</option>";
 
-        $action_select.= "<option value='delete' ".(($r_info['action']=='delete')? 'SELECTED':'')." >Delete</option>";
+        $action_select.= "<option value='delete' ".((isset($r_info['action'])&&$r_info['action']=='delete')? 'SELECTED':'')." >Delete</option>";
 
         $action_select.= "<select>";
 
@@ -409,21 +409,21 @@ function ncn_change_order_render_request_action($claim_id, $roomname, $type='', 
 
     $output.="
 
-		<tr>
+        <tr>
 
-		<td class='action'>$action_select</td>
+        <td class='action'>$action_select</td>
 
-		<td class='line'	>".(($roomname!='Cover Sheet')?"<input type='text' name='cor_rf_line' id='cor_rf_line' value='".$r_info['line']."' style='".(($r_info['action']=='add')? "display:none":"")."'/>":'')."</td>";
+        <td class='line'    >".(($roomname!='Cover Sheet')?"<input type='text' name='cor_rf_line' id='cor_rf_line' value='".(isset($r_info['line'])?$r_info['line']:'')."' style='".((isset($r_info['action'])&&$r_info['action']=='add')? "display:none":"")."'/>":'')."</td>";
 
-    $output.="<td class='detail'><input type='text' name='cor_rf_detail' id='cor_rf_detail' value='".$r_info['detail']."' /></td>
+    $output.="<td class='detail'><input type='text' name='cor_rf_detail' id='cor_rf_detail' value='".(isset($r_info['detail'])?$r_info['detail']:'')."' /></td>
 
-		<td class='ooss'	><input type='checkbox' name='cor_rf_ooss' id='cor_rf_ooss' ".(($r_info['ooss'])? 'CHECKED':'')." /></td>
+        <td class='ooss'    ><input type='checkbox' name='cor_rf_ooss' id='cor_rf_ooss' ".((isset($r_info['ooss'])&&$r_info['ooss'])? 'CHECKED':'')." /></td>
 
-		<td class='price'	><span id='cor_rf_price'>".(($action_type=='edit')? render_payment_cost($r_info['price']):'')."</span></td>
+        <td class='price'   ><span id='cor_rf_price'>".(($action_type=='edit')? render_payment_cost(isset($r_info['price'])?$r_info['price']:''):'')."</span></td>
 
-		<td class='paid'></td>
+        <td class='paid'></td>
 
-		<td class='operation'>";
+        <td class='operation'>";
 
     if ($action_type == 'new') {
 
@@ -447,13 +447,13 @@ function ncn_change_order_render_request_action($claim_id, $roomname, $type='', 
 
     drupal_add_js("
 
-		jQuery(document).ready(function() {
+        jQuery(document).ready(function() {
 
-			jQuery('#cor_rf_ooss').bind('click', on_change_action_select);
+            jQuery('#cor_rf_ooss').bind('click', on_change_action_select);
 
-		});
+        });
 
-	", 'inline'
+    ", 'inline'
 
     );
 
@@ -488,7 +488,7 @@ function ncn_change_order_get_request_action_edit() {
 
         /*$json['code'] = 'test';
 
-        $json['msg'] 	= "$roomname";*/
+        $json['msg']    = "$roomname";*/
 
         $json['form_html'] = ncn_change_order_render_request_action($claim_id, $roomname, '', $r_info);
 
@@ -496,7 +496,7 @@ function ncn_change_order_get_request_action_edit() {
 
         $json['code'] = 'error';
 
-        $json['msg'] 	= "Change Order Request (#$r_id) doesn't exist.";
+        $json['msg']    = "Change Order Request (#$r_id) doesn't exist.";
 
     }
 
@@ -526,23 +526,23 @@ function ncn_change_order_render_request_list_table($claim_id) {
 
     $output.="<tr>
 
-		<td class='action'></td>
+        <td class='action'></td>
 
-		<td class='line'></td>
+        <td class='line'></td>
 
-		<td class='detail'></td>
+        <td class='detail'></td>
 
-		<td class='ooss'></td>
+        <td class='ooss'></td>
 
-		<td class='price'></td>
+        <td class='price'></td>
 
-		<td class='paid'></td>
+        <td class='paid'></td>
 
-		<td class='operation'></td>
+        <td class='operation'></td>
 
-		</tr>
+        </tr>
 
-	";
+    ";
 
     foreach ($data as $room_name=>$r_data) {
 
@@ -576,7 +576,7 @@ function ncn_change_order_render_request_list_table($claim_id) {
 
                     if ($r_a_data['credit']) {
 
-                        $paid = '[credit]';	//$paid = '[C-paid]';
+                        $paid = '[credit]'; //$paid = '[C-paid]';
 
                     } else {
 
@@ -590,7 +590,7 @@ function ncn_change_order_render_request_list_table($claim_id) {
 
                     $paid.= $r_a_data['chargable']? "CHECKED":"" ;
 
-                    $paid.=	" />";*/
+                    $paid.= " />";*/
 
                 }
 
@@ -640,7 +640,7 @@ function ncn_change_order_render_request_list_table($claim_id) {
 
                     if ($r_co_data['credit']) {
 
-                        $paid = '[credit]';	//$paid = '[C-paid]';
+                        $paid = '[credit]'; //$paid = '[C-paid]';
 
                     } else {
 
@@ -654,13 +654,13 @@ function ncn_change_order_render_request_list_table($claim_id) {
 
                     $paid.= $r_co_data['chargable']? "CHECKED":"" ;
 
-                    $paid.=	" />";*/
+                    $paid.= " />";*/
 
                 }
 
             } else {
 
-                if (!$r_a_data['chargable']) {
+                if (!isset($r_a_data['chargable']) || !$r_a_data['chargable']) {
 
                     $paid = '';
 
@@ -686,13 +686,13 @@ function ncn_change_order_render_request_list_table($claim_id) {
 
             $output.="<td class='action'><span>".$r_co_data['action']."<span></td>";
 
-            $output.="<td class='line'	>".$r_co_data['line']."</td>";
+            $output.="<td class='line'  >".$r_co_data['line']."</td>";
 
             $output.="<td class='detail'>".$r_co_data['detail']."</td>";
 
-            $output.="<td class='ooss'	>".$ooss_checked."</td>";
+            $output.="<td class='ooss'  >".$ooss_checked."</td>";
 
-            $output.="<td class='price'	>".render_payment_cost($r_co_data['price'])."</td>";
+            $output.="<td class='price' >".render_payment_cost($r_co_data['price'])."</td>";
 
             $output.="<td class='paid'>".$paid."</td>";
 
@@ -748,17 +748,12 @@ function ncn_change_order_request_submit() {
 
     $f_data = array();
 
-    $f_data['claim_id'] = $_REQUEST['cor_rf_claim_id'];
-
-    $f_data['room_name'] = $_REQUEST['cor_rf_roomname'];
-
-    $f_data['action']		= $_REQUEST['cor_rf_action'];
-
-    $f_data['line']			= $_REQUEST['cor_rf_line'];
-
-    $f_data['detail']		= $_REQUEST['cor_rf_detail'];
-
-    $f_data['ooss']			= $_REQUEST['cor_rf_ooss'];
+    $f_data['claim_id']     = isset($_REQUEST['cor_rf_claim_id'])?$_REQUEST['cor_rf_claim_id']:'';
+    $f_data['room_name']    = isset($_REQUEST['cor_rf_roomname'])?$_REQUEST['cor_rf_roomname']:'';
+    $f_data['action']       = isset($_REQUEST['cor_rf_action'])?$_REQUEST['cor_rf_action']:'';
+    $f_data['line']         = isset($_REQUEST['cor_rf_line'])?$_REQUEST['cor_rf_line']:'';
+    $f_data['detail']       = isset($_REQUEST['cor_rf_detail'])?$_REQUEST['cor_rf_detail']:'';
+    $f_data['ooss']         = isset($_REQUEST['cor_rf_ooss'])?$_REQUEST['cor_rf_ooss']:'';
 
 
 
@@ -849,7 +844,7 @@ function ncn_change_order_get_request_field_validate($f_data) {
 
     if ($f_data['room_name'] == '') { $message .= t("Empty Room Name. Please report to web master.\r\n"); }
 
-    if ($f_data['action'] 	== '') { $message .= t("You didn't select Change Type.\r\n"); }
+    if ($f_data['action']   == '') { $message .= t("You didn't select Change Type.\r\n"); }
 
 
 
