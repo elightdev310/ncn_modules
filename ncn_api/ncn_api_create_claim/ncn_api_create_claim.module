@@ -103,7 +103,7 @@ function ncn_api_create_claim_purchase_claim($claim_id) {
     
     // get cim profile id's
     $this_user = user_load($user_id);
-    
+    $member_id = $this_user->profile_memberid;
     // check for free
     if ($this_user->profile_credit_card_number == '5424000000000015')
     {   
@@ -150,7 +150,7 @@ function ncn_api_create_claim_purchase_claim($claim_id) {
                             'member_name' => $user->profile_firstname." ".$user->profile_lastname,
                             'activation' => true
                         );
-                        if ( strcasecmp($response_reason_text, 'This transaction has been declined') == 0 ) {
+                        if ( strcasecmp($response_reason_text, 'This transaction has been declined.') == 0 ) {
                             $message = credit_card_declined_mail_template($params);
                             drupal_mail('ncn_auto_payments', 'credit_card_declined', $user->mail, language_default(), array('subject'=>t('Credit Card Declined'), 'body'=>$message));
                         } else if ( strcasecmp($response_reason_text, 'The credit card has expired.') == 0 ) {

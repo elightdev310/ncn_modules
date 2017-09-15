@@ -1,8 +1,9 @@
 <?php
 
+$GLOBALS['ncn_debug'] = true;
 
 // LIVE
-if ($GLOBALS['ncn_debug'] == false)
+if (!isset($GLOBALS['ncn_debug']) || $GLOBALS['ncn_debug'] == false)
 {
     $GLOBALS['g_loginname'] = "9WB3k7y8Ej3"; 
     $GLOBALS['g_transactionkey'] = "38gT3tr2dMx7bV85";  

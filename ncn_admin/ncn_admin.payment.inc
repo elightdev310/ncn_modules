@@ -1433,7 +1433,9 @@ function ncn_do_payment($member_id, $product_id)
     }
 
     $node = node_load($product_id);
-    $node->data = unserialize($node->data);
+    if (isset($node->data) && !is_array($node->data)) {
+      $node->data = unserialize($node->data);
+    }
     if ($node->sell_price != 0)
     {
         // attempt payment

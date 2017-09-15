@@ -42,4 +42,10 @@ define('SKU_SUF_GC',                               154);    // $153.90
 define('SKU_SUF_COC',                              155);    // $54.90
 
 
+// Product - Recurring Fee
+define('SKU_MMF',                                   32);    // $99
+define('SKU_MMF_GL',                               102);    // $24.95
+define('SKU_MMF_COC',                              119);    // $39.95
+define('SKU_MMF_GC',                               137);    // $138.95
+
 define('JAR_JODCONVERTER', '/jod/lib/jodconverter-core-3.0-beta-4.jar');

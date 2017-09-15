@@ -1188,21 +1188,6 @@ function array_unshift_assoc(&$arr, $key, $val) {
     return count($arr);
 }
 
-// Get Member's first password ( {date}{firstname}{year} )
-function get_member_password($member_id, $firstname) {
-    $result = db_query("SELECT * FROM member_id_pool WHERE member_id=:mid",array(':mid'=>$member_id));
-    if ($result->rowCount() > 0) {
-        $member = $result->fetchAssoc();
-        $time_create = $member['create'];
-
-        $passwd = date("j", $time_create).preg_replace("/[^a-zA-Z0-9]/", "", $firstname).date("Y", $time_create);
-        return $passwd;
-    }
-    drupal_set_message( t('Member(!member_id) has a problem. Please contact web master about this.'), array('!member_id'=>$member_id) );
-    watchdog('user_mail', t('Member(!member_id) has a problem. Please contact web master about this.'), array('!member_id'=>$member_id) );
-    return '';
-}
-
 function user_fields() {
     static $fields;
 

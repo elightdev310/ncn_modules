@@ -1961,7 +1961,7 @@ function ncn_admin_table_pagniation($url, $total_count, $num_per_page, $page, $l
 //------------------------------------------------------------------------------
 function ncn_debug_message($message)
 {
-    if ($GLOBALS['ncn_debug'] == true)
+    if (isset($GLOBALS['ncn_debug']) && $GLOBALS['ncn_debug'] == true)
     {
         drupal_set_message($message, 'error');
     }

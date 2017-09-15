@@ -2497,7 +2497,7 @@ function _get_first_pdf($claim_id, $dir_url) {
     
     //get essential data
     $invoice_data = get_extended_data($claim_id);   
-    $claim_invoice_type = $invoice_data['claim_invoice_type'];
+    $claim_invoice_type = isset($invoice_data['claim_invoice_type'])?$invoice_data['claim_invoice_type']:'';
 
     if ( strpos($claim_invoice_type , "*no*") !== false ) {
         return '[no-coversheet]';
@@ -3197,7 +3197,7 @@ function undelete_claim_action($claim_id) {
  */
 function ncn_admin_claim_file_note_change($claim_id) {
     $file_note = $_POST['claim_file_note'];
-  $hid = ncn_capsulecrm_note_add_note($claim_id, $file_note);
+    $hid = ncn_capsulecrm_note_add_note($claim_id, $file_note);
   
     $file_note = base64_encode(strip_tags($file_note));
     $log_message = ncn_amin_get_user_role_and_name()." update notes on file to '".$_POST['claim_file_note']."' ";

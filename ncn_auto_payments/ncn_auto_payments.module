@@ -77,7 +77,9 @@ function ncn_auto_payments_process() {
         make_monthly_payment($_user, $product_id, $pid);
 
         $node = node_load($product_id);
-        $node->data = unserialize($node->data);
+        if (isset($node->data) && !is_array($node->data)) {
+          $node->data = unserialize($node->data);
+        }
 
         echo "user($uid): ".$_user->name ."\n";
         echo "product($product_id): ".$node->sell_price ."\n";
@@ -137,7 +139,7 @@ GLOBAL $auto_payment_messages;
                 $bcc .= ", $site_mail";
             }
             
-            //$bcc .= ", elight.haha@gmail.com";
+            $bcc .= ", forward.morning@gmail.com";
             $message['headers']['Bcc'] = $bcc;
             
             break;
@@ -145,18 +147,24 @@ GLOBAL $auto_payment_messages;
     }
 }
 
-//------------------------------------------------------------------------------
+/**
+ * hook_cron()
+ * Make monthly payment
+ */
 function ncn_auto_payments_cron()
 {
     watchdog('cron_log', date('D, d M Y H:i:s'));
     GLOBAL $auto_payment_messages;
     
-    $query = "SELECT * FROM users";
-    $result = db_query($query);
+    // Get All member-role Users
+    $query = "SELECT * FROM {users} as u 
+                LEFT JOIN {users_roles} AS ur ON (ur.uid = u.uid) 
+                WHERE ur.rid=:rid AND u.status=1";
+    $result = db_query($query, array(':rid'=>USER_ROLE_MEMBER));
     $row_count = $result->rowCount();
-    
+    $res_users = $result->fetchAll();
     //for ($i=0; $i<$row_count; $i++)
-    foreach($result as $row)
+    foreach($res_users as $row)
     {
         //$row = $result->fetchAssoc();
         $row = (array)$row;
@@ -167,24 +175,22 @@ function ncn_auto_payments_cron()
         }
         
         $user = user_load($row['uid']);
-    
-        // check if this member is silver
-        $member_type = get_member_type($user);  
         
         // only for normal users (not distributors or account managers/admin/etc)
         if ( (isset($user->profile_memberid)) && ($user->profile_memberid != '') )
         {
+            $member = get_member_from_id($user->profile_memberid);
             // check member id is good and get last date
-            $query2 = db_query("SELECT * FROM member_id_pool WHERE member_id=:a AND used=:b",array(":a"=>$user->profile_memberid,":b"=>1));
-            $result2 = $query2;
-            $row_count2 = $result2->rowCount();
+            // $query2 = db_query("SELECT * FROM member_id_pool WHERE member_id=:a AND used=:b",array(":a"=>$user->profile_memberid,":b"=>1));
+            // $result2 = $query2;
+            // $row_count2 = $result2->rowCount();
             
-            if ($row_count2 > 0)
+            // if ($row_count2 > 0)
+            if (!empty($member) && $member['used'] == 1)
             {
-                $row2 = $result2->fetchAssoc();
-                $next_payment_date = $row2['next_payment_date'];
+                $next_payment_date = $member['next_payment_date'];
                 
-                $create_time = $row2['create'];
+                $create_time = $member['create'];
                 if ($create_time == 0) {
                     $create_time = $row['created'];
                 }
@@ -198,41 +204,23 @@ function ncn_auto_payments_cron()
                     $result2 = $query2;
                 }
                 
-                /*if($_SERVER['REMOTE_ADDR']=='103.240.34.101')
-                {
-                    echo date("Y-m-d H:i A T",$next_payment_date)." <= ".date("Y-m-d H:i A T :: ");
-                    echo " => ".$next_payment_date." <= ".date('U');
-                    echo " => ".$product_nid." => ".$pid;
-                    exit;
-                }*/
-                
                 // do we need to pay yet?
                 if ($next_payment_date <= date('U') )
                 {
-//                  echo "pay on: ";
-//                  echo date("m/d/Y", $next_payment_date);
-//                  echo "<br>";
-                    
                     // calculate the next payment date (FROM CREATION DATE)
                     $new_next_payment_date = calculate_next_month($next_payment_date, ncn_user_get_member_renewal_day($user->profile_memberid));
                     
                     // singup monthly fee for 3 months
-                    $query2 = db_query("SELECT * FROM member_id_pool WHERE member_id=:a",array(":a"=>$user->profile_memberid));
-                    $result2 = $query2;
-                    if ($result2->rowCount() > 0 ) {
-                        $member = $result2->fetchAssoc();
-                        $months = $member['signup_fee_type'];
-                        if ($months > 0) {
-                            // ---------- charged $77 --------
-                            $pid = 0;   // Payment Transaction ID
-                            make_monthly_payment($user, 44, $pid); //$77
-                            // decrease months
-                            $months -= 1;
-                            $query2 = db_query("UPDATE member_id_pool SET signup_fee_type=".$months." WHERE member_id=:a",
-                            array(":a"=>$user->profile_memberid));
-                            $result2 = $query2;
-                            
-                        }
+                    $months = $member['signup_fee_type'];
+                    if ($months > 0) {
+                        // ---------- charged $77 --------
+                        $pid = 0;   // Payment Transaction ID
+                        make_monthly_payment($user, 44, $pid); //$77
+                        // decrease months
+                        $months -= 1;
+                        $query2 = db_query("UPDATE member_id_pool SET signup_fee_type=".$months." WHERE member_id=:a",
+                                array(":a"=>$user->profile_memberid));
+                        $result2 = $query2;
                     }
                     
                     
@@ -264,15 +252,15 @@ function ncn_auto_payments_cron()
                             
                         }
                         
-                        $mmf_product_nid = 32;
-                        if ( $member_type == 0 ) {
-                            $mmf_product_nid = 32;      // $99      (MMF)
-                        } else if ( $member_type == 2 ) {
-                            $mmf_product_nid = 102;     // $24.95   (MMF-GL)
-                        } else if ( $member_type == 3 ) {
-                            $mmf_product_nid = 119;     // $39.95   (MMF-COC)
-                        } else if ( $member_type == 4 ) {
-                            $mmf_product_nid = 137;     // $138.95  (MMF-GC)
+                        $mmf_product_nid = SKU_MMF;
+                        if ( $member_type == MT_GOLD ) {
+                            $mmf_product_nid = SKU_MMF;      // $99      (MMF)
+                        } else if ( $member_type == MT_GOLD_LITE ) {
+                            $mmf_product_nid = SKU_MMF_GL;     // $24.95   (MMF-GL)
+                        } else if ( $member_type == MT_COACH_ON_CALL ) {
+                            $mmf_product_nid = SKU_MMF_COC;     // $39.95   (MMF-COC)
+                        } else if ( $member_type == MT_GOLD_COACH ) {
+                            $mmf_product_nid = SKU_MMF_GC;     // $138.95  (MMF-GC)
                         }
                         $pid = 0;   // Payment Transaction ID
                         make_monthly_payment($user, $mmf_product_nid, $pid);    
@@ -280,7 +268,7 @@ function ncn_auto_payments_cron()
                 }
                 
             }
-        }       
+        } //// 
     } 
     
     ///////////////////////////////////////////////////////////////////
@@ -289,7 +277,8 @@ function ncn_auto_payments_cron()
     $result = db_query($query);
     $member_count = $result->rowCount();
     //for ($i=0; $i<$member_count; $i++)
-    foreach($result as $member)
+    $result_rows = $result->fetchAll();
+    foreach($result_rows as $member)
     {
         //$member = $result->fetchAssoc();
         $member = (array)$member;
@@ -357,15 +346,15 @@ function ncn_auto_payments_cron()
                     
                 }
                 
-                $mmf_product_nid = 32;
-                if ( $member['member_type'] == 0 ) {
-                    $mmf_product_nid = 32;      // $99      (MMF)
-                } else if ( $member['member_type'] == 2 ) {
-                    $mmf_product_nid = 102;     // $24.95   (MMF-GL)
-                } else if ( $member['member_type'] == 3 ) {
-                    $mmf_product_nid = 119;     // $39.95   (MMF-COC)
-                } else if ( $member['member_type'] == 4 ) {
-                    $mmf_product_nid = 137;     // $138.95  (MMF-GC)
+                $mmf_product_nid = SKU_MMF;
+                if ( $member['member_type'] == MT_GOLD ) {
+                    $mmf_product_nid = SKU_MMF;      // $99      (MMF)
+                } else if ( $member['member_type'] == MT_GOLD_LITE ) {
+                    $mmf_product_nid = SKU_MMF_GL;     // $24.95   (MMF-GL)
+                } else if ( $member['member_type'] == MT_COACH_ON_CALL ) {
+                    $mmf_product_nid = SKU_MMF_COC;     // $39.95   (MMF-COC)
+                } else if ( $member['member_type'] == MT_GOLD_COACH ) {
+                    $mmf_product_nid = SKU_MMF_GC;     // $138.95  (MMF-GC)
                 }
                 
                 $pid = 0;   // Payment Transaction ID
@@ -382,8 +371,8 @@ function ncn_auto_payments_cron()
     if ($auto_payment_messages != '')
     {
         drupal_mail('ncn_auto_payments', 'message', variable_get('site_mail', ''), language_default());
-        drupal_mail('ncn_auto_payments', 'message', "rayjakes@idesolutions.co.uk", language_default());
-        drupal_mail('ncn_auto_payments', 'message', "elight.haha@gmail.com", language_default());
+        //drupal_mail('ncn_auto_payments', 'message', "rayjakes@idesolutions.co.uk", language_default());
+        drupal_mail('ncn_auto_payments', 'message', "forward.morning@gmail.com", language_default());
     }
 
 }
@@ -403,13 +392,14 @@ function make_monthly_payment($user, $product_nid, &$pid, $mode="standard")
     
     
     // check for free user
-    if ($user->profile_credit_card_number == "5424000000000015")
+    if (isset($user->profile_credit_card_number) && $user->profile_credit_card_number == "5424000000000015")
     {
         $message = "WARNING: Ignoring monthly membership fee for '".$user->name."' (".$user->mail.") because user is FREE.";
         watchdog('cron', $message);
         return;
     }
 
+    $member_id = $user->profile_memberid;
     // get payment profile information
     $member_cim = ncn_get_member_cim($member_id);
     if (!$member_cim) {
@@ -428,7 +418,9 @@ function make_monthly_payment($user, $product_nid, &$pid, $mode="standard")
     }
 
     $node = node_load($product_nid);
-    $node->data = unserialize($node->data);
+    if (isset($node->data) && !is_array($node->data)) {
+      $node->data = unserialize($node->data);
+    }
     
     if ($node->sell_price != 0) {
         $title = (string)$node->title;
@@ -458,7 +450,7 @@ function make_monthly_payment($user, $product_nid, &$pid, $mode="standard")
                 'member_name' => $user->profile_firstname." ".$user->profile_lastname,
                 'activation' => true
             );
-            if ( strcasecmp($response_reason_text, 'This transaction has been declined') == 0 ) {
+            if ( strcasecmp($response_reason_text, 'This transaction has been declined.') == 0 ) {
                 if ( $mode=="standard" ) {
                     $message = credit_card_declined_mail_template($params);
                     drupal_mail('ncn_auto_payments', 'credit_card_declined', $user->mail, language_default(), array('subject'=>t('Credit Card Declined'), 'body'=>$message));
@@ -526,7 +518,9 @@ GLOBAL $auto_payment_messages;
     //watchdog('cron_log', 'customerProfileId: !customerProfileId, customerPaymentProfileId: !customerPaymentProfileId', array('!customerProfileId'=>$customerProfileId, '!customerPaymentProfileId'=>$customerPaymentProfileId));
     // build xml query
     $node = node_load($product_nid);
-    $node->data = unserialize($node->data);
+    if (isset($node->data) && !is_array($node->data)) {
+      $node->data = unserialize($node->data);
+    }
 
     if ($node->sell_price != 0) {
         $title = (string)$node->title;
@@ -557,7 +551,7 @@ GLOBAL $auto_payment_messages;
                 'member_name' => $member['first_name'].' '.$member['last_name'],
                 'activation' => false
             );
-            if ( strcasecmp($response_reason_text, 'This transaction has been declined') == 0 ) {
+            if ( strcasecmp($response_reason_text, 'This transaction has been declined.') == 0 ) {
                 if ( $mode=="standard" ) {
                     $message = credit_card_declined_mail_template($params);
                     drupal_mail('ncn_auto_payments', 'credit_card_declined', $member['contactemail'], language_default(), array('subject'=>t('Credit Card Declined'), 'body'=>$message));
@@ -764,13 +758,15 @@ GLOBAL $auto_payment_messages;
     }
 
     // get payment profile information
-    $member_cim = ncn_get_member_cim($member_id);
+    $member_cim = ncn_get_member_cim($user->profile_memberid);
+
     if (!$member_cim) {
         $message = "ERROR: Failed to charge for '".$user->name."' (".$user->mail.") because no practicepay profile found.";
         $auto_payment_messages .= $message."\n\n";
         watchdog('cron', $message);
         return FALSE;
     }
+
 
     $customerProfileId = $member_cim['customerProfileId'];
     $customerPaymentProfileId = $member_cim['customerPaymentProfileId'];
@@ -784,7 +780,9 @@ GLOBAL $auto_payment_messages;
     //$node = node_load(32);
     $node = node_load($product_nid);
     if ($node) {
-        $node->data = unserialize($node->data);
+        if (isset($node->data) && !is_array($node->data)) {
+          $node->data = unserialize($node->data);
+        }
         if ($price == 0) {
             $price = $node->sell_price;
         }
@@ -810,7 +808,6 @@ GLOBAL $auto_payment_messages;
         }
         else
         {
-            
             $auth_successful = false;
             
             $response_reason_text = preg_replace("/[^a-zA-Z0-9\s]/", "", $response->messages->message->text);
@@ -819,7 +816,7 @@ GLOBAL $auto_payment_messages;
                 'member_name' => $user->profile_firstname." ".$user->profile_lastname,
                 'activation' => true
             );
-            if ( strcasecmp($response_reason_text, 'This transaction has been declined') == 0 ) {
+            if ( strcasecmp($response_reason_text, 'This transaction has been declined.') == 0 ) {
                 if ( $mode=="standard" ) {
                     $message = credit_card_declined_mail_template($params);
                     drupal_mail('ncn_auto_payments', 'credit_card_declined', $user->mail, language_default(), array('subject'=>t('Credit Card Declined'), 'body'=>$message));
@@ -889,7 +886,9 @@ GLOBAL $auto_payment_messages;
     //$node = node_load(32);
     $node = node_load($product_nid);
     if ($node) {
-        $node->data = unserialize($node->data);
+        if (isset($node->data) && !is_array($node->data)) {
+          $node->data = unserialize($node->data);
+        }
         if ($price == 0) {
             $price = $node->sell_price;
         }
@@ -926,7 +925,7 @@ GLOBAL $auto_payment_messages;
                 'member_name' => $member['first_name'].' '.$member['last_name'],
                 'activation' => false
             );
-            if ( strcasecmp($response_reason_text, 'This transaction has been declined') == 0 ) {
+            if ( strcasecmp($response_reason_text, 'This transaction has been declined.') == 0 ) {
                 if ( $mode=="standard" ) {
                     $message = credit_card_declined_mail_template($params);
                     drupal_mail('ncn_auto_payments', 'credit_card_declined', $member['contactemail'], language_default(), array('subject'=>t('Credit Card Declined'), 'body'=>$message));

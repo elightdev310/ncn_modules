@@ -153,7 +153,9 @@
 		}
 
 		$node = node_load($product_id);
-		$node->data = unserialize($node->data);
+		if (isset($node->data) && !is_array($node->data)) {
+	      $node->data = unserialize($node->data);
+	    }
 		
 		if ($amount == 0)
 		{
@@ -253,7 +255,6 @@
 				if ($dr_info['user_id'])
 				{
 					$_user = user_load($dr_info['user_id']);
-					
 					if ($_user)
 					{
 						$result = make_payment($_user, $dr_info['product_id'], $dr_info['amount'], $charge_pid, 'charge_again');

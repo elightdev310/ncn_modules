@@ -2652,7 +2652,7 @@ function ncn_admin_get_coversheet_template($claim_invoice_type, $b_logo)
 
 function ncn_admin_make_cover_sheet($pdf_file_url, $data, $b_logo = false)
 {
-    $claim_invoice_type = $data['claim_invoice_type'];
+    $claim_invoice_type = isset($data['claim_invoice_type'])?$data['claim_invoice_type']:'';
     if (empty($claim_invoice_type))
     {
         drupal_set_message(t('Please choose claim invoice type.') , 'error');
@@ -3239,19 +3239,21 @@ function ncn_admin_unblock_member($uid)
 function ncn_admin_send_reminder_mail($uid)
 {
     $_user = user_load($uid);
-    $member = get_member_from_id($_user->profile_memberid);
-    $am_uid = $member['am_uid'];
-    $am = user_load($am_uid);
-    $user_pass = get_member_password($_user->profile_memberid, $_user->profile_firstname);
-    $params = array(
-        '!username' => $_user->name,
-        '!password' => $user_pass,
-        '!am' => $am,
-        '!am_fax' => ncn_admin_get_am_fax($am->uid)
-    );
-    if ($_user->mail)
-    {
-        drupal_mail('ncn_admin', 'congrats_claim_reminder', $_user->mail, language_default() , $params);
+    if ($_user) {
+        $member = get_member_from_id($_user->profile_memberid);
+        $am_uid = $member['am_uid'];
+        $am = user_load($am_uid);
+        $user_pass = get_member_password($_user->profile_memberid, $_user->profile_firstname);
+        $params = array(
+            '!username' => $_user->name,
+            '!password' => $user_pass,
+            '!am' => $am,
+            '!am_fax' => ncn_admin_get_am_fax($am_uid)
+        );
+        if ($_user->mail)
+        {
+            drupal_mail('ncn_admin', 'congrats_claim_reminder', $_user->mail, language_default() , $params);
+        }
     }
 }
 
@@ -3266,7 +3268,6 @@ function ncn_admin_send_reminder_mail_using_claim($claim_id)
             return TRUE;
         }
     }
-
     return FALSE;
 }
 

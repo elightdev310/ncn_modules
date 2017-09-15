@@ -97,7 +97,9 @@ function check_existing_memberid($member_id, $used) {
 function charge_retail_kit($customerProfileId, $customerPaymentProfileId, $product_id, $member_id, $owner_id)
 {
     $node = node_load($product_id);
-    $node->data = unserialize($node->data);
+    if (isset($node->data) && !is_array($node->data)) {
+      $node->data = unserialize($node->data);
+    }
 
     if ($node->sell_price != 0) {
         // attempt payment
@@ -1040,7 +1042,7 @@ function ncn_admin_render_date_loss_item($name, $val, $ref_data) {
 
 function ncn_admin_get_total_claim_from_user($uid) {
     $count = db_query('SELECT COUNT(claim_id) FROM {claims} WHERE user_id=:a AND claim_status!=:b AND deleted=0',
-        array(':a'=>$uid,':b'=>unpurchased))->fetchField();
+        array(':a'=>$uid,':b'=>'unpurchased'))->fetchField();
     return $count;
 }
 

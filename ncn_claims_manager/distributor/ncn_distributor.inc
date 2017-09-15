@@ -115,7 +115,9 @@ function charge_distributor($owner, $product_nid, $target_mid)
     // get product details
     //$node = node_load(33);
     $node = node_load($product_nid);
-    $node->data = unserialize($node->data);
+    if (isset($node->data) && !is_array($node->data)) {
+      $node->data = unserialize($node->data);
+    }
 
     if ($node->sell_price != 0) {
         // attempt payment

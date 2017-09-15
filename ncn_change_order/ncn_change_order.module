@@ -1019,7 +1019,7 @@ function ncn_change_order_get_item_price($f_data) {
     if ($product_id) {
         $node = node_load($product_id);
         if(!empty($node->data)){
-            if (is_string($node->data)) {
+            if (isset($node->data) && !is_array($node->data)) {
                 $node->data = unserialize($node->data);
             }
             $price = $node->sell_price;
@@ -1049,7 +1049,9 @@ function ncn_change_order_get_claim_cost($claim_id) {
     $product_id = ncn_change_order_get_prodcut_id_from_claim($claim_id);
     if ($product_id) {
         $node = node_load($product_id);
-        $node->data = unserialize($node->data);
+        if (isset($node->data) && !is_array($node->data)) {
+          $node->data = unserialize($node->data);
+        }
         $price = $node->sell_price;
         
         return $price;

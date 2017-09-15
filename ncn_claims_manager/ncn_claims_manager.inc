@@ -329,7 +329,6 @@ function ncn_claims_manager_purchase_invoice()
             }
             if (isset($mail_params)) {
                 drupal_mail('ncn_admin', 'order_claim', $mail_params['member_email'], language_default(), $mail_params);
-                //drupal_mail('ncn_admin', 'order_claim', 'elight.haha@gmail.com', language_default(), $mail_params);
             }
         }
     }

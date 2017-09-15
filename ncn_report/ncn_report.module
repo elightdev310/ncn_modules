@@ -249,7 +249,9 @@ function ncn_report_payment_log($product_id, $status, $user, $member_id=0, $targ
 		}
 	}	
 	$node = node_load($product_id);
-	$node->data = unserialize($node->data);
+	if (isset($node->data) && !is_array($node->data)) {
+		$node->data = unserialize($node->data);
+	}
 	if ($price == 0) {
         $price = $node->sell_price;
 	}
