@@ -211,14 +211,14 @@ function ncn_user_get_member_renewal_day($member_id, $t_month=0) {
  
   if($result->rowCount()>0)
   {
-	$row = $result->fetchAssoc();	   
-	
-	$day = $row['day'];
-	if ($t_month) {
-	  $month_days = date("t", $t_month);
-	  if ($day > $month_days) { return $month_days; }
-	}
-	return $day;	  
+  	$row = $result->fetchAssoc();
+  	
+  	$day = $row['day'];
+  	if ($t_month) {
+  	  $month_days = date("t", $t_month);
+  	  if ($day > $month_days) { return $month_days; }
+  	}
+  	return $day;
   } else {
     $created_time = 0;
     if ($member['create'] != 0) {

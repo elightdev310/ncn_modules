@@ -923,6 +923,7 @@ function _ncn_member_renewal_report_get_data(&$data, &$total, $report_date, $typ
 	}
 	
 	$members_gbyd = ncn_report_group_member_by_purchase_date($report_date);
+    //ncn_print_r($members_gbyd);
 
     if(!empty($members_gbyd))
     {
@@ -936,7 +937,6 @@ function _ncn_member_renewal_report_get_data(&$data, &$total, $report_date, $typ
             }
         }
     }
-
 }
 
 function _ncn_member_renewal_report_get_data_daily_upcoming(&$data, $report_date, $all_member_data=array()) {
@@ -945,7 +945,7 @@ function _ncn_member_renewal_report_get_data_daily_upcoming(&$data, $report_date
     {
         $all_member_data = ncn_admin_get_upcoming_membership($report_date);
         $day = date('j', $report_date);
-        $members = $all_member_data[$day];
+        $members = isset($all_member_data[$day])?$all_member_data[$day]:null;
         //   var_dump($members);
         if(!empty($members))
         {
@@ -959,7 +959,7 @@ function _ncn_member_renewal_report_get_data_daily_upcoming(&$data, $report_date
                     if ($user_id) {
                         $_user = user_load($user_id);
                         if ($_user) {
-                            $p['name'] 		= l($_user->profile_firstname.' '.$_user->profile_lastname, 'admin/user/user/detail/'.$_user->uid);
+                            $p['name'] 		= l($_user->profile_firstname.' '.$_user->profile_lastname, 'admin/config/ncn_create_user/all_user_list/detail/'.$_user->uid);
                             $p['company'] = $_user->profile_legalname;
                         }
                     }
@@ -974,9 +974,9 @@ function _ncn_member_renewal_report_get_data_daily_upcoming(&$data, $report_date
                 $type_arr =	get_member_type_array();
                 $p['member_type'] = $type_arr[$_member['member_type']];
 
-                if (ncn_admin_is_gold_member_demo($member_id)) {
+                if (ncn_admin_is_gold_member_demo($p['member_id'])) {
                     $p['member_type'] .= " (Demo)";
-                } else if (ncn_admin_is_member_first_free($member_id)) {
+                } else if (ncn_admin_is_member_first_free($p['member_id'])) {
                     $p['member_type'] .= " (First Free)";
                 }
 
@@ -1010,7 +1010,7 @@ function _ncn_member_renewal_report_get_data_daily_past(&$data, &$total, $report
 		if ($user_id) {
 			$_user = user_load($user_id);
 			if ($_user) {
-				$p['name'] 		= l($_user->profile_firstname.' '.$_user->profile_lastname, 'admin/user/user/detail/'.$_user->uid);
+				$p['name'] 		= l($_user->profile_firstname.' '.$_user->profile_lastname, 'admin/config/ncn_create_user/all_user_list/detail/'.$_user->uid);
 				$p['company'] = $_user->profile_legalname;
 			}
 		}
@@ -1024,9 +1024,9 @@ function _ncn_member_renewal_report_get_data_daily_past(&$data, &$total, $report
 		$type_arr =	get_member_type_array();
 		$p['member_type'] = $type_arr[$_member['member_type']];
 		
-		if (ncn_admin_is_gold_member_demo($member_id)) {
+		if (ncn_admin_is_gold_member_demo($p['member_id'])) {
 			$p['member_type'] .= " (Demo)";
-		} else if (ncn_admin_is_member_first_free($member_id)) {
+		} else if (ncn_admin_is_member_first_free($p['member_id'])) {
 			$p['member_type'] .= " (First Free)";
 		}
 			
@@ -1055,7 +1055,7 @@ function ncn_report_group_member_by_purchase_date($timestamp) {
     foreach($result as $member)
     {
         $member = (array)$member;
-		$day = ncn_admin_get_day_of_membership_given_month($member['create'], date('n', $timestamp), date('Y', $timestamp));
+		$day = ncn_admin_get_day_of_membership_given_month($member['member_id'], $month, $year);
 		$data[$day][] = $member;
 	}
 	
@@ -1071,7 +1071,7 @@ function ncn_report_get_member_renewal_transaction($member_id, $expected_date) {
 //	$result = db_query("SELECT * FROM {payment_log} WHERE status=1 AND member_id='$member_id' AND ptype LIKE 'MMF%' AND timestamp>=$from AND timestamp<$to");
 
     $result = db_query('SELECT * FROM {payment_log} WHERE status=1 AND member_id=:a AND ptype LIKE :b AND timestamp>=:c AND timestamp<:d',
-    array(':a'=>$member_id,':b'=>db_like('MMF').'%',':c'=>$from,':d'=>$to));
+    array(':a'=>$member_id,':b'=>'MMF%',':c'=>$from,':d'=>$to));
 
     if($result)
     {
@@ -1120,6 +1120,7 @@ function ncn_report_cmp_renewal_data($a, $b) {
 }
 
 function build_renewal_report_table($data, $total, $pager=array(0, 50)) {
+    global $base_url;
 	$table_head = '
 		<thead class="tableHeader-processed">
 			<th>Member ID</th>

@@ -842,8 +842,8 @@ function ncn_admin_get_upcoming_membership($timestamp) {
         
         if ($member['member_type'] == 0 || $member['member_type'] == 2 || $member['member_type'] == 3 || $member['member_type'] == 4)   // For Gold Member
         {
-                $day = ncn_admin_get_day_of_membership_given_month($member['member_id'], date('n', $timestamp), date('Y', $timestamp));
-                $data[$day][] = $member;
+            $day = ncn_admin_get_day_of_membership_given_month($member['member_id'], date('n', $timestamp), date('Y', $timestamp));
+            $data[$day][] = $member;
         }
         
     }
@@ -861,11 +861,11 @@ function ncn_admin_get_day_of_membership_given_month($member_id, $month, $year) 
     $day = 0;
     if ( date('n', $member['next_payment_date'])==$month && date('Y', $member['next_payment_date'])==$year ) {
       $day = date('j', $member['next_payment_date']);
-    } else {        
+    } else {
       $day = ncn_user_get_member_renewal_day($member_id, strtotime("$month/01/$year"));
     }
     return $day;
-  }  
+  }
   return 0;
 }
 

@@ -3448,8 +3448,6 @@ function ncn_admin_get_membership_calendar($timestamp)
     $data = array();
     $upcoming_data = ncn_admin_get_upcoming_membership($timestamp);
 
-    // var_dump($upcoming_data); exit;
-
     for ($day = 1; $day <= $days_in_month; $day++)
     {
 
@@ -4168,10 +4166,11 @@ function ncn_admin_ncn_user_all_payments($user_id)
     }
 
     $output = '';
-    $query = "SELECT payment_log.*, claims.expedite FROM payment_log LEFT JOIN claims ON (payment_log.claim_id=claims.claim_id) WHERE status=1 AND (uid=$user_id OR member_id='$member_id')";
-    $tot_query = db_query('SELECT COUNT(*) as tot FROM payment_log WHERE status=1 AND (uid=:a OR member_id=:b)',
+    $query = "SELECT payment_log.*, claims.expedite FROM payment_log 
+                LEFT JOIN claims ON (payment_log.claim_id=claims.claim_id) 
+                WHERE status=1 AND (uid=$user_id OR member_id='$member_id')";
+    $total_count = db_query('SELECT COUNT(*) as tot FROM payment_log WHERE status=1 AND (uid=:a OR member_id=:b)',
         array(':a'=>$user_id,':b'=>$member_id))->fetchField();
-    $total_count = intval($tot_query->tot);
     $output.= ncn_admin_render_payment_table($query, $total_count);
     return $output;
 }
@@ -4191,10 +4190,11 @@ function ncn_admin_ncn_user_ytd_payments($user_id)
     $year = date('Y', date('U'));
     $first_day = strtotime("1/1/$year");
     $output = '';
-    $query = "SELECT payment_log.*, claims.expedite FROM payment_log LEFT JOIN claims ON (payment_log.claim_id=claims.claim_id) WHERE status=1 AND (uid=$user_id OR member_id='$member_id') AND timestamp>$first_day";
-    $tot_query = db_query('SELECT COUNT(*)->tot FROM payment_log WHERE status=1 AND (uid=:a OR member_id=:b) AND timestamp>:c',
+    $query = "SELECT payment_log.*, claims.expedite 
+                FROM payment_log LEFT JOIN claims ON (payment_log.claim_id=claims.claim_id) 
+                WHERE status=1 AND (uid=$user_id OR member_id='$member_id') AND timestamp>$first_day";
+    $total_count = db_query('SELECT COUNT(*) AS tot FROM payment_log WHERE status=1 AND (uid=:a OR member_id=:b) AND timestamp>:c',
     array(':a'=>$user_id,':b'=>$member_id,':c'=>$first_day))->fetchField();
-    $total_count = intval($tot_query->tot);
     $output.= ncn_admin_render_payment_table($query, $total_count);
     return $output;
 }
@@ -4205,6 +4205,8 @@ function ncn_admin_ncn_user_ytd_payments($user_id)
 
 function ncn_admin_render_payment_table($query, $total_count)
 {
+    global $base_url;
+
     drupal_add_js(drupal_get_path('module', 'ncn_admin') . '/ncn_admin.js');
     $page = 0;
     if (isset($_REQUEST['page']))
@@ -4217,6 +4219,7 @@ function ncn_admin_render_payment_table($query, $total_count)
     {
         $page = ceil($total_count / $num_per_page) - 1;
     }
+    if ($page < 0) { $page = 0; }
 
     $query.= " ORDER BY timestamp DESC";
     $query.= " LIMIT " . ($page * $num_per_page) . ", $num_per_page";
@@ -4293,7 +4296,7 @@ function ncn_admin_render_payment_table($query, $total_count)
         echo $table_head;
         for ($i = 0; $i < $row_count; $i++)
         {
-            $row = (array)$result;
+            $row = $result->fetchAssoc();;
             $ptype = get_item_from_key($data_type, 'ptype', $row['ptype']);
             if ($row['expedite'] == 1)
             {

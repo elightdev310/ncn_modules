@@ -354,6 +354,8 @@ function ncn_capsulecrm_add_task($member_id, $note) {
  * Set VOS Account field ( user detail page )
  */
 function ncn_capsulecrm_set_user_detail_link($user_id, $member_id=0) {
+global $base_url;
+
 	if ($member_id == 0) {
 		$_user = user_load($user_id);
 		if ($_user && isset($_user->profile_memberid) && $_user->profile_memberid) {
@@ -377,7 +379,7 @@ function ncn_capsulecrm_set_user_detail_link($user_id, $member_id=0) {
 	if (!$party_id) { return FALSE; }
   
 	$cc_custom_fields = ncn_capsulecrm_get_custom_fields($party_id);
-  	$user_url = "http://www.netclaimsnow.com/admin/user/user/detail/".$user_id;
+  	$user_url = $base_url."/admin/config/ncn_create_user/all_user_list/detail/".$user_id;
   
   if ($meta_data = ncn_capsulecrm_get_custom_field_meta_data($cc_custom_fields, 'VOS account')) {
     $data = array(
