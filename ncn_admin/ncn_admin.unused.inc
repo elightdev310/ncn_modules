@@ -256,7 +256,7 @@ function user_add_distributor()
             $result = db_query('INSERT INTO {users_parent} (uid, parent) VALUES(:a,:b)',
                 array(':a'=>$account->uid,':b'=>$_POST['account_manager']));
             
-            unset($_POST);
+            $_POST = array();
             drupal_set_message("Distributor '".$_POST['name']."' added successfully", 'status');
         }
         
@@ -487,7 +487,7 @@ function lead_generation_user()
             }
            
            if ($success1) {
-                unset($_POST);
+                $_POST = array();
                 drupal_set_message("lead generation user added successfully");
             }
             else
@@ -666,7 +666,7 @@ function user_add_associate()
             $query = "INSERT INTO users_parent (uid, parent) VALUES(".$account->uid.", ".$_POST['account_manager'].");";
             $result = db_query($query);
         
-            unset($_POST);
+            $_POST = array();
             drupal_set_message("Associate '".$_POST['name']."' added successfully", 'status');
         }
         
@@ -774,7 +774,7 @@ function user_add_sub_user()
         $parent_mid = $_POST['parent_mid'];
         if ( module_exists('ncn_subuser') ) {
             if (ncn_subuser_create_subuser($parent_mid, $_POST)) {
-                unset($_POST);
+                $_POST = array();
             }
         }
     }

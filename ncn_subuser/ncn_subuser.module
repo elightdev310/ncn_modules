@@ -8,7 +8,7 @@
  * hook_init function
  */
 function ncn_subuser_init() {
-	drupal_add_js(drupal_get_path('module', 'ncn_subuser').'/ncn_subuser.js');
+    drupal_add_js(drupal_get_path('module', 'ncn_subuser').'/ncn_subuser.js');
 }
 
 /**
@@ -28,36 +28,36 @@ function ncn_subuser_permission()
  */
 function ncn_subuser_menu()
 {
-	$item = array();
+    $item = array();
     $item['account/subuser/create_subuser.html'] = array(
-                                                            'title' => 'Claim Sub Users',
-                                                            'page callback' => 'ncn_subuser_create_subuser_page',
-                                                            'access arguments' => array('access content'),
-                                                            'type' => MENU_CALLBACK,
-                                                        );
-	return $item;
+        'title' => 'Claim Sub Users',
+        'page callback' => 'ncn_subuser_create_subuser_page',
+        'access arguments' => array('access content'),
+        'type' => MENU_CALLBACK,
+    );
+    return $item;
 }
 
 function ncn_subuser_has_grant_to_create_subuser($member_id) {
-	
-	$result = db_query('SELECT grant_subuser FROM {member_id_pool} WHERE member_id=:s',array(':s'=>$member_id))->fetchField();
-	if ($result == 0) {
-		return FALSE;
-	}
-	return TRUE;
+    
+    $result = db_query('SELECT grant_subuser FROM {member_id_pool} WHERE member_id=:s',array(':s'=>$member_id))->fetchField();
+    if ($result == 0) {
+        return FALSE;
+    }
+    return TRUE;
 }
 
 function ncn_subuser_grant_creating_subuser($member_id, $grant=1) {
-	
-	$result = db_query('UPDATE {member_id_pool} SET grant_subuser=:a WHERE member_id=:b',
+    
+    $result = db_query('UPDATE {member_id_pool} SET grant_subuser=:a WHERE member_id=:b',
         array(':a'=>$grant,':b'=>$member_id));
-	if ($result) {
-		drupal_set_message( t('Granted ability to create sub users to member.') );
-	} else {
-		drupal_set_message( t('Failed to grant ability to create sub user'), 'error' );
-		return FALSE;
-	}
-	return TRUE;
+    if ($result) {
+        drupal_set_message( t('Granted ability to create sub users to member.') );
+    } else {
+        drupal_set_message( t('Failed to grant ability to create sub user'), 'error' );
+        return FALSE;
+    }
+    return TRUE;
 }
 
 function ncn_subuser_get_parent_member_info($member_id){
@@ -77,16 +77,20 @@ function ncn_subuser_mail($key, &$message, $data)
 {
     $options = array('langcode' => $message['language']->language);
 
-    $params = array(
-        '!firstname' => strip_tags($data['profile_firstname']),
-        '!lastname' => strip_tags($data['profile_lastname']),
-        '!member' => strip_tags($data['member']),
-        '!username' => strip_tags($data['name']),
-        '!password' => strip_tags($data['pass']),
-    );
+    switch ($key) {
+    case 'new_subuser':
+        $params = array(
+            '!firstname' => strip_tags($data['profile_firstname']),
+            '!lastname' => strip_tags($data['profile_lastname']),
+            '!member' => strip_tags($data['member']),
+            '!username' => strip_tags($data['name']),
+            '!password' => strip_tags($data['pass']),
+        );
 
-    $message['subject'] = t(variable_get('ncn_id_to_subuser_subject', ''), $params, $options);
-    $message['body'][] = t(variable_get('ncn_id_to_subuser_body', ''), $params, $options);
+        $message['subject'] = t(variable_get('ncn_id_to_subuser_subject', ''), $params, $options);
+        $message['body'][] = t(variable_get('ncn_id_to_subuser_body', ''), $params, $options);
+        break;
+    }
 }
 
 
@@ -99,28 +103,27 @@ function ncn_subuser_create_subuser($member_id, $data) {
         $is_admin = true;
     }
 
-    //form_set_error('invoice_upload'.$live, 'File missing for upload.');
-	if ($member_id == 0 || empty($member_id) ) {
-		drupal_set_message(t("You haven't grant to create sub user."), 'error');
+    if ($member_id == 0 || empty($member_id) ) {
+        drupal_set_message(t("You haven't grant to create sub user."), 'error');
         if($is_admin){
             return FALSE;
         } else {
             drupal_goto('account/subuser/create_subuser.html');
         }
-	}
-	// error checking
-	$error = false;
-	
-	foreach ($data as $key=>$val)
-	{
-		if (($data[$key] == '') && ($error == false))
-		{
-			drupal_set_message("All fields must be completed.", 'error');
-			$error = true;
-		}
-	}
-	
-	// check valid username & email
+    }
+    // error checking
+    $error = false;
+    
+    foreach ($data as $key=>$val)
+    {
+        if (($data[$key] == '') && ($error == false))
+        {
+            drupal_set_message("All fields must be completed.", 'error');
+            $error = true;
+        }
+    }
+    
+    // check valid username & email
     if ($error == false)
     {
         if (check_existing_username($_POST['name'])) {
@@ -135,60 +138,63 @@ function ncn_subuser_create_subuser($member_id, $data) {
         }
     }
 
-	if ($error == false) {
-		if ($data['parent_mid'] == '') {
-			drupal_set_message("Please select member.", 'error');
-			$error = true;
-		}
-	}
+    if ($error == false) {
+        if ($data['parent_mid'] == '') {
+            drupal_set_message("Please select member.", 'error');
+            $error = true;
+        }
+    }
 
-	// check passwords match		
-	if ($error == false)
-	{
-		if ($data['pass'] != $data['pass2'])
-		{
-			drupal_set_message("Passwords do not match.", 'error');
-			$error = true;
-		}
-	}
-	
-	// add good, so add the associate
-	if ($error == false)
-	{
-		$section1 = $data;
-		
-		unset($section1['pass2']);
-		unset($section1['tfunction']);
-		unset($section1['parent_mid']);
-		$section1['status'] = 1;
-	
-		$password = $section1['pass']; //date('j',date('U')).$_member['first_name'].date('Y', date('U'));
-		$info = array(
-			'pass' => $password, 
-			'init' => $data['mail'], 
-			'roles' => array(USER_ROLE_SUB_USER => USER_ROLE_SUB_USER, 
+    // check passwords match        
+    if ($error == false)
+    {
+        if ($data['pass'] != $data['pass2'])
+        {
+            drupal_set_message("Passwords do not match.", 'error');
+            $error = true;
+        }
+    }
+    
+    // add good, so add the associate
+    if ($error == false)
+    {
+        $section1 = $data;
+        
+        unset($section1['pass2']);
+        unset($section1['tfunction']);
+        unset($section1['parent_mid']);
+        $section1['status'] = 1;
+    
+        $password = $section1['pass']; //date('j',date('U')).$_member['first_name'].date('Y', date('U'));
+        $info = array(
+            'pass' => $password, 
+            'init' => $data['mail'], 
+            'roles' => array(USER_ROLE_SUB_USER => USER_ROLE_SUB_USER, 
                              USER_ROLE_AUTHENTICATE => USER_ROLE_AUTHENTICATE)
-		);
-		$account = user_save('', array_merge($section1, $info));
-		// Terminate if an error occured during user_save().
-		if (!$account) {
-			drupal_set_message(t("Failed to create a sub user."), 'error');
-			$error = true;
-		}
-	}
-	
-	if (!$error) {
-		$sub_uid = $account->uid;
-		// member to sub user
-		$result = db_query('INSERT INTO {member_subuser}(member_id, sub_uid) VALUES(:s, :d)',
+        );
+        
+        // Set Empty Profile Fields.
+        set_empty_profile_fields($section1);
+        $account = user_save('', array_merge($section1, $info));
+        // Terminate if an error occured during user_save().
+        if (!$account) {
+            drupal_set_message(t("Failed to create a sub user."), 'error');
+            $error = true;
+        }
+    }
+    
+    if (!$error) {
+        $sub_uid = $account->uid;
+        // member to sub user
+        $result = db_query('INSERT INTO {member_subuser}(member_id, sub_uid) VALUES(:s, :d)',
             array(':s'=>$member_id,':d'=>$sub_uid));
-		if (!$result) {
-			drupal_set_message( t('Create a sub user, successfully, but failed to assign sub user(user id: !uid) to member. Please report to administrator.', array('!uid'=>$sub_uid)), 'error' );
-			$error = true;
+        if (!$result) {
+            drupal_set_message( t('Create a sub user, successfully, but failed to assign sub user(user id: !uid) to member. Please report to administrator.', array('!uid'=>$sub_uid)), 'error' );
+            $error = true;
             if($is_admin){
-			    return TRUE;
+                return TRUE;
             }
-		} else {
+        } else {
             // send message to new sub-user
             //$data['mail'] = 'nikhil.parmar@keyideasglobal.com';
             if($is_admin){
@@ -209,8 +215,8 @@ function ncn_subuser_create_subuser($member_id, $data) {
             if($is_admin){
                 return TRUE;
             }
-		}
-	}
+        }
+    }
     if($is_admin || $error){
         return FALSE;
     } else {
@@ -219,32 +225,32 @@ function ncn_subuser_create_subuser($member_id, $data) {
 }
 
 function ncn_subuser_user($op, &$edit, &$account, $category = NULL) {
-	if ($op == 'delete') {
-		if (!empty($account->profile_memberid)) {
-			db_query('UPDATE {member_subuser) SET member_id =0 WHERE member_id=:a',array(':a'=>$account->profile_memberid));
-		}
-		db_query('DELETE FROM {member_subuser} WHERE sub_uid=:d',array(':d'=>$account->uid));
-	}
+    if ($op == 'delete') {
+        if (!empty($account->profile_memberid)) {
+            db_query('UPDATE {member_subuser) SET member_id =0 WHERE member_id=:a',array(':a'=>$account->profile_memberid));
+        }
+        db_query('DELETE FROM {member_subuser} WHERE sub_uid=:d',array(':d'=>$account->uid));
+    }
 }
 
 function ncn_subuser_member_dropdown($name, $select_val='') {
-	$output = "<select name='$name'>";
-	$select = '';
-	if ($select_val=='') { $select = 'selected';  }
-	$output .= ("<option value='' $select>"."-Please select-"."</option>");
-	
-	$result = db_query('SELECT * FROM {member_id_pool} WHERE grant_subuser=1 ORDER BY first_name, last_name');
-//	while ($member = db_fetch_array($result))
+    $output = "<select name='$name'>";
+    $select = '';
+    if ($select_val=='') { $select = 'selected';  }
+    $output .= ("<option value='' $select>"."-Please select-"."</option>");
+    
+    $result = db_query('SELECT * FROM {member_id_pool} WHERE grant_subuser=1 ORDER BY first_name, last_name');
+//  while ($member = db_fetch_array($result))
     foreach($result as $member)
     {
         $member = (array)$member;
-		$select = '';
-		if ($member['member_id'] == $select_val) { $select = 'selected'; }
-		$output .= ("<option value='".$member['member_id']."' $select>".$member['first_name']." ".$member['last_name']."</option>");
-	}
-	$output .= "</select>";
-	
-	return $output;
+        $select = '';
+        if ($member['member_id'] == $select_val) { $select = 'selected'; }
+        $output .= ("<option value='".$member['member_id']."' $select>".$member['first_name']." ".$member['last_name']."</option>");
+    }
+    $output .= "</select>";
+    
+    return $output;
 }
 
 function ncn_subuser_theme(){
@@ -276,7 +282,7 @@ function ncn_subuser_create_subuser_page(){
 
     if (isset($_POST['tfunction']) && $_POST['tfunction']=='create-subuser'){
         if (ncn_subuser_create_subuser($user->profile_memberid, $_POST)){
-            unset($_POST);
+            $_POST = array();
         } else {
             $result = $_POST;
         }
@@ -289,198 +295,198 @@ function ncn_subuser_create_subuser_page(){
     $htmloutput = theme('create_subuser',array('result'=>$result));
     /*$formoutput = drupal_get_form('create_subuser_form',$htmloutput);*/
     $output = $htmloutput;
-	return ($output);
+    return ($output);
 }
 
 function ncn_subuser_subuser_list_page() {
     GLOBAL $user;
-	$user = user_load($user->uid);
+    $user = user_load($user->uid);
 
-	if (!$user || !ncn_subuser_has_grant_to_create_subuser($user->profile_memberid)) {
-		$output = t("Access denied.");
-		return $output;
-	}
-		
-	$parent_mid = $user->profile_memberid;
-	drupal_add_css(drupal_get_path('module', 'ncn_message').'/ncn_message.css', 'module', 'all', FALSE);
-	drupal_add_js(drupal_get_path('module', 'ncn_message') . '/ncn_message.js');
-	$page_records = 10;
-			
-	ob_start();
+    if (!$user || !ncn_subuser_has_grant_to_create_subuser($user->profile_memberid)) {
+        $output = t("Access denied.");
+        return $output;
+    }
+        
+    $parent_mid = $user->profile_memberid;
+    drupal_add_css(drupal_get_path('module', 'ncn_message').'/ncn_message.css', 'module', 'all', FALSE);
+    drupal_add_js(drupal_get_path('module', 'ncn_message') . '/ncn_message.js');
+    $page_records = 10;
+            
+    ob_start();
 ?>
 <div id="page_results">
-	<div id="subuser-list" class="claims-detail">
-	<div class="claims-section-wrapper">
-		<div class="clearfix">
-			<div class="title">Sub Users</div>
-			<div class="help"><a href="#">Help</a></div>
-		</div>
-		<div class="clearfix">
-			<div class="clear-block"><div class="ncn-pager-ranger" style="font-weight: bold; margin-bottom:5px;"></div></div>
-			<div class="table-header">
-				<table>
-					<tr class="header">
-						<td class="td-first-name"><strong>First Name</strong></td>
-						<td class="td-last-name"><strong>Last Name</strong></td>
-						<td class="td-company-name"><strong>Company Name</strong></td>
-						<td class="td-contact"><strong>Email</strong></td>
-						<td class="td-address"><strong>Address</strong></td>
-						<td class="td-city"><strong>City</strong></td>
-						<td class="td-state"><strong>State</strong></td>
-						<td class="td-zip"><strong>Zip</strong></td>
-					</tr>
-				</table>
-			</div>
-			<div class="table-body">
-			<?php			
-		//	$query = "SELECT * FROM member_subuser WHERE member_id='$parent_mid'";
-			$result = db_query('SELECT * FROM {member_subuser} WHERE member_id=:a',array(':a'=>$parent_mid));
-			$row_count = $result->rowCount();
-			$page_num = 0;
-			
-			$member_count = 0;
-			//for ($i=0; $i<$row_count; $i++)
-			foreach($result as $row)
-			{
-				$row = (array)$row;
-				$_suser = user_load($row['sub_uid']);
-				if (!$_suser) { continue; }
-			?>
-				<?php if($member_count%$page_records==0) { $page_num++; ?>
-				<table class="ncn-pager ncn-pager-page-<?php echo $page_num; ?>">
-				<?php } ?>
-				<tr>
-					<td class="td-first-name"><?= $_suser->profile_firstname ?></td>
-					<td class="td-last-name"><?= $_suser->profile_lastname ?></td>
-					<td class="td-company-name"><?= $_suser->profile_legalname ?></td>
-					<td class="td-contact"><a href="mailto:<?= $_suser->mail ?>"><?= $_suser->mail ?></a></td>
-					<td class="td-address"><?= $_suser->profile_address ?></td>
-					<td class="td-city"><?= $_suser->profile_city ?></td>
-					<td class="td-state"><?= $_suser->profile_state ?></td>
-					<td class="td-zip"><?= $_suser->profile_zip ?></td>
-				</tr>
-				<?php if($member_count%$page_records==($page_records-1)): ?>
-				</table>
-				<?php endif; ?>
-				<?php
-					$member_count += 1;
-			}
-			if ($member_count == 0)
-				{
-					?>
-					<table class="">
-					<tr>
-						<td colspan="8">No Sub Users</td>
-					</tr>
-					</table>
-					<?php
-				} else if (($member_count%$page_records)!=0) {
-					for($i=$member_count;$i<(ceil($member_count/$page_records)*$page_records);$i++) { 	?>
-						<tr><td colspan="8">&nbsp;</td></tr>
-					<?php }
-					echo "</table>";
-				}			
-			?>
-			
-		</div>
-		<div class="ncn-pager-control clearfix">	<!-- pager_control -->
-			<div style="float: right">
-			<a class="first" href="#" onclick="pm_page_action('first');">first</a>
-			<a class="prev" href="#" onclick="pm_page_action('prev');">prev</a>
-			<a class="next" href="#" onclick="pm_page_action('next');">next</a>
-			<a class="last" href="#" onclick="pm_page_action('last');">last</a>
-			</div>
-		</div>
+    <div id="subuser-list" class="claims-detail">
+    <div class="claims-section-wrapper">
+        <div class="clearfix">
+            <div class="title">Sub Users</div>
+            <div class="help"><a href="#">Help</a></div>
+        </div>
+        <div class="clearfix">
+            <div class="clear-block"><div class="ncn-pager-ranger" style="font-weight: bold; margin-bottom:5px;"></div></div>
+            <div class="table-header">
+                <table>
+                    <tr class="header">
+                        <td class="td-first-name"><strong>First Name</strong></td>
+                        <td class="td-last-name"><strong>Last Name</strong></td>
+                        <td class="td-company-name"><strong>Company Name</strong></td>
+                        <td class="td-contact"><strong>Email</strong></td>
+                        <td class="td-address"><strong>Address</strong></td>
+                        <td class="td-city"><strong>City</strong></td>
+                        <td class="td-state"><strong>State</strong></td>
+                        <td class="td-zip"><strong>Zip</strong></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="table-body">
+            <?php           
+        //  $query = "SELECT * FROM member_subuser WHERE member_id='$parent_mid'";
+            $result = db_query('SELECT * FROM {member_subuser} WHERE member_id=:a',array(':a'=>$parent_mid));
+            $row_count = $result->rowCount();
+            $page_num = 0;
+            
+            $member_count = 0;
+            //for ($i=0; $i<$row_count; $i++)
+            foreach($result as $row)
+            {
+                $row = (array)$row;
+                $_suser = user_load($row['sub_uid']);
+                if (!$_suser) { continue; }
+            ?>
+                <?php if($member_count%$page_records==0) { $page_num++; ?>
+                <table class="ncn-pager ncn-pager-page-<?php echo $page_num; ?>">
+                <?php } ?>
+                <tr>
+                    <td class="td-first-name"><?= $_suser->profile_firstname ?></td>
+                    <td class="td-last-name"><?= $_suser->profile_lastname ?></td>
+                    <td class="td-company-name"><?= $_suser->profile_legalname ?></td>
+                    <td class="td-contact"><a href="mailto:<?= $_suser->mail ?>"><?= $_suser->mail ?></a></td>
+                    <td class="td-address"><?= $_suser->profile_address ?></td>
+                    <td class="td-city"><?= $_suser->profile_city ?></td>
+                    <td class="td-state"><?= $_suser->profile_state ?></td>
+                    <td class="td-zip"><?= $_suser->profile_zip ?></td>
+                </tr>
+                <?php if($member_count%$page_records==($page_records-1)): ?>
+                </table>
+                <?php endif; ?>
+                <?php
+                    $member_count += 1;
+            }
+            if ($member_count == 0)
+                {
+                    ?>
+                    <table class="">
+                    <tr>
+                        <td colspan="8">No Sub Users</td>
+                    </tr>
+                    </table>
+                    <?php
+                } else if (($member_count%$page_records)!=0) {
+                    for($i=$member_count;$i<(ceil($member_count/$page_records)*$page_records);$i++) {   ?>
+                        <tr><td colspan="8">&nbsp;</td></tr>
+                    <?php }
+                    echo "</table>";
+                }           
+            ?>
+            
+        </div>
+        <div class="ncn-pager-control clearfix">    <!-- pager_control -->
+            <div style="float: right">
+            <a class="first" href="#" onclick="pm_page_action('first');">first</a>
+            <a class="prev" href="#" onclick="pm_page_action('prev');">prev</a>
+            <a class="next" href="#" onclick="pm_page_action('next');">next</a>
+            <a class="last" href="#" onclick="pm_page_action('last');">last</a>
+            </div>
+        </div>
 <script type="text/javascript">
-	var total_records = <?php echo $member_count ?>;
-	var page_records = <?php echo $page_records; ?>;
-	var page_number = 1;	//global;
-	var page_count = <?php echo $page_num; ?>;
-	jQuery(document).ready(function(){
-		pm_select_page(page_number);
-		if (total_records<=page_records) {
-			jQuery('.ncn-pager-ranger').css('display', 'none');
-			jQuery('.ncn-pager-control').css('display', 'none');
-		}
-	});
+    var total_records = <?php echo $member_count ?>;
+    var page_records = <?php echo $page_records; ?>;
+    var page_number = 1;    //global;
+    var page_count = <?php echo $page_num; ?>;
+    jQuery(document).ready(function(){
+        pm_select_page(page_number);
+        if (total_records<=page_records) {
+            jQuery('.ncn-pager-ranger').css('display', 'none');
+            jQuery('.ncn-pager-control').css('display', 'none');
+        }
+    });
 </script>
-			</div>
-		</div>
-	</div>
-	</div>
+            </div>
+        </div>
+    </div>
+    </div>
 </div>
 <?php
-	$output = ob_get_contents();
-	ob_end_clean();
-	return $output;
+    $output = ob_get_contents();
+    ob_end_clean();
+    return $output;
 }
 
 function ncn_subuser_prevent_page($page) {
 GLOBAL $user;
-	$allow = true;
-	$user = user_load($user->uid);
-	if (is_subuser($user)) {
-		switch ($page) {
-		case 'account-dashboard':
-			drupal_goto('account/my-active-claims.html');
-			exit;
-		break;
-		case 'out-for-review': case 'archived-claims': case  'messages':
-		case 'rejected-claims': case 'receivables': case 'subuser-create': case 'subuser-list':
-			$allow = false;
-		break;
-		}
-		if (!$allow) {
-			drupal_goto('account');
-			exit;
-		} else {
-			$parent_mid = ncn_subuser_get_memberid_from_subuid($user->uid);
-			if ($parent_mid == '0' || get_uid_from_memberid($parent_mid) == 0) {
-				drupal_set_message(t("You can't work in VOS, because your parent member was removed."), 'error');
-				$allow = false;
-			}
-		}
-	}
-	
-	return $allow;
+    $allow = true;
+    $user = user_load($user->uid);
+    if (is_subuser($user)) {
+        switch ($page) {
+        case 'account-dashboard':
+            drupal_goto('account/my-active-claims.html');
+            exit;
+        break;
+        case 'out-for-review': case 'archived-claims': case  'messages':
+        case 'rejected-claims': case 'receivables': case 'subuser-create': case 'subuser-list':
+            $allow = false;
+        break;
+        }
+        if (!$allow) {
+            drupal_goto('account');
+            exit;
+        } else {
+            $parent_mid = ncn_subuser_get_memberid_from_subuid($user->uid);
+            if ($parent_mid == '0' || get_uid_from_memberid($parent_mid) == 0) {
+                drupal_set_message(t("You can't work in VOS, because your parent member was removed."), 'error');
+                $allow = false;
+            }
+        }
+    }
+    
+    return $allow;
 }
 
 // hook_extended_menu_alter 
 // see extend-menu module
 function ncn_subuser_extended_menu_alter($menu_map) {
-	GLOBAL $user;	
-	$user = user_load($user->uid);
-	if (is_subuser($user)) {
-		ncn_subsuer_menu_remove($menu_map, 'Home');
-		ncn_subsuer_menu_remove($menu_map, 'Out for Review');
-		ncn_subsuer_menu_remove($menu_map, 'Archived Claims');
-		ncn_subsuer_menu_remove($menu_map, 'Messages');
-		ncn_subsuer_menu_remove($menu_map, 'Receivables');
-		ncn_subsuer_menu_remove($menu_map, 'Sub Users');
-	} else if(isset($user->profile_memberid) && is_member($user->profile_memberid) && !ncn_subuser_has_grant_to_create_subuser($user->profile_memberid)) {
-		ncn_subsuer_menu_remove($menu_map, 'Sub Users');
-	}
-	return $menu_map;
+    GLOBAL $user;   
+    $user = user_load($user->uid);
+    if (is_subuser($user)) {
+        ncn_subsuer_menu_remove($menu_map, 'Home');
+        ncn_subsuer_menu_remove($menu_map, 'Out for Review');
+        ncn_subsuer_menu_remove($menu_map, 'Archived Claims');
+        ncn_subsuer_menu_remove($menu_map, 'Messages');
+        ncn_subsuer_menu_remove($menu_map, 'Receivables');
+        ncn_subsuer_menu_remove($menu_map, 'Sub Users');
+    } else if(isset($user->profile_memberid) && is_member($user->profile_memberid) && !ncn_subuser_has_grant_to_create_subuser($user->profile_memberid)) {
+        ncn_subsuer_menu_remove($menu_map, 'Sub Users');
+    }
+    return $menu_map;
 }
 
 function ncn_subsuer_menu_remove(&$menu_map, $title) {
-	foreach ($menu_map as $menu_id=>&$menu_item) {
-		if ($menu_item->title == $title) {
-			unset($menu_map[$menu_id]);
-			break;
-		} else if (isset($menu_item->sublinks)) {
-			ncn_subsuer_menu_remove($menu_item->sublinks, $title);
-		}
-	}
+    foreach ($menu_map as $menu_id=>&$menu_item) {
+        if ($menu_item->title == $title) {
+            unset($menu_map[$menu_id]);
+            break;
+        } else if (isset($menu_item->sublinks)) {
+            ncn_subsuer_menu_remove($menu_item->sublinks, $title);
+        }
+    }
 }
 /*****************************************************************************/
-/*				Support API													 */
+/*              Support API                                                  */
 /*****************************************************************************/
 
 function ncn_subuser_get_memberid_from_subuid($suid) {
-	$result = db_query('SELECT member_id FROM {member_subuser} WHERE sub_uid=:d',array(':d'=>$suid))->fetchField();
-	if ($result == '') {
-		$result = '0';
-	}
-	return $result;
+    $result = db_query('SELECT member_id FROM {member_subuser} WHERE sub_uid=:d',array(':d'=>$suid))->fetchField();
+    if ($result == '') {
+        $result = '0';
+    }
+    return $result;
 }

@@ -553,8 +553,7 @@ function ncn_dist_create_member_action(&$create_step) {
             if (module_exists('ncn_capsulecrm')) {
                 ncn_capsulecrm_create_member($member_id);
             }
-            $_POST = array();
-            // unset($_POST); // clear the form
+            $_POST = array(); // clear the form
         } // END add member
     } else {
         // duplicate member id

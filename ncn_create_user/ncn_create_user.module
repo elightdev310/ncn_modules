@@ -1589,6 +1589,7 @@ function create_distributor()
                                  USER_ROLE_AUTHENTICATE => USER_ROLE_AUTHENTICATE)
             );
 
+            set_empty_profile_fields($section1);
             $account = user_save('', array_merge($section1, $section2));
 
             // Terminate if an error occured during user_save().
@@ -1711,7 +1712,8 @@ function create_associate()
                                  USER_ROLE_AUTHENTICATE => USER_ROLE_AUTHENTICATE)
             );
 
-
+            // Set Empty Profile Fields.
+            set_empty_profile_fields($section1);
             $account = user_save('', array_merge($section1, $section2));
             $category = 'account';
          //   var_dump($account);
@@ -1874,7 +1876,7 @@ function create_lead_generation_user()
                 }
 
                 $success1 = db_query("INSERT INTO {users_lead} (`lead_id`,`user_id`,`distributor_id`,`company_name`,`firstname`,`lastname`) VALUES ($lead_id,$user_id,0,$company_name,$firstname,$lastname)");
-                $success2 = db_query("INSERT INTO {users_roles} (`uid`,`rid`) VALUES ($user_id, USER_ROLE_LEADUSER)");
+                $success2 = db_query("INSERT INTO {users_roles} (`uid`,`rid`) VALUES ($user_id, ".USER_ROLE_LEADUSER.")");
             }
             else
             {
@@ -1967,7 +1969,8 @@ function create_account_manager()
                 'roles' => array($_POST['user_role'] => $_POST['user_role'], 
                                  USER_ROLE_AUTHENTICATE => USER_ROLE_AUTHENTICATE)
             );
-
+            // Set Empty Profile Fields.
+            set_empty_profile_fields($section1);
             $account = user_save('', array_merge($section1, $section2));
 
             // Terminate if an error occured during user_save().
@@ -2160,4 +2163,16 @@ function get_member_password($member_id, $firstname) {
     drupal_set_message( t('Member(!member_id) has a problem. Please contact web master about this.'), array('!member_id'=>$member_id) );
     watchdog('user_mail', t('Member(!member_id) has a problem. Please contact web master about this.'), array('!member_id'=>$member_id) );
     return '';
+}
+
+function set_empty_profile_fields(&$section1) {
+    $profile_fields = _profile_get_fields('', TRUE);
+    foreach ($profile_fields as $field) {
+        if (!isset($section1[$field->name])) {
+            $section1[$field->name] = '';
+        }
+        if (_profile_field_serialize($field->type)) {
+            $section1[$field->name] = serialize($section1[$field->name]);
+        }
+    }
 }

@@ -594,7 +594,6 @@ function ncn_asso_create_member_action(&$create_step)
                 ncn_capsulecrm_create_member($member_id);
             }
             $_POST = array();
-            //unset($_POST); // clear the form
         } // END add member
 
     } // duplicate member id
