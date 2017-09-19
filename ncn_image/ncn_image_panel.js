@@ -26,11 +26,6 @@ jQuery(document).ready(function() {
                 alert('Error: It is failed to submit Image Action');
             },
             success: function(response) {
-                if (jcrop_api && b_jcrop_api) {
-                    jcrop_api.destroy();
-                    b_jcrop_api = false;
-                }
-
                 eval("var json=" + response + ";");
                 jQuery('#ncn_image_box .image_screen img').attr('src', Drupal.settings.basePath+json.image_path+'?rid=' + Math.random());
                 if (json.success == "success") {
@@ -44,7 +39,8 @@ jQuery(document).ready(function() {
                 else {
                     alert('Please input parameter fields, correctly.');
                 }
-                initJcrop();
+                
+                onchange_img_action();
             }   // END OF SUCESS FUNCTION
         });
         return;
