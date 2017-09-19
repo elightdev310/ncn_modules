@@ -18,6 +18,21 @@ require_once('ncn_admin.note.inc');
 
 require_once('ncn_admin.unused.inc');
 
+function ncn_admin_init()
+{
+    drupal_add_library('system', 'jquery.form');
+    drupal_add_library('system', 'ui.datepicker');
+    drupal_add_library('system', 'ui.widget');
+
+    drupal_add_js(drupal_get_path('module', 'ncn_admin') . '/js_plugins/jquery.maskedinput.min.js');    // 1.4.1
+    drupal_add_js(drupal_get_path('module', 'ncn_admin') . '/js_plugins/jquery.tinyscrollbar.js');      // 1.8
+
+    // JCrop 2.x
+    drupal_add_js (drupal_get_path('module', 'ncn_admin').'/js_plugins/Jcrop/js/Jcrop.min.js');
+    drupal_add_css(drupal_get_path('module', 'ncn_admin').'/js_plugins/Jcrop/css/Jcrop.min.css', 'module', 'all', FALSE);
+    
+}
+
 function ncn_admin_menu()
 {
 

@@ -298,7 +298,7 @@ function ncn_create_claim_roomtab()
 function template_preprocess_ncn_add_room(&$vars)
 {
     drupal_add_css(drupal_get_path('module', 'ncn_create_claim') . '/tabs/tabs.css');
-    drupal_add_js(drupal_get_path('module', 'ncn_create_claim') . '/tabs/ajax-upload.js');
+    // drupal_add_js(drupal_get_path('module', 'ncn_create_claim') . '/tabs/ajax-upload.js');
     drupal_add_js(drupal_get_path('module', 'ncn_create_claim') . '/tabs/tabs.js');
 }
 

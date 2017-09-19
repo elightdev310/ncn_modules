@@ -898,8 +898,8 @@ function ncn_admin_view_claim($claim_id)
                                     $in_url .= "width=".$win_width."&height=".$win_height;
 
                                     if ($pvc_photo_album_disabled != 'disabled') {
-//                                      $res .= "<a onclick=\"open_image_box('".$GLOBALS['base_url']."', $claim_id, '$roomname', '$img_index', '".urlencode($img['path'])."')\" >";
-                                        $res .= "<a class='colorbox-node' href='{$in_url}'  >";
+                                        $res .= "<a onclick=\"open_image_box('".$GLOBALS['base_url']."', $claim_id, '$roomname', '$img_index', '".urlencode($img['path'])."')\" >";
+                                        //$res .= "<a class='colorbox-node' href='{$in_url}'  >";
                                     }
                                     
                                     if(strpos($image_url,"public://")!==false){
@@ -928,8 +928,8 @@ function ncn_admin_view_claim($claim_id)
                                     $in_url .= "width=".$win_width."&height=".$win_height;
 
                                     if ($pvc_photo_album_disabled != 'disabled') {
-//                                      $res .= "<a onclick=\"open_image_box('".$GLOBALS['base_url']."', $claim_id, '$roomname', '$img_index', '')\" >";
-                                        $res .= "<a class='colorbox-node' href='{$in_url}'  >";
+                                        $res .= "<a onclick=\"open_image_box('".$GLOBALS['base_url']."', $claim_id, '$roomname', '$img_index', '')\" >";
+                                        //$res .= "<a class='colorbox-node' href='{$in_url}'  >";
                                     }
                                     $res .= '<img src="'.$image_url.'" width="200px"/>';
                                     if ($pvc_photo_album_disabled != 'disabled') {
@@ -1730,7 +1730,7 @@ GLOBAL $base_url;
                         $row = $result->fetchAssoc();
                         ?>              
                         <tr class="<?php if ($i%2) print "even"; else print "odd"; ?>">
-                            <td><img src="<?php echo base_path() ?>/sites/all/modules/ncn_claims_manager/images/pdf_icon_16.gif" width="16" height="16" align="left" />&nbsp;<a href="<?= $base_url; ?>/account/serve_scope_file/<?= $claim_id; ?>/<?= $row['roomname']; ?>"><?= StripSlashes($row['filename']); ?></a></td>
+                            <td><img src="<?php echo $base_url ?>/sites/all/modules/ncn_claims_manager/images/pdf_icon_16.gif" width="16" height="16" align="left" />&nbsp;<a href="<?= $base_url; ?>/account/serve_scope_file/<?= $claim_id; ?>/<?= $row['roomname']; ?>"><?= StripSlashes($row['filename']); ?></a></td>
                             <td><?= date("m/d/Y H:i:s", $row['timestamp']); ?></td>
                             <td>
                                 <?php if ($pvc_disabled != 'disabled'): ?>

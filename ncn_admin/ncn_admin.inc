@@ -2456,8 +2456,7 @@ function ncn_admin_settings_form_submit($form, &$form_state)
 function ncn_admin_viewclaim_scopefile_crop($claim_id, $room_name)
 {
     $filepath = base64_decode(arg(7));
-    drupal_add_js(drupal_get_path('module', 'ncn_image') . '/jquery.Jcrop.js');
-    drupal_add_css(drupal_get_path('module', 'ncn_image') . '/jquery.Jcrop.css', 'module', 'all', FALSE);
+
     if (isset($_POST['tfunction']) && $_POST['tfunction'] == 'viewclaim_scopefile_crop')
     {
         $dest_file['filepath'] = substr($filepath, 0, -4) . "_cut.jpg";
@@ -2897,7 +2896,7 @@ function ncn_admin_upload_member_logo($member_id)
     $source = 'member_logo';
     //$file = file_save_upload($source);
     $file = file_save_upload($source, array(), 'public://member_logo/'.$member_id, FILE_EXISTS_RENAME);
-    if ($file === false)
+    if (!$file)
     {
         drupal_set_message("Logo file of missing for upload ", "error");
         return FALSE;

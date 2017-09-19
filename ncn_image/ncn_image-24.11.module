@@ -241,6 +241,7 @@ function _ncn_image_api($action, $params) {
 		
 		//imageapi_image_close($image, $params['dest']);
 		image_save($image, $params['dest']);
+
 		if (isset($_SESSION['ncn_img_tmp']['history'])) {
 			$_SESSION['ncn_img_tmp']['history'] = $_SESSION['ncn_img_tmp']['history']+1;
 		}

@@ -1,6 +1,6 @@
 function open_image_box(base_path, claim_id, room_name, img_position, img_url) {
 
-    var win_width="800px";
+    var win_width="820px";
     var win_height="620px";
     var in_url = base_path+"/admin/config/ncn_image_open/?";
     if (img_url != "") {
@@ -9,7 +9,6 @@ function open_image_box(base_path, claim_id, room_name, img_position, img_url) {
     }
     in_url = in_url+"claim_id="+claim_id+"&room_name="+encodeURIComponent(room_name) + "&position="+img_position;
 
-    //alert(in_url);
     jQuery.colorbox({ width:win_width, height:win_height,
         href:in_url, open:true, iframe:true,
         onClosed:function(){

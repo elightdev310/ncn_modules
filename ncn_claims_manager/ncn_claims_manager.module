@@ -26,9 +26,7 @@ require_once('associate/ncn_associate.inc');
  */
 function ncn_claims_manager_init()
 {
-    drupal_add_js(drupal_get_path('module', 'ncn_claims_manager') . '/jquery.tinyscrollbar.js');
     drupal_add_js(drupal_get_path('module', 'ncn_claims_manager') . '/ncn_claims_manager.js');
-    drupal_add_js(drupal_get_path('module', 'ncn_claims_manager') . '/jquery.maskedinput-1.2.2.js');
 }
 
 /**

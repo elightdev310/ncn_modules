@@ -12,15 +12,9 @@ _capsule_include('helpers', 'util', 'party', 'opportunity', 'task', 'case', 'use
 /**
  * Implementation of hook_permission().
  */
-function capsule_permission() {
-  return array(
-    'administer capsule module' => array(
-      'title' => t('Administer capsule module'),
-      'description' => t('Perform administration tasks for my module.'),
-    )
-  );
+function capsule_perm() {
+  return array('administer capsule module');
 }
-
 /**
  * Implementation of hook_menu().
  */
@@ -39,7 +33,7 @@ function capsule_menu() {
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => -50,
   );
-  
+
 // TODO Not ready for prime time
 //  $items['admin/config/capsule/api'] = array(
 //    'title'            => 'API Functions',

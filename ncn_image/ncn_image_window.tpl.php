@@ -138,30 +138,3 @@
 	<?php endif; ?>
 </div>
 </fieldset>
-<script language="Javascript">
-
-	// Remember to invoke within jQuery(window).load(...)
-	// If you don't, Jcrop may not initialize properly
-	jQuery(window).load(function(){
-	//jQuery(document).ready(function(){
-	
-		/*jQuery('#cropbox').Jcrop({
-			onChange: showCoords,
-			onSelect: showCoords
-		});*/
-
-	});
-
-	// Our simple event handler, called from onChange and onSelect
-	// event handlers, as per the Jcrop invocation above
-	function showCoords(c)
-	{
-		jQuery('#crop_xoffset').val(c.x);
-		jQuery('#crop_yoffset').val(c.y);
-		//jQuery('#x2').val(c.x2);
-		//jQuery('#y2').val(c.y2);
-		jQuery('#crop_width').val(c.w);
-		jQuery('#crop_height').val(c.h);
-	};
-
-</script>
