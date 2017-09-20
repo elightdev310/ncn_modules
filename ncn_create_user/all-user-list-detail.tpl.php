@@ -141,7 +141,7 @@ $profile_user_5 = array(
     'profile_companytype'			=> array('title'=>t('Type of Entity'),'value'=>$_user->profile_companytype),
     'profile_legalname'				=> array('title'=>t('Company\'s legal name'),'value'=>$_user->profile_legalname),
     'profile_jobspermonth'			=> array('title'=>t('Estimated number of water damages jobs you do a month'),'value'=>$_user->profile_jobspermonth),
-    'profile_question_service'		=> array('title'=>t('What kind of restoration services do you provide'),'value'=>trim((isset($_user->profile_question_service)?:$_user->profile_question_service:''), ",")),
+    'profile_question_service'		=> array('title'=>t('What kind of restoration services do you provide'),'value'=>trim((isset($_user->profile_question_service)?$_user->profile_question_service:''), ",")),
     );
     ?>
     <div class="user_detail_profile clearfix">
