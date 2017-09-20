@@ -350,7 +350,7 @@ function create_claim_page2_submit()
     }
 
     $claim_id = $_SESSION['claim']['id'];
-    $claim_desc = $_SESSION['claim']['customer_name']['val'] . ", " . $_SESSION['claim']['property_zip']['val'];
+    $claim_desc = $_SESSION['claim']['customer_name']['val'] . ", " . $_SESSION['claim']['insured_zip']['val'];
 
     $url = $GLOBALS['base_url'] . "/cart/add/e-p" . $_SESSION['product_id'] . "_q1_m" . $claim_id . "_a1o" . $claim_id . "_a2o" . $claim_desc . "?destination=cart/checkout";
 

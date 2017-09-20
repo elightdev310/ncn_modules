@@ -1309,7 +1309,7 @@ function ncn_admin_scopeform_submit($roomname) {
     
     $file = file_save_upload($source);
     
-    if ($file == 0 ) {
+    if (!$file) {
         drupal_set_message("File of missing for upload (room name :$roomname)", "error");
         return;
     } else if ($file->filemime != 'image/jpeg' && $file->filemime != 'image/jpg' && $file->filemime != 'image/gif' && $file->filemime != 'image/png' && strtolower(substr($file->filename, -4)) != ".bmp") {
@@ -1497,7 +1497,7 @@ function ncn_admin_scopeform_full_pdf_submit($claim_id, $roomname) {
     $json_data = array();
     $json_data['error'] = '';
     
-    if ($file == 0 ) {
+    if (!$file) {
         //drupal_set_message("File of missing for upload (room name :$roomname)", "error");
         $json_data['error'] = "File of missing for upload (room name :$roomname)";
         //return;

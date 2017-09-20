@@ -401,7 +401,7 @@ function splash_file_upload() {
 	$source = 'splash_image';
 	//$file = file_save_upload($source);
 	$file = file_save_upload($source, array(), 'public://splash', FILE_EXISTS_RENAME);
-	if ($file == 0 ) {
+	if (!$file) {
 		$error = "Missing of file for upload.";
 	} else if ($file->filemime != 'image/jpeg' && $file->filemime != 'image/jpg' && $file->filemime != 'image/gif' && $file->filemime != 'image/png' && strtolower(substr($file->filename, -4)) != ".bmp") {
 		$error = "You need to upload image file.";

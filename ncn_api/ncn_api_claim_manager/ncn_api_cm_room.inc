@@ -523,7 +523,7 @@ function ncn_api_cm_room_claim_room_photo_upload($claim_id, $room_name)
 				
 				$source = 'image';
 				$file = file_save_upload($source, array(), "public://user_files/$claim_id", FILE_EXISTS_RENAME);
-				if ($file == 0)
+				if (!$file)
 				{
 					$op_cr_photo_upload['error']['fail_save_image']['message'] = t("Failed to upload image data to file.");
 				}

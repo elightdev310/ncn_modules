@@ -136,10 +136,14 @@ function ncn_create_claim_help($section)
 //------------------------------------------------------------------------------
 function ncn_save_session_var($P_DATA, $item_name, $weight = -1)
 {
-    if (!is_array($P_DATA[$item_name])) {
-        $val = trim((string)$P_DATA[$item_name]);
+    if (isset($P_DATA[$item_name])) {
+        if (!is_array($P_DATA[$item_name])) {
+            $val = trim((string)$P_DATA[$item_name]);
+        } else {
+            $val = $P_DATA[$item_name];
+        }
     } else {
-        $val = $P_DATA[$item_name];
+        $val = '';
     }
 
     $_SESSION['claim'][$item_name] = array(

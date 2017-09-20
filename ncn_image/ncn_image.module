@@ -440,7 +440,7 @@ function ncn_upload_changed_image() {
     $source = 'ncn_photo';
     $file = file_save_upload($source);
     
-    if ($file == 0 ) {
+    if (!$file) {
         $result['flag'] = 'error1';
         $result['msg']  = t('Missing of file for upload.');
     } else if ($file->filemime != 'image/jpeg' && $file->filemime != 'image/jpg' && $file->filemime != 'image/gif' && $file->filemime != 'image/png' && strtolower(substr($file->filename, -4)) != ".bmp") {

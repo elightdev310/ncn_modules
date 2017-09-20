@@ -782,8 +782,10 @@ function _user_forms(&$edit, $account, $category, $hook = 'form') {
             $groups['Company Information']['profile_officephone']['#value'] = $row['officephone'];
             $groups['Company Information']['profile_officephone']['#attributes'] = array('readonly' => 'readonly', 'style' => 'background-color:#EBEBE4;');;
 
-            $groups['Company Information']['profile_mobilephone']['#default_value'] = $row['mobilephone'];
-            $groups['Company Information']['profile_mobilephone']['#value'] = $row['mobilephone'];
+            if ($row['mobilephone']) {
+                $groups['Company Information']['profile_mobilephone']['#default_value'] = $row['mobilephone'];
+                $groups['Company Information']['profile_mobilephone']['#value'] = $row['mobilephone'];
+            }
             //$groups['Company Information']['profile_mobilephone']['#attributes'] = array('readonly' => 'readonly', 'style' => 'background-color:#EBEBE4;');;
 
             $groups['Company Information']['profile_contactemail']['#default_value'] = $row['contactemail'];
@@ -1095,7 +1097,7 @@ function register_user_save($account, $array = array(), $category = 'account') {
         watchdog('user-trace', $array['pass'], array());
         //$success = db_query('INSERT INTO {users} ('. implode(', ', $fields) .') VALUES ('. implode(', ', $values) .')');
         $usersaveArray = array_combine($fields,$values);
-        $success = user_save('', $usersaveArray);
+        $success = user_save('', array_merge($array, $usersaveArray));
 
         if (!$success) {
             // On a failed INSERT some other existing user's uid may be returned.
@@ -1140,7 +1142,8 @@ function register_user_save($account, $array = array(), $category = 'account') {
         }
 
         // Build the finished user object.
-        $user = user_load(array('uid' => $array['uid']));
+        drupal_set_message('User ID: '. $array['uid'] . ' - ' . $user->uid);
+        
     }
 
     // Save distributed authentication mappings.

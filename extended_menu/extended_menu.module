@@ -200,9 +200,9 @@ function _extended_menu_top2levels_traverser($menu_name = 'primary links', $rese
 	{
 		$top_link_ids[] = $row->mlid;
 		$menu_map[$row->mlid] = (object)array(
-			'title' => t($row->link_title) ,
+			'title' => t($row->link_title),
 			'href' => $row->link_path,
-			'sublinks' => array() ,
+			'sublinks' => array(),
 		);
 		$orderno++;
 	}

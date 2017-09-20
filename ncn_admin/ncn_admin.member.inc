@@ -1127,6 +1127,7 @@ function user_extra_profile_form_submit($form, $form_state) {
     //print_r($newinfo); exit;
 
     $edit = (array)$newinfo;
+    set_empty_profile_fields($edit);
     profile_save_profile($edit, $account, 'Company Information');
     profile_save_profile($edit, $account, 'Operations Information');
     profile_save_profile($edit, $account, 'Principal Owners');
