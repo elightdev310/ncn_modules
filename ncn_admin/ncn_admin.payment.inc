@@ -297,10 +297,10 @@ function draw_select_filter_expedite($name, $select_val, $attributes) {
 */
 function ncn_admin_payment_download_transaction() {
   $transactions = ncn_admin_payment_get_downloadable_transactions('all');
-  $report_name = "transaction";
   
   require_once 'sites/all/libraries/php_xls/Classes/PHPExcel.php';
   
+  $report_name = "transaction.xls";
   $demo_file = "transaction.xls";
   $objReader = PHPExcel_IOFactory::createReader("Excel5");
   $objPHPExcel = $objReader->load($demo_file);
@@ -351,7 +351,7 @@ function ncn_admin_payment_download_transaction() {
 function ncn_admin_payment_get_downloadable_transactions($mode) {
   $data = array();
   
-  $query = "SELECT * FROM {payment_log} WHERE status=1";
+  $query = "SELECT * FROM {payment_log} WHERE status=1 AND timestamp>".strtotime('-1 year');
   $where = '';
   
   $query .= $where;

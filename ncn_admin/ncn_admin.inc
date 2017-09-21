@@ -1843,6 +1843,7 @@ function ncn_admin_download_user_list()
 {
     require_once 'sites/all/libraries/php_xls/Classes/PHPExcel.php';
 
+    $report_name = "user_list.xls";
     $demo_file = "user_list.xls";
     $objReader = PHPExcel_IOFactory::createReader("Excel5");
     $objPHPExcel = $objReader->load($demo_file);
@@ -4359,9 +4360,9 @@ function ncn_admin_render_payment_table($query, $total_count)
 function ncn_admin_download_claim_list()
 {
     $claim_list = ncn_admin_get_downloadable_claim_list('all');
-    $report_name = "Claims";
     require_once 'sites/all/libraries/php_xls/Classes/PHPExcel.php';
 
+    $report_name = "claims.xls";
     $demo_file = "claims.xls";
     $objReader = PHPExcel_IOFactory::createReader("Excel5");
     $objPHPExcel = $objReader->load($demo_file);
@@ -4414,7 +4415,7 @@ function ncn_admin_get_downloadable_claim_list($mode)
 {
     $data = array();
     $query = "SELECT * FROM {claims}";
-    $where = " WHERE claim_status != 'unpurchased' AND deleted=0";
+    $where = " WHERE claim_status != 'unpurchased' AND deleted=0 AND created>".strtotime('-1 year');
     $query.= $where;
     $query.= " ORDER BY last_modified DESC";
     $result = db_query($query);
