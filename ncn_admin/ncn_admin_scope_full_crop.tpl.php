@@ -47,7 +47,7 @@
 
 	// Remember to invoke within jQuery(window).load(...)
 	// If you don't, Jcrop may not initialize properly
-	$(window).load(function(){
+	jQuery(window).load(function(){
 	//jQuery(document).ready(function(){
 	
 		jQuery('#cropbox').Jcrop({

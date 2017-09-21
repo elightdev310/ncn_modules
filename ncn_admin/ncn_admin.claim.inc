@@ -1391,7 +1391,7 @@ function ncn_admin_auto_scopeform_full_pdf_submit($claim_id, $roomname) {
     $source = 'ncn_scope_auto_pdf_file_'.$roomname;
     
     $file = file_save_upload($source);
-    
+
     $json_data = array();
     $json_data['error'] = '';
     $json_data['roomname'] = $source;
@@ -1414,19 +1414,21 @@ function ncn_admin_auto_scopeform_full_pdf_submit($claim_id, $roomname) {
     }
 
     $res = file_copy($file, "public://invoices/{$claim_id}", FILE_EXISTS_RENAME);
+    file_delete($file);
 
     $dest_file['uri'] = $res->uri;
     $dest_file['filename'] = $res->filename;
     
     $img_file = convert_pdf_to_jpg($res, $claim_dir);
+
     if ($img_file == FALSE) {
         drupal_set_message(t("Failed to convert PDF to Image, after uploading scope pdf file(room name :!roomname)", array('!roomname'=>$roomname)), "error");
         return;
     } else {
-    
         // Croping converted image
-        $dest_file['uri'] .= "_cut.jpg";
-        $dest_file['filename'] .= "_cut.jpg";
+        $ts = date('U');
+        $dest_file['uri'] .= "_cut_".$ts.".jpg";
+        $dest_file['filename'] .= "_cut_".$ts.".jpg";
         $dest_file['filemime'] = "image/jpg";
         
         
@@ -1517,10 +1519,11 @@ function ncn_admin_scopeform_full_pdf_submit($claim_id, $roomname) {
     }
 
     $res = file_copy($file, "public://invoices/{$claim_id}", FILE_EXISTS_RENAME);
-
-    $dest_file['uri'] = drupal_realpath($res->uri);
-    $dest_file['filename'] = $res->filename;
+    file_delete($file);
     
+    $dest_file['uri'] = $res->uri;
+    $dest_file['filename'] = $res->filename;
+
     $img_file = convert_pdf_to_jpg($res, $claim_dir);
     if ($img_file == FALSE) {
         //drupal_set_message(t("Failed to convert PDF to Image, after uploading scope pdf file(room name :!roomname)", array('!roomname'=>$roomname)), "error");
@@ -1529,8 +1532,9 @@ function ncn_admin_scopeform_full_pdf_submit($claim_id, $roomname) {
     } else {
     
         // Scaling converted image
-        $dest_file['uri'] .= "_scope.jpg";
-        $dest_file['filename'] .= "_scope.jpg";
+        $ts = date('U');
+        $dest_file['uri'] .= "_scope_".$ts.".jpg";
+        $dest_file['filename'] .= "_scope_".$ts.".jpg";
         $dest_file['filemime'] = "image/jpg";
         
         
@@ -1547,15 +1551,10 @@ function ncn_admin_scopeform_full_pdf_submit($claim_id, $roomname) {
         $bAction = _ncn_image_api('scale', $api_params);
         @unlink(drupal_realpath($img_file->uri));
         if ($bAction) {
-            // get last revision
-
-            //drupal_set_message('File "'.$dest_file['filename'].'" was generated (roomname: '.$roomname.').', 'status');
-            $json_data['filepath'] = base64_encode(drupal_realpath($dest_file['uri']));
+            $json_data['filepath'] = str_replace('public://', 'sites/default/files/', $dest_file['uri']);
+            $json_data['filepath'] = base64_encode($json_data['filepath']);
         } else {
-            //drupal_set_message(t("Failed to crop image, after uploading scope pdf file and converting to image (room name :!roomname)", array('!roomname'=>$roomname)), "error");
             $json_data['error'] = "Failed to crop image, after uploading scope pdf file and converting to image (room name :$roomname)";
-            //return;
-            
         }
     }
     }
@@ -2198,7 +2197,7 @@ function ncn_admin_delete_claim($claim_id) {
 }
 
 function ncn_admin_delete_scope_file() {
-GLOBAL $user;
+GLOBAL $user, $base_url;
 
     // get the user id for this claim
     $claim_id = arg(2);
@@ -2226,7 +2225,7 @@ GLOBAL $user;
     }   
     // bounce back to claim
     
-    header("Location:".base_path()."/admin/config/ncn_admin/viewclaim/".$claim_id."?current_scroll_position=".$scroll_position);
+    header("Location:".$base_url.base_path()."admin/config/ncn_admin/viewclaim/".$claim_id."?current_scroll_position=".$scroll_position);
     
     exit;
 }

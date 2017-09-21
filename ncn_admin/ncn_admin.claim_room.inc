@@ -210,6 +210,7 @@ function convert_pdf_to_jpg($file, $dir_url) {
     $file->filename .=".jpg";
     $file->filemime = "image/jpg";
     $file->filepath = str_replace("public://", "sites/default/files/", $file->uri);
+
     if (!is_file("$dir_url/$jpg_prefix"."1.jpg")){
     
     if (is_file("$dir_url/$jpg_prefix".".jpg")){
@@ -224,12 +225,12 @@ function convert_pdf_to_jpg($file, $dir_url) {
     }
     
     if (is_file("$dir_url/$jpg_prefix".".jpg")){
-        file_delete("$dir_url/$jpg_prefix".".jpg");
+        @unlink("$dir_url/$jpg_prefix".".jpg");
     }
     
     for ($i=1; $i<300; $i++) {
         if (is_file("$dir_url/$jpg_prefix"."$i.jpg")){
-            file_delete("$dir_url/$jpg_prefix"."$i.jpg");
+            @unlink("$dir_url/$jpg_prefix"."$i.jpg");
         } else {
             break;
         }

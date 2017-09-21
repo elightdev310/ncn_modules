@@ -2459,7 +2459,9 @@ function ncn_admin_viewclaim_scopefile_crop($claim_id, $room_name)
 
     if (isset($_POST['tfunction']) && $_POST['tfunction'] == 'viewclaim_scopefile_crop')
     {
-        $dest_file['filepath'] = substr($filepath, 0, -4) . "_cut.jpg";
+        $ts = date('U');
+
+        $dest_file['filepath'] = substr($filepath, 0, -4) . "_cut_".$ts.".jpg";
         $dest_file['filename'] = basename($dest_file['filepath']);
         $dest_file['filemime'] = "image/jpg";
         $api_params = array(
@@ -2490,14 +2492,13 @@ function ncn_admin_viewclaim_scopefile_crop($claim_id, $room_name)
             }
             else
             {
-
-                // $row = (array)$result;
+                $row = $result->fetchAssoc();
                 // $revision = $row['revision']+1;
-
                 $revision = 0;
+
                 file_delete($row['filepath']);
             //  $query = "UPDATE claims_scope SET filename=\"" . AddSlashes($dest_file['filename']) . "\", filepath=\"" . AddSlashes($dest_file['filepath']) . "\", filemime=\"" . AddSlashes($dest_file['filemime']) . "\", timestamp=" . date('U') . " WHERE claim_id=$claim_id AND roomname=\"" . $room_name . "\"";
-                $query = db_query('UPDATE {claims_scope} SET filename=:a filepath=:b filemime=:c timestamp=:d WHERE claim_id=:e AND roomname=:f',
+                $query = db_query('UPDATE {claims_scope} SET filename=:a, filepath=:b, filemime=:c, `timestamp`=:d WHERE claim_id=:e AND roomname=:f',
                     array(':a'=>$dest_file['filename'],':b'=>$dest_file['filepath'],':c'=>$dest_file['filemime'],':d'=>date('U'),':e'=>$claim_id,':f'=>$room_name));
             }
 
@@ -2515,10 +2516,8 @@ function ncn_admin_viewclaim_scopefile_crop($claim_id, $room_name)
 
             <script>
 
-            $(window).load(function(){
-
-                parent.$.colorbox.close();
-
+            jQuery(document).ready(function(){
+                parent.location.reload(true);
             });
 
             </script>";
@@ -2526,7 +2525,10 @@ function ncn_admin_viewclaim_scopefile_crop($claim_id, $room_name)
     }
     else
     {
-        return theme('ncn_admin_scope_full_crop', $claim_id, $room_name, $filepath);
+        return theme('ncn_admin_scope_full_crop', 
+                     array( 'claim_id'  => $claim_id, 
+                            'room_name' => $room_name, 
+                            'img_path'  => $filepath ));
     }
 }
 
