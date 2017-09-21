@@ -466,9 +466,12 @@ function check_claim_timer($claim_id) {
     
     
     $account_manager_uid = get_account_manager_uid_from_claim_id($claim_id);
+    $account_manager_email = '';
     if ($account_manager_uid) {
         $account_manager = user_load($account_manager_uid);
-        $account_manager_email = $account_manager->mail;    // grab the account manager email from their profile 
+        if ($account_manager) {
+            $account_manager_email = $account_manager->mail;    // grab the account manager email from their profile 
+        }
     }
     
     // expired

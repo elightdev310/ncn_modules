@@ -1029,6 +1029,63 @@ function ncn_admin_view_claim($claim_id)
 }
 
 //------------------------------------------------------------------------------
+// view individual claims' logfile
+function ncn_admin_view_logfile($claim_id)
+{
+    GLOBAL $base_url;
+
+    // page title
+    drupal_set_title("Viewing logfile: ".$claim_id." (".ncn_cd($claim_id, 'customer_name').")");
+    
+    // draw the logfile
+    ?>
+    <table>
+    <tbody>
+        <thead class="tableHeader-processed">
+        <tr>
+            <th>Timestamp</th>
+      <th>IP Address</th>
+            <th>Message</th>
+      <th>Mobile App</th>
+        </tr>
+        </thead>
+    
+    <?php
+    
+//  $query = "SELECT * FROM claims_log WHERE claim_id=".$claim_id." ORDER BY `timestamp` DESC;";
+    $result = db_query('SELECT * FROM {claims_log} WHERE claim_id=:a ORDER BY timestamp DESC',array(':a'=>$claim_id));
+    $row_count = $result->rowCount();
+    
+    
+    for ($i=0; $i<$row_count; $i++)
+    {
+        $row = $result->fetchAssoc();
+        
+        ?>
+        <tr class="<?php if ($i%2) print "even"; else print "odd"; ?>">
+            <td>
+                <?= date("D jS F Y h:i:s A", $row['timestamp']) ?>
+            </td>
+      <td><?= $row['ip_address']; ?></td>
+            <td>
+                <?= nl2br(StripSlashes($row['message'])); ?>
+            </td>
+      <td>
+        <?= $row['app_track']; ?>
+      </td>
+        </tr>
+        <?php
+    }
+    
+    
+    ?>
+    </tbody>
+    </table>
+    <?php
+
+}
+
+//------------------------------------------------------------------------------
 function ncn_admin_download_pdf($claim_id)
 {
     ncn_admin_download_xls($claim_id, true);

@@ -4494,4 +4494,331 @@ function render_ncn_admin_member_renewal_select($name, $member_id, $attributes =
     return $content;
 }
 
-?>
+//------------------------------------------------------------------------------
+// delete claims from users that no longer exist
+function ncn_admin_cleanup_claims()
+{
+    // delete claims from dead users
+//  $query = "SELECT DISTINCT user_id FROM claims;";
+    $result = db_query('SELECT DISTINCT user_id FROM claims');
+    foreach($result as $row)
+    {
+        $row = (array)$row;
+                
+        // check to see if this user exists
+    //  $query2 = "SELECT * FROM users WHERE uid=".$row['user_id'];
+        $result2 = db_query('SELECT * FROM users WHERE uid=:a',array(':a'=>$row['user_id']));
+        $row_count2 = $result2->rowCount();
+        
+        // user no longer exists...
+        if ($row_count2 == 0)
+        {
+            // delete claims from this dead user
+        //  $query2 = "DELETE FROM claims WHERE user_id=".$row['user_id'];
+            $result2 = db_query('DELETE FROM {claims} WHERE user_id=:a',array(':a'=>$row['user_id']));
+            
+        }
+    }
+}
+
+function testmail(){
+
+    $_user = user_load(1013);
+    profile_user_load(array($_user->uid => $_user));
+    $member_type = get_member_type($_user);
+
+    $node_title='Activation Mail (Gold)';
+    $node_id = 55;
+    if ($member_type == 0) {    // Gold Member
+        $node_title='Activation Mail (Gold)';
+        $node_id = 55;
+    } else if ($member_type == 1) {
+        $node_title='Activation Mail (Silver)';
+        $node_id = 56;
+    } else if ($member_type == 2) {
+        $node_title='Activation Mail (Gold)';
+        $node_id = 55;
+    } else if ($member_type == 3) {
+        $node_title='Activation Mail (Gold)';
+        $node_id = 55;
+    } else if ($member_type == 4) {
+        $node_title='Activation Mail (Gold)';
+        $node_id = 55;
+    } else if ($member_type == 5) {
+        $node_title='Activation Mail (Gold)';
+        $node_id = 55;
+    }
+
+    $result = db_query('SELECT * FROM {node} WHERE type=:a AND nid=:b',array(':a'=>'attached_documents',':b'=>$node_id));
+
+    if ($result->rowCount()>0)
+    {
+        foreach($result as $row)
+        {
+            $row = (array)$row;
+            $node = node_load($row['nid']);
+        }
+
+        $index = 0;
+        $atchfiles = array_pop($node->field_attach_docs);
+        
+        foreach ($atchfiles as $file)
+        {
+            $file['filepath'] = str_replace("public://","sites/default/files/",$file['uri']);
+            $attaches['doc-'.$index] = $file['filepath'];
+            $attache_names['doc-'.$index] = $file['filename'];
+            $attach_mail_data[$file['description']] = array('filepath'=>$file['filepath']);
+            $index++;
+        }
+    }
+
+    $_params = array('!name'=>($_user->profile_firstname." ".$_user->profile_lastname) ,'!docs'=>$attach_mail_data);
+    $ouput = ncn_admin_get_mail_body_from_template('create_user', $_params);
+    print $ouput;
+}
+
+//------------------------------------------------------------------------------
+function ncn_admin_serve_user_document()
+{
+    $error = false;
+    
+    // check numeric
+    if ((!is_numeric(arg(2))) || (!is_numeric(arg(3))))
+    {   $error = true;      }
+    else
+    { 
+
+    //  $query = "SELECT * FROM member_documents WHERE id=".arg(2)." AND uid=".arg(3);
+        $result = db_query('SELECT * FROM {member_documents} WHERE id=:a  AND uid=:b',
+            array(':a'=>arg(2),':b'=>arg(3)));
+        $row_count = $result->rowCount();
+        
+        if ($row_count > 0)
+        {
+            // server the file
+            $row = $result->fetchAssoc();
+            
+            header('Content-type: '.$row['filemime']);
+            header('Content-Disposition: attachment; filename="'.$row['filename'].'"');
+            readfile($row['filepath']);
+            exit;
+            
+        }
+        // not found
+        else
+        {   $error = true;  }
+        
+    }
+    
+    // check errors
+    if ($error == true)
+    {
+        ?>
+        <script type="text/javascript">
+        history.go(-1);
+        </script>
+        <?php
+        exit;
+    }
+
+}
+
+//------------------------------------------------------------------------------
+function ncn_admin_delete_user_document()
+{
+
+    if ((!is_numeric(arg(2))) || (!is_numeric(arg(3))))
+    {   
+        drupal_set_message('There was a problem with the url.', 'error');
+        Header("Location:/admin");  
+    }
+    else
+    {
+        // delete the doc
+//      $query = "DELETE FROM member_documents WHERE id=".arg(2)." AND uid=".arg(3);
+        $result = db_query('DELETE FROM {member_documents} WHERE id=:a AND uid=:b',array(':a'=>arg(2),':b'=>arg(3)));
+
+        // success
+        drupal_set_message("User document deleted.", 'status');
+    
+        // bounce back to user edit page (as this si the only place you can delete user documents)
+        Header("Location:/admin/user/user/edit_user/".arg(3));
+    }
+    
+    exit;
+    
+
+}
+
+/*
+ * Track user to accept NDA.
+ */
+function ncn_track_nda_log($member_id) {
+    $timestamp = date('U');
+    $ip_addr = $_SERVER['REMOTE_ADDR'];
+    $member = get_member_from_id($member_id);
+    
+    //$query = "INSERT INTO nda_log VALUES(NULL, '$ip_addr', '$member_id', $timestamp, '".$member['first_name']."', '".$member['last_name']."')";
+    $result = db_query('INSERT INTO {nda_log} VALUES(NULL,:a,:b,:c,:d,:e)',
+        array(':a'=>$ip_addr,':b'=>$member_id,':c'=>$timestamp,':d'=>$member['first_name'],':e'=>$member['last_name']));
+    if (!$result) {
+        watchdog('nda_log', 'Failed to log nda-track from %ip_addr (member_id: %member_id, date: %date)', array('%ip_addr'=>$ip_addr, '%member_id'=>$member_id, '%date'=>date('d M Y H:i:s', $timestamp)));
+    }
+}
+
+/*
+ * Track IP Address List Page
+ */
+function ncn_admin_nda_log() {
+    drupal_add_js(drupal_get_path('module', 'ncn_admin') . '/ncn_admin.js');
+    
+//  $query = "SELECT * FROM nda_log ORDER BY timestamp DESC";
+    $result = db_query('SELECT * FROM {nda_log} ORDER BY timestamp DESC');
+    $row_count = $result->rowCount();
+    
+    $table_head = '
+    <thead class="tableHeader-processed">
+        <th>Date</th>
+        <th>IP Addresss</th>
+        <th>Member ID</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+    </thead>
+    <tbody>';
+
+    $table_foot = '
+    </tbody>
+    </table>';
+    
+    ob_start();
+    
+    // no results message
+    if ($row_count == 0)
+    {
+        print "<table>";
+        print $table_head;
+        ?>
+        <tr><td colspan=5>No results</td></tr>
+        <?php
+        print $table_foot;
+        
+    }
+    
+    $count = 0;
+    $num_per_page = 50;
+    $on_page = 0;
+    $current_page = 1;
+
+    for ($i=0; $i<$row_count; $i++)
+    { 
+        // get data
+        $row = $result->fetchAssoc();
+        $_first_name = $row['m_first_name'];
+        $_last_name = $row['m_last_name'];
+        
+        $member_id = $row['member_id'];
+        $member = get_member_from_id($member_id);
+        
+        if (empty($member)) {
+            $member_id .= "(*removed)";
+        } else {
+            $_first_name = $member['first_name'];
+            $_last_name = $member['last_name'];
+        }
+        
+    // header?
+        if ($on_page == 0)
+        {
+            if ($current_page == 1)
+            {   ?><table class="sticky-enabled tableSelect-processed sticky-table page_table" id="page_table_<?= $current_page; ?>"><?php   }
+            else
+            {   ?><table class="sticky-enabled tableSelect-processed sticky-table page_table"  id="page_table_<?= $current_page; ?>" style="display:none;"><?php    }
+                
+            print $table_head;  
+        }
+    
+        // draw row
+        ?>
+        <tr class="<?php if ($count%2) print "even"; else print "odd"; ?>">
+            <td><?= date('d M Y H:i:s', $row['timestamp']); ?></td>
+            <td><?= $row['ip_addr']; ?></td>
+            <td><?= $member_id; ?></td>
+            <td><?= $_first_name; ?></td>
+            <td><?= $_last_name; ?></td>
+        </tr>
+        <?php
+
+        // update page count            
+        $count++;
+        $on_page++;
+        
+        // check end of page
+        if ($on_page == $num_per_page)
+        {
+            ?>
+            <?php               
+        
+            print $table_foot;
+            
+            $on_page = 0;
+            $current_page += 1;
+        }
+    }
+        
+    if ($on_page == 0) {
+        $current_page -= 1;
+    }
+    // end pagination
+    ?>
+    <table class="sticky-enabled tableSelect-processed sticky-table">
+    <tbody>
+    <tr>
+        <td colspan="7" align="right">
+            
+            <?php
+                if ($current_page > 1) {
+                    echo t("Page:");
+                
+                    for ($i=1; $i<= $current_page; $i++)
+                    {
+                        if ($i > 1)
+                        {   
+                            print " | ";
+                            $page_text = '<u>'.$i.'</u>';   
+                        }
+                        else
+                        {   $page_text = '<strong><u>'.$i.'</u></strong>';  }   
+                        
+                        
+                        ?>
+                        <a href="#" onclick="change_list_page(<?= $i; ?>);" id="page_link_<?= $i; ?>"><?= $page_text; ?></a>
+                        <?php
+                    }
+                }
+                //$current_page;
+            ?>
+        </td>
+    </tr>
+    </tbody>
+    </table>
+    <?php
+    
+    // javascript list of page
+    ?>
+    <script type="text/javascript">
+        var total_list_pages = <?= $current_page; ?>;
+    </script>
+<?php   
+    $content = ob_get_contents();
+    ob_end_clean();
+    return $content;
+}
+
+function ncn_admin_create_user_get_doc_info_by_hint($docs, $hint) {
+  foreach( $docs as $name=>$data ) {
+    if (strpos(strtolower($name), strtolower($hint)) !== FALSE) {
+      return $data;
+    }
+  }  
+  return array();
+}

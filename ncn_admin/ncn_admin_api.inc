@@ -1457,3 +1457,39 @@ function ncn_admin_remove_special_char_from_customer_name($customer_name) {
   }
   return $customer_name;
 }
+
+//------------------------------------------------------------------------------
+function ncn_debug_message($message)
+{
+    if (isset($GLOBALS['ncn_debug']) && $GLOBALS['ncn_debug'] == true)
+    {
+        drupal_set_message($message, 'error');
+    }
+}
+
+function get_member_from_id($member_id) {
+    $query = db_query('SELECT * FROM member_id_pool WHERE member_id=:a',array(':a'=>$member_id));
+//    $result = db_select('member_id_pool', 'n')
+//        ->fields('n')
+//        ->condition('member_id',$member_id,'=')
+//        ->execute();
+    $result = $query;
+    if ($result && $result->rowCount()>0) {
+        $member = $result->fetchAssoc();
+        //$member = (array)$result;
+        return $member;
+    }
+    
+    return array();
+}
+
+function get_item_from_key($data, $key, $val) {
+    for ($i=0; $i<count($data); $i++){
+        $item = $data[$i];
+        if ($item[$key] == $val) {
+            return $item;
+        }
+    }
+    
+    return false;
+}

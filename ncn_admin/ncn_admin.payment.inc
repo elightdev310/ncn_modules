@@ -299,7 +299,7 @@ function ncn_admin_payment_download_transaction() {
   $transactions = ncn_admin_payment_get_downloadable_transactions('all');
   
   require_once 'sites/all/libraries/php_xls/Classes/PHPExcel.php';
-  
+
   $report_name = "transaction.xls";
   $demo_file = "transaction.xls";
   $objReader = PHPExcel_IOFactory::createReader("Excel5");
@@ -307,7 +307,7 @@ function ncn_admin_payment_download_transaction() {
   $count = count($transactions);
   
   if ($count>0) {
-    $objPHPExcel->getActiveSheet()->insertNewRowBefore(9, $count);  
+    $objPHPExcel->getActiveSheet()->insertNewRowBefore(9, $count);
   }
   for ($i=0; $i<$count; $i++) {
     $source = "A7:G7";
@@ -1471,4 +1471,92 @@ function ncn_do_payment($member_id, $product_id)
     $payment_success = ($auth_successful) ? 1 : 0;
     ncn_report_payment_log($product_id, $payment_success, null, $member_id);
     return $auth_successful;
+}
+
+//------------------------------------------------------------------------------
+function attempt_add_distributor_card()
+{
+  $date = explode("/", $_POST['profile_credit_card_expiration']);
+  
+  if (sizeof($date) == 2)
+  {     $date = "20".$date[1]."-".$date[0];   }
+  else
+  {     $date = '';     }
+
+  // add the user to cim
+    $content =
+        "<?xml version=\"1.0\" encoding=\"utf-8\"?>" .
+        "<createCustomerProfileRequest xmlns=\"AnetApi/xml/v1/schema/AnetApiSchema.xsd\">" .
+        MerchantAuthenticationBlock().
+        "<profile>".
+        "<merchantCustomerId>" . get_unique_auth_profile_id() . "</merchantCustomerId>". // Your own identifier for the customer.
+        "<description>Distributor: ".$_POST['profile_firstname']." ".$_POST['profile_lastname']."</description>".
+        "<email>" . $_POST["mail"] . "</email>".
+        "</profile>".
+        "</createCustomerProfileRequest>";  // <?php
+    
+    $response = send_xml_request($content);
+    $parsedresponse = parse_api_response($response);
+    if ($parsedresponse->messages->resultCode == 'Error') {
+        drupal_set_message(t('Could not create user profile'), 'error');
+        return false;
+    }
+
+    $customerProfileId = $parsedresponse->customerProfileId;
+    
+  // add a payment profile to cim
+$content =
+    "<?xml version=\"1.0\" encoding=\"utf-8\"?>" .
+    "<createCustomerPaymentProfileRequest xmlns=\"AnetApi/xml/v1/schema/AnetApiSchema.xsd\">" .
+    MerchantAuthenticationBlock().
+    "<customerProfileId>" . $customerProfileId . "</customerProfileId>".
+    "<paymentProfile>".
+    "<billTo>".
+     "<firstName>".$_POST['profile_firstname']."</firstName>".
+     "<lastName>".$_POST['profile_lastname']."</lastName>".
+//   "<country>".$_POST['profile_country']."</country>".
+     "<address>".$_POST['profile_address']."</address>".
+     "<city>".$_POST['profile_city']."</city>".
+     "<state>".$_POST['profile_state']."</state>".
+     "<zip>".$_POST['profile_zip']."</zip>".
+     "<phoneNumber>000-000-0000</phoneNumber>".
+    "</billTo>".
+    "<payment>".
+     "<creditCard>".
+      "<cardNumber>".$_POST['profile_credit_card_number']."</cardNumber>".
+      "<expirationDate>".$date."</expirationDate>". // required format for API is YYYY-MM
+      "<cardCode>".$_POST['profile_credit_card_security']."</cardCode>".
+     "</creditCard>".
+    "</payment>".
+    "</paymentProfile>".
+    "<validationMode>liveMode</validationMode>". // or liveMode
+    "</createCustomerPaymentProfileRequest>";   // <?php
+
+    $response = send_xml_request($content);
+    $parsedresponse = parse_api_response($response);
+
+    // check for cc/details errors
+    if ($parsedresponse->messages->resultCode == 'Error')
+    {
+        $msg = preg_replace("/[^a-zA-Z0-9\s\'\.]/", "", $parsedresponse->messages->message->text);
+    
+        drupal_set_message($msg, 'error');
+        //$form_state['redirect'] = 'apply.html?id='.$_GET['id'];
+        return false;
+    }
+
+    $customerPaymentProfileId = $parsedresponse->customerPaymentProfileId;
+    // add payment/customer profile to database
+    // $query = "DELETE FROM member_distributor_cim WHERE username='".addslashes($_POST['name'])."'";
+    $result = db_query('DELETE FROM {member_distributor_cim} WHERE username=:a',
+        array(':a'=>$_POST['name']));
+  
+   // $query = "INSERT INTO member_distributor_cim VALUES ( NULL,
+   //                                                      '".addslashes($_POST['name'])."',
+   //                                                      '".addslashes($customerProfileId)."',
+   //                                                      '".addslashes($customerPaymentProfileId)."'
+   //                                                      );";
+    $result = db_query('INSERT INTO member_distributor_cim VALUES(:a,:b,:c)',
+    array(':a'=>$_POST['name'],':b'=>$customerProfileId,':c'=>$customerPaymentProfileId));
+    return true;
 }
