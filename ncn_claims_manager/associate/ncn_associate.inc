@@ -56,7 +56,8 @@ function template_preprocess_ncn_asso_page(&$vars)
         case "my-account":
             $vars['title'] = "Edit My Profile";
             $vars['page_class'] = "my-account";
-            user_edit_new(false, $user->uid); // function from ncn_admin.module
+            //user_edit_new(false, $user->uid); // function from ncn_admin.module
+            print theme('all_user_list_edit',array('in_admin'=>false, 'uid'=>$user->uid));
             /*print ncn_edit_my_account();*/
             break;
 

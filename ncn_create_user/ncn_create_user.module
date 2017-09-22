@@ -439,18 +439,16 @@ function all_user_list_detail($detail_id)
 
 function all_user_list_edit($edit_id)
 {
-   // var_dump($edit_id);
-  //  user_edit_new();
-    $result = array();
-    return theme('all_user_list_edit',array('result'=>$edit_id));
+    // user_edit_new(true, $edit_id);
+    return theme('all_user_list_edit',array('in_admin'=>true, 'uid'=>$edit_id));
 }
 function all_user_list_admin_login($admin_id)
 {
     // var_dump($admin_id);
     ncn_admin_user_login_program($admin_id);
     //  user_edit_new();
-//    $result = array();
-//    return theme('all_user_list_admin_login',array('result'=>$admin_id));
+    //  $result = array();
+    //  return theme('all_user_list_admin_login',array('result'=>$admin_id));
 }
 function user_filters_seven()
 {
@@ -2088,9 +2086,8 @@ function ncn_create_user_theme(){
                                                  //'base hook' => 'views_view_table',
                                                 ),
                     'all_user_list_edit' => array( 'template'=>'all-user-list-edit',
-                                                    'variables' => array('result' => NULL),
+                                                    'variables' => array('in_admin'=>NULL, 'uid'=>NULL),
                                                     'path' => drupal_get_path('module', 'ncn_create_user'),
-                                                    //'base hook' => 'views_view_table',
                                                 ),
                     'all_user_list_detail' => array( 'template'=>'all-user-list-detail',
                                                     'variables' => array('result' => NULL),

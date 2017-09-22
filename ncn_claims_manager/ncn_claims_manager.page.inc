@@ -28,7 +28,8 @@ function ncn_edit_my_account()
                 <div class="help"><a href="#">Help</a></div>
             </div>
             <div class="map-content-wrapper">
-                <?php user_edit_new(false, $user->uid); // function from ncn_admin.module ?>
+                <?php //user_edit_new(false, $user->uid); ?>
+                <?php print theme('all_user_list_edit',array('in_admin'=>false, 'uid'=>$user->uid)) ?>
             </div>
         </div>
     </div>

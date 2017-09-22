@@ -994,7 +994,7 @@ function ncn_admin_render_select_role_OLD($name, $select_val, $attributes)
 
 function ncn_admin_render_select_role($name, $select_val, $attributes)
 {
-    $result = db_query("SELECT * FROM {role}  WHERE rid>2  AND name!='distributor' AND name!='associate' AND name!='member' AND name!='sub user' ")->fetchAll();
+    $result = db_query("SELECT * FROM {role} WHERE rid>2  AND name!='distributor' AND name!='associate' AND name!='member' AND name!='sub user'")->fetchAll();
     foreach($result as $row)
     {
         $row = (array)$row;
@@ -1004,30 +1004,19 @@ function ncn_admin_render_select_role($name, $select_val, $attributes)
     return $roles;
 }
 function ncn_admin_render_select_roles($name, $select_val, $attributes) {
-
     $content = "<select name=\"$name\" $attributes>";
-
-
-
-    $result = db_query("SELECT * FROM {role} WHERE rid>2 AND name!='distributor' AND name!='associate' AND name!='member' AND name!='sub user'");
-
-   // while ($role = db_fetch_array($result))
+    
+    $result = db_query("SELECT * FROM {role} WHERE rid>2 AND name!='distributor' AND name!='associate' AND name!='member' AND name!='sub user'")->fetchAll();
     foreach($result as $row)
     {
-        $row = (array)$row;
-
+        $role = (array)$row;
         $selected = '';
-
         if ($role['rid'] == $select_val) {$selected = 'selected'; };
-
         $content .= '<option value="'.$role['rid'].'" '.$selected.' >'.$role['name'].'</option>';
-
     }
-
     $content .= "</select>";
 
     return $content;
-
 }
 
 function ncn_admin_update_user_role($user, $role_id)
