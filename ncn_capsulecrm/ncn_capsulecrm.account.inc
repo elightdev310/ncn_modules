@@ -29,7 +29,6 @@ function ncn_capsulecrm_account_save_account($uid, $account) {
 function ncn_capsulecrm_account_select_render($name, $val) {
 
   $accounts = ncn_capsuelcrm_account_get_all_users();
-  //  var_dump($accounts);
 
   $output = "<select name='$name'>";
 
@@ -52,18 +51,10 @@ function ncn_capsulecrm_account_select_render($name, $val) {
 }
 
 
-
 function ncn_capsuelcrm_account_get_all_users() {
-
   $response = capsule_list_users();
-
-
   if ($response->code == 200)  {
-
-    $output = json_decode($response->data);
-
-    return $output->users->user;
-
+    return $response->users;
   }
 
   return array();
