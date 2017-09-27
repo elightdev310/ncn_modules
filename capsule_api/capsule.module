@@ -7,7 +7,7 @@
  */
 
 
-_capsule_include('helpers', 'util', 'party', 'opportunity', 'task', 'case', 'users');
+_capsule_include('helpers', 'party');
 
 /**
  * Implementation of hook_permission().
@@ -32,6 +32,16 @@ function capsule_menu() {
     'title' => t('Settings'),
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => -50,
+  );
+
+  $items['admin/config/capsule/custom_fields'] = array(
+   'title'            => 'Custom Fields',
+   'page callback'    => 'capsule_api_custom_fields',
+   'access arguments' => capsule_perm(),
+   'description'      => 'Provides a list of custom fields with the Capsule API.',
+   'type' => MENU_LOCAL_TASK,
+   'file' => 'includes/admin.inc',
+   'weight' => 0,
   );
 
 // TODO Not ready for prime time

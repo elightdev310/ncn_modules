@@ -620,7 +620,7 @@ switch ($tfunction)
             if ($cc_map_info) {
                 $organization_id = $cc_map_info['organization_id'];
                 $person_id       = $cc_map_info['person_id'];
-                $_url_cc_org = ncn_capsulecrm_get_url()."party/".$organization_id;
+                $_url_cc_org = ncn_capsulecrm_get_url()."/parties/".$organization_id;
             }
         }
         ?>

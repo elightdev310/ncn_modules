@@ -12,41 +12,39 @@
  * 
  * @param int $party_id
  */
-function capsule_get_party($party_id) {
-  return _capsule_request("/party/$party_id");
+function capsule_get_party($party_id, $embed='') {
+  if ($embed) {
+    return _capsule_request("/parties/$party_id?embed=$embed");
+  }
+  return _capsule_request("/parties/$party_id");
 }
 
 /**
  * Return all people & organisations visible to the authenticated user. Optionally the results can be limited or paged 
  * using the parameters &limit and &start.
- * 
- * @param int $start
- * @param int $limit
+ * [v2]
  */
-function capsule_list_parties($start = 0, $limit = 10) {
+function capsule_list_parties($page = 0, $perPage = 10) {
   $query = _capsule_query_params(array(
-    'start' => $start,
-    'limit' => $limit,
+    'page'    => $page,
+    'perPage' => $perPage,
   ));
-  return _capsule_request("/party$query");
+  return _capsule_request("/parties$query");
 }
 
 /**
  * Return all people & organisations which match the search term. The search term will be matched against name, 
  * telephone number and exact match on searchable custom fields. Optionally the results can be limited or paged using 
  * the parameters &limit and &start.
- * 
- * @param string $q
- * @param int $start
- * @param int $limit
+ * [v2]
  */
-function capsule_search_parties($q, $start = 0, $limit = 10) {
+function capsule_search_parties($q, $page = 0, $perPage = 10) {
   $query = _capsule_query_params(array(
     'q' => urlencode($q),
-    'start' => $start,
-    'limit' => $limit,
+    'page'    => $page,
+    'perPage' => $perPage,
   ));
-  return _capsule_request("/party$query");
+  return _capsule_request("/parties/search$query");
 }
 
 /**
@@ -64,7 +62,7 @@ function capsule_list_parties_since($since, $start = 0, $limit = 10) {
     'start' => $start,
     'limit' => $limit,
   ));
-  return _capsule_request("/party$query");
+  return _capsule_request("/parties$query");
 }
 
 /**
@@ -81,7 +79,7 @@ function capsule_list_parties_with_email($email, $start = 0, $limit = 10) {
     'start' => $start,
     'limit' => $limit,
   ));
-  return _capsule_request("/party$query");
+  return _capsule_request("/parties$query");
 }
 
 /**
@@ -98,7 +96,7 @@ function capsule_list_parties_with_tag($tag, $start = 0, $limit = 10) {
     'start' => $start,
     'limit' => $limit,
   ));
-  return _capsule_request("/party$query");
+  return _capsule_request("/parties$query");
 }
 
 /**
@@ -107,7 +105,7 @@ function capsule_list_parties_with_tag($tag, $start = 0, $limit = 10) {
  * @param int $party_id
  */
 function capsule_list_party_people($party_id) {
-  return _capsule_request("/party/$party_id/people");
+  return _capsule_request("/parties/$party_id/people");
 }
 
 /**
@@ -120,20 +118,20 @@ function capsule_list_party_people($party_id) {
  * 
  * If adding this person will exceed the accounts contact limit a 507 Insufficient Storage response will be returned.
  * 
- * @param array $person
+ * [v2]
  */
 function capsule_add_person($person = array()) {
-  return _capsule_request("/person", 'POST', $person);
+  return _capsule_request("/parties", 'POST', $person);
 }
 
 /**
  * If adding this organisation will exceed the accounts contact limit a 507 
  * Insufficient Storage response will be returned.
  * 
- * @param array $organization
+ * [v2]
  */
 function capsule_add_organization($organization = array()) {
-  return _capsule_request("/organisation", 'POST', $organization);
+  return _capsule_request("/parties", 'POST', $organization);
 }
 
 /**
@@ -144,10 +142,10 @@ function capsule_add_organization($organization = array()) {
  * Contact records (email, phone or address) can be updated where an id is provided, where an id for a contact is not 
  * provided it is assumed to be null and will be added to the person.
  * 
- * @param array $person
+ * [v2]
  */
-function capsule_update_person($person = array()) {
-  // TODO
+function capsule_update_person($person = array(), $id) {
+  return _capsule_request("/parties/$id", 'PUT', $person);
 }
 
 /**
@@ -158,10 +156,10 @@ function capsule_update_person($person = array()) {
  * Contact records (email, phone or address) can be updated where an id is provided, where an id for a contact is not 
  * provided it is assumed to be null and will be added to the person.
  * 
- * @param array $organization
+ * [v2]
  */
 function capsule_update_organization($organization = array(), $id) {
-  return _capsule_request("/organisation/$id", 'PUT', $organization);
+  return _capsule_request("/parties/$id", 'PUT', $organization);
 }
 
 /**
@@ -171,7 +169,7 @@ function capsule_update_organization($organization = array(), $id) {
  * @param int $party_id
  */
 function capsule_delete_party($party_id) {
-  _capsule_request("/party/$party_id", 'DELETE');
+  _capsule_request("/parties/$party_id", 'DELETE');
 }
 
 /**
@@ -181,7 +179,7 @@ function capsule_delete_party($party_id) {
  * @param int $field_id
  */
 function capsule_get_party_customfield($party_id, $field_id) {
-  return _capsule_request("/party/$party_id/customfield/$field_id");
+  return _capsule_request("/parties/$party_id/customfield/$field_id");
 }
 
 /**
@@ -191,14 +189,14 @@ function capsule_get_party_customfield($party_id, $field_id) {
  * @param int $party_id
  */
 function capsule_list_party_customfields($party_id) {
-  return _capsule_request("/party/$party_id/customfield");
+  return _capsule_request("/parties/$party_id/customfield");
 }
 
 /**
  * List of available custom field configurations for people & organisation.
  */
 function capsule_list_party_customfield_definitions() {
-  return _capsule_request("/party/customfield/definitions");
+  return _capsule_request("/parties/customfield/definitions");
 }
 
 /**
@@ -222,7 +220,7 @@ function capsule_list_party_customfield_definitions() {
  * );
  */
 function capsule_add_party_customfield($party_id, $data = array()) {
-  return _capsule_request("/party/$party_id/customfield", 'POST', $data);
+  return _capsule_request("/parties/$party_id/customfield", 'POST', $data);
 }
 
 /**
@@ -240,7 +238,7 @@ function capsule_add_party_customfield($party_id, $data = array()) {
  * );
  */
 function capsule_update_party_customfield($party_id, $field_id, $data = array()) {
-  return _capsule_request("/party/$party_id/customfield/$field_id", 'PUT', $data);
+  return _capsule_request("/parties/$party_id/customfield/$field_id", 'PUT', $data);
 }
 
 /**
@@ -250,7 +248,7 @@ function capsule_update_party_customfield($party_id, $field_id, $data = array())
  * @param int $field_id
  */
 function capsule_delete_party_customfield($party_id, $field_id) {
-  return _capsule_request("/party/$party_id/customfield/$field_id", 'DELETE');
+  return _capsule_request("/parties/$party_id/customfield/$field_id", 'DELETE');
 }
 
 /**
@@ -260,7 +258,7 @@ function capsule_delete_party_customfield($party_id, $field_id) {
  * @param int $history_id
  */
 function capsule_get_party_history($party_id, $history_id) {
-  return _capsule_request("/party/$party_id/history/$history_id");
+  return _capsule_request("/parties/$party_id/history/$history_id");
 }
 
 /**
@@ -269,7 +267,7 @@ function capsule_get_party_history($party_id, $history_id) {
  * @param int $party_id
  */
 function capsule_list_party_histories($party_id) {
-  return _capsule_request("/party/$party_id/history");
+  return _capsule_request("/parties/$party_id/history");
 }
 
 /**
@@ -280,7 +278,7 @@ function capsule_list_party_histories($party_id) {
  * @param array $data
  */
 function capsule_add_party_history($party_id, $data) {
-  return _capsule_request("/party/$party_id/history", 'POST', $data);
+  return _capsule_request("/parties/$party_id/history", 'POST', $data);
 }
 
 /**
@@ -291,7 +289,7 @@ function capsule_add_party_history($party_id, $data) {
  * @param array $data
  */
 function capsule_update_party_history($party_id, $history_id, $data) {
-  return _capsule_request("/party/$party_id/history/$history_id", 'PUT', $data);
+  return _capsule_request("/parties/$party_id/history/$history_id", 'PUT', $data);
 }
 
 /**
@@ -301,7 +299,7 @@ function capsule_update_party_history($party_id, $history_id, $data) {
  * @param int $history_id
  */
 function capsule_delete_party_history($party_id, $history_id) {
-  return _capsule_request("/party/$party_id/history/$history_id", 'DELETE');
+  return _capsule_request("/parties/$party_id/history/$history_id", 'DELETE');
 }
 
 /**
@@ -310,7 +308,7 @@ function capsule_delete_party_history($party_id, $history_id) {
  * @param int $party_id
  */
 function capsule_list_party_tags($party_id) {
-  return _capsule_request("/party/$party_id/tag");
+  return _capsule_request("/parties/$party_id/tag");
 }
 
 /**
@@ -320,7 +318,7 @@ function capsule_list_party_tags($party_id) {
  * @param string $tag
  */
 function capsule_add_party_tag($party_id, $tag) {
-  return _capsule_request("/party/$party_id/tag/$tag", 'POST');
+  return _capsule_request("/parties/$party_id/tag/$tag", 'POST');
 }
 
 /**
@@ -330,7 +328,7 @@ function capsule_add_party_tag($party_id, $tag) {
  * @param string $tag
  */
 function capsule_delete_party_tag($party_id, $tag) {
-  return _capsule_request("/party/$party_id/tag/$tag", 'DELETE');
+  return _capsule_request("/parties/$party_id/tag/$tag", 'DELETE');
 }
 
 /**
@@ -340,7 +338,7 @@ function capsule_delete_party_tag($party_id, $tag) {
  * @param array $data
  */
 function capsule_add_party_opportunity($party_id, $data = array()) {
-  _capsule_request("/party/$party_id/opportunity", 'POST', $data);
+  _capsule_request("/parties/$party_id/opportunity", 'POST', $data);
 }
 
 /**
@@ -350,7 +348,7 @@ function capsule_add_party_opportunity($party_id, $data = array()) {
  * @param array $data
  */
 function capsule_add_party_case($party_id, $data) {
-  return _capsule_request("/party/$party_id/kase", 'POST', $data);
+  return _capsule_request("/parties/$party_id/kase", 'POST', $data);
 }
 
 /**
@@ -361,7 +359,7 @@ function capsule_add_party_case($party_id, $data) {
  * @param array $data
  */
 function capsule_update_party_case($party_id, $kase_id, $data) {
-  return _capsule_request("/party/$party_id/kase/$kase_id", 'PUT', $data);
+  return _capsule_request("/parties/$party_id/kase/$kase_id", 'PUT', $data);
 }
 
 /**
@@ -370,7 +368,7 @@ function capsule_update_party_case($party_id, $kase_id, $data) {
  * @param int $party_id
  */
 function capsule_list_party_cases($party_id) {
-  return _capsule_request("/party/$party_id/kase");
+  return _capsule_request("/parties/$party_id/kase");
 }
 
 function capsule_update_history($history_id, $data) {

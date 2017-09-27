@@ -1,5 +1,5 @@
 <?php
-define('NCN_TEST', 'TEST');
+// define('NCN_TEST', 'TEST');
 
 // User Role
 define('USER_ROLE_AUTHENTICATE',                     2);
@@ -48,4 +48,21 @@ define('SKU_MMF_GL',                               102);    // $24.95
 define('SKU_MMF_COC',                              119);    // $39.95
 define('SKU_MMF_GC',                               137);    // $138.95
 
+//
 define('JAR_JODCONVERTER', '/jod/lib/jodconverter-core-3.0-beta-4.jar');
+
+
+// CapsuleCRM Custom Field
+define('CRM_FIELD_MEMBER_ID',                   441142);    // Member ID #
+define('CRM_FIELD_DIST_ASSO',                   441179);    // Distributor / Associate
+define('CRM_FIELD_ACCT_MNGR',                   441181);    // Account Manager
+define('CRM_FIELD_USERNAME' ,                   441182);    // Username
+define('CRM_FIELD_ORG_PWD'  ,                   441183);    // Original Password
+define('CRM_FIELD_DATE_PURCHASE' ,              441202);    // Date of Purchase
+define('CRM_FIELD_SALES_REP',                   441192);    // Sales Rep
+
+define('CRM_FIELD_COUNT_CLAIMS',                441285);    // # of Claims
+define('CRM_FIELD_TOTAL_YTD',                   441286);    // Total $$ YTD
+define('CRM_FIELD_TOTAL_ALL_TIME',              441287);    // Total $$ All Time 
+
+define('CRM_FIELD_VOS_ACCOUNT',                 441288);    // VOS account
