@@ -34,20 +34,17 @@ function ncn_capsulecrm_account_select_render($name, $val) {
 
   $output.= "<option value=''>- none -</option>";
 
-  foreach ($accounts as $account) {
-
-    $selected = '';
-
-    if ($account->username == $val) { $selected = 'selected'; }
-
-    $output.= "<option value='$account->username' $selected>$account->name</option>";
-
+  if ($accounts && is_array($accounts)) {
+    foreach ($accounts as $account) {
+      $selected = '';
+      if ($account->username == $val) { $selected = 'selected'; }
+      $output.= "<option value='$account->username' $selected>$account->name</option>";
+    }
   }
 
   $output.= "</select>";
 
   return $output;
-
 }
 
 

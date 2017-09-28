@@ -7,7 +7,7 @@
  */
 
 
-_capsule_include('helpers', 'party', 'users');
+_capsule_include('helpers', 'party', 'entry', 'users');
 
 /**
  * Implementation of hook_permission().
