@@ -3599,7 +3599,7 @@ function ncn_admin_user_back_to_admin()
         $user = user_load($_SESSION['sandbox_original_uid']);
         unset($_SESSION['admin_sandbox']);
         unset($_SESSION['sandbox_original_uid']);
-        drupal_goto('admin/user/user/list');
+        drupal_goto('admin/config/ncn_create_user/all_user_list');
     }
 
     $redirect_url = ncn_admin_get_workplace_name($uid);

@@ -801,6 +801,9 @@ function user_admins_account() {
             'edit' => array('data' => array('#type' => 'link', '#title' => t('edit'), '#href' => "admin/config/ncn_create_user/all_user_list/edit_user/$account->uid")),
             'login' => array('data' => array('#type' => 'link', '#title' => t('login'), '#href' => "admin/config/ncn_create_user/all_user_list/admin_login/$account->uid")),
         );
+        if (!$_user->status) {
+            $options[$account->uid]['login'] = '';
+        }
     }
 
     $form['accounts'] = array(
