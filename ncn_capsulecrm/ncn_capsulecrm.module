@@ -258,3 +258,12 @@ function ncn_capsulecrm_get_parties($page=1, $perPage=50, $others=array()) {
     }
     return false;
 }
+
+/**
+ * Front URL
+ */
+function ncn_capsulecrm_get_url() {
+    // $key = variable_get('capsule_url_key', '');
+    // $key = ($key!='' ? $key : 'netclaimsnow-com');
+    return "https://pherona.capsulecrm.com";
+}

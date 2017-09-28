@@ -59,7 +59,6 @@ GLOBAL $user;
   
   $json = array();
   $json['code'] = 'success';
-  $json['note_id'] = $note_id;
   $json['msg'] = '';
   if (ncn_admin_note_add_note($claim_id, $user->uid, $note)) {
     $log_message = t("!user_name added Claim Note. !note", array('!user_name'=>ncn_amin_get_user_role_and_name($user->uid), '!note'=>strip_tags($note)));

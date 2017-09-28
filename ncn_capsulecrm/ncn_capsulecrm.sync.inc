@@ -29,6 +29,8 @@ function ncn_capsulecrm_set_map_data($member_id, $org_id, $person_id) {
 }
 
 function ncn_capsulecrm_set_map_info($member_id) {
+    return FALSE;
+
     $org_id = 0;
     $person_id = 0;
     if (ncn_capsulecrm_get_partyid_from_memberid($member_id, $org_id, $person_id)) {
@@ -156,12 +158,6 @@ function ncn_capsulecrm_get_people_party_id($party_id) {
     return FALSE;
 }
 
-function ncn_capsulecrm_get_url() {
-    // $key = variable_get('capsule_url_key', '');
-    // $key = ($key!='' ? $key : 'netclaimsnow-com');
-    return "https://api.capsulecrm.com/api/v2";
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 function ncn_capsulecrm_daily_update_active_user_data() {
     $result = db_query("SELECT * FROM {users} WHERE uid!=0 ORDER BY uid DESC");
@@ -219,10 +215,10 @@ function ncn_capsulecrm_daily_update_user_member_data($user) {
     $organization = (object)$organization;
     $response = capsule_update_organization( array('party'=>$organization), $party_id );
 
-    if ($response->code != 201) {
+    if ($response->code != 200) {
         watchdog('ncn-capsulecrm', 
                  t('Capsule CRM Error: Failed to add update organization into Capsule CRM. User: !user, Party ID: !party_id', 
-                    array('!user' => $user->uid, '!member_id' => $party_id)));
+                    array('!user' => $user->uid, '!party_id' => $party_id)));
         return FALSE;
     }
     return TRUE;
@@ -252,7 +248,7 @@ function ncn_capsulecrm_daily_update_una_member_data($member_id) {
     $organization = (object)$organization;
     $response = capsule_update_organization( array('party'=>$organization), $party_id );
 
-    if ($response->code != 201) {
+    if ($response->code != 200) {
         watchdog('ncn-capsulecrm', 
                  t('Capsule CRM Error: Failed to add update organization into Capsule CRM. User: !user, Party ID: !party_id', 
                     array('!user' => $user->uid, '!member_id' => $party_id)));
@@ -269,25 +265,6 @@ function ncn_capsulecrm_check_map_info($member_id) {
         }
     }
     return $crm_info;
-}
-
-function ncn_capsulecrm_add_note($member_id, $note) {
-    $crm_info = ncn_capsulecrm_check_map_info($member_id);
-    if (!$crm_info) {
-        return FALSE;
-    }
-    
-    $party_id = $crm_info['organization_id'];
-    $data = array(
-        'note'=> $note, 
-    );
-    $response = capsule_add_party_history($party_id, array('historyItem'=>$data));
-    
-    if ($response->code != 201)  {
-        drupal_set_message("Failed to add a note to capsule crm.", 'error');
-        return FALSE;
-    }
-    return TRUE;
 }
 
 function ncn_capsulecrm_add_task($member_id, $note) {
@@ -328,7 +305,7 @@ global $base_url;
     $organization = (object)$organization;
     $response = capsule_update_organization( array('party'=>$organization), $party_id );
 
-    if ($response->code != 201)  {
+    if ($response->code != 200)  {
         return FALSE;
     }
     return TRUE;
