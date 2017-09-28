@@ -16,7 +16,7 @@ if ($in_admin == true)
     // check url supplied user id is valid
     if (!is_numeric($user_id))
     {
-        Header("Location:admin/config/ncn_create_user/all_user_list");
+        drupal_goto('admin/config/ncn_create_user/all_user_list');
         exit;
     }
 
@@ -25,7 +25,7 @@ if ($in_admin == true)
 
     if (!$user)     // check user is valid
     {
-        Header("Location:admin/config/ncn_create_user/all_user_list");
+        drupal_goto('admin/config/ncn_create_user/all_user_list');
         exit;
     }
 

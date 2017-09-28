@@ -319,7 +319,7 @@ global $base_url;
  
 function ncn_capsulecrm_set_user_detail_link_maintain() {
     set_time_limit(-1);
-    $result = db_query("SELECT * FROM {users} WHERE uid!=0 ORDER BY uid DESC");
+    $result = db_query("SELECT * FROM {users} WHERE uid!=0 ORDER BY uid DESC")->fetchAll();
 //  while ($row = db_fetch_array($result))
     foreach($result as $row)
     {
