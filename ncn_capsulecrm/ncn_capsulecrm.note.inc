@@ -48,13 +48,14 @@ global $user;
 */
 function ncn_capsulecrm_note_update_note($claim_id, $history_id, $note) {
 global $user;
-  $data = array('note'=>"[claim #$claim_id] - ".$note);
-  $capsulecrm_account = ncn_capsulecrm_account_get_account($user);
-  if ($capsulecrm_account) {
-    $data['creator'] = $capsulecrm_account;
-  }
-        
-  $response = capsule_update_history($history_id, array('historyItem'=>$data) );
+  $entry = array();
+  $entry['content'] = "[claim #$claim_id] - ".$note;
+  // $capsulecrm_account = ncn_capsulecrm_account_get_account($user);
+  // if ($capsulecrm_account) {
+  //   $data['creator'] = $capsulecrm_account;
+  // }
+  $entry = (object)$entry;
+  $response = capsule_update_entry( (object)(array('entry'=>$entry)), $history_id );
   if ($response->code != 200) { 
     drupal_set_message(t('Capsule CRM Error: Failed to update NOTE into Capsule CRM'), 'error');
     return FALSE; 
