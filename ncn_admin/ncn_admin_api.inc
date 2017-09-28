@@ -1323,7 +1323,7 @@ function ncn_admin_get_claim_roomname_data($claim_id, $exclude_default=FALSE) {
     return $a_data;
 }
 
-function ncn_admin_add_claim_note($claim_id, $file_note) {
+function ncn_admin_add_claim_filenote($claim_id, $file_note) {
     if ($file_note == '') {
         return FALSE;
     }

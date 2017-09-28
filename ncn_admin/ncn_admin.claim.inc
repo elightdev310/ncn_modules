@@ -51,7 +51,7 @@ function ncn_admin_view_claim($claim_id)
             $log_message = t("!user_name added Claim Note. !note", array('!user_name'=>ncn_amin_get_user_role_and_name(), '!note'=>strip_tags($_claim_note)));
             ncn_admin_insert_claim_log($claim_id, date('U'), $log_message);
           }
-          /*if (ncn_admin_add_claim_note($claim_id, $_claim_note)) {
+          /*if (ncn_admin_add_claim_filenote($claim_id, $_claim_note)) {
             drupal_set_message("You added note to claim, successfully.");
             $log_message = t("!user_name added Claim Note. !note", array('!user_name'=>ncn_amin_get_user_role_and_name(), '!note'=>strip_tags($_claim_note)));
             ncn_admin_insert_claim_log($claim_id, date('U'), $log_message);
@@ -3258,5 +3258,5 @@ function ncn_admin_claim_file_note_change($claim_id) {
     $file_note = base64_encode(strip_tags($file_note));
     $log_message = ncn_amin_get_user_role_and_name()." update notes on file to '".$_POST['claim_file_note']."' ";
     drupal_set_message($log_message, 'status');
-  ncn_admin_insert_claim_log($claim_id, date('U'), $log_message);
+    ncn_admin_insert_claim_log($claim_id, date('U'), $log_message);
 }

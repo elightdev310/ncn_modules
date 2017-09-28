@@ -72,7 +72,7 @@ function get_claim_scope_file($claim_id) {
 }
 
 /**
- * URL-AJAX: account/save_file_note
+ * URL-AJAX: account/save_file_note (DON'T USE)
  */
 function ncn_claims_manager_save_file_note()
 {
@@ -91,7 +91,7 @@ function ncn_claims_manager_save_file_note()
         exit;
     }
 
-    ncn_admin_add_claim_note($claim_id, $file_note);
+    ncn_admin_add_claim_filenote($claim_id, $file_note);
 
     // set success message
     $log_message = "Notes on file updated by " . ncn_amin_get_user_role_and_name();
