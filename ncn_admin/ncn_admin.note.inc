@@ -136,6 +136,7 @@ function ncn_admin_note_render_claim_notes_table($claim_id, $user) {
 * @param mixed $note
 */
 function ncn_admin_note_add_note($claim_id, $uid, $note) {
+  if (empty(trim($note))) { return false; }
   $capcrm_history_id = ncn_capsulecrm_note_add_note($claim_id, $note);
   return ncn_admin_note_db_insert_note($claim_id, $uid, $note, $capcrm_history_id);
 }
@@ -147,6 +148,7 @@ function ncn_admin_note_add_note($claim_id, $uid, $note) {
 * @param mixed $note
 */
 function ncn_admin_note_update_note($note_id, $note) {
+  if (empty(trim($note))) { return false; }
   $_note = ncn_admin_note_db_get_note($note_id);
   if ($_note['note'] != $note) {
     $note_capsulecrm_hid = $_note['capcrm_history_id'];
