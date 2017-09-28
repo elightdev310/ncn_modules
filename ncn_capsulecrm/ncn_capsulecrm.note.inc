@@ -31,6 +31,7 @@ global $user;
         }
         $entry_id = $response->entry->id;
         if (is_numeric($entry_id)) {
+          watchdog('ncn-capsulecrm', "Add Note: https://pherona.capsulecrm.com/party/".$cc_info['organization_id']."/history/$entry_id");
           return $entry_id;
         }
       }
