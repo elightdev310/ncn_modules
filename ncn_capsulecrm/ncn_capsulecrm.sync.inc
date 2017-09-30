@@ -64,7 +64,7 @@ function ncn_capsulecrm_get_map_info($member_id) {
     return FALSE;
 }
 
-function ncn_capsulecrm_get_partyid_from_memberid($member_id, &$org_id, &$person_id) {  
+function ncn_capsulecrm_get_partyid_from_memberid($member_id, &$org_id, &$person_id) {
     $page = 1;
     $member = get_member_from_id($member_id);
     while ($parties = ncn_capsulecrm_get_parties($page, 50, array('since'=>'2017-09-20T00:00:00Z'))) {
