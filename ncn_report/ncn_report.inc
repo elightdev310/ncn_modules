@@ -662,7 +662,7 @@ function build_table_mail($data, $total) {
     $output .= '
         <tr class="'.$tr_class.'">
             <td></td>
-            <td colspan="2"><div style="margin:10px 10px 0px 50px">Total:&nbsp;&nbsp; '.render_payment_cost($totals[1]).'</div></td>
+            <td colspan="2"><div style="margin:10px 10px 0px 50px">Total:&nbsp;&nbsp; '.render_payment_cost($total[1]).'</div></td>
         </tr>
     </tbody>
     </table>

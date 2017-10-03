@@ -11,7 +11,7 @@ define('USER_ROLE_MEMBER',                           8);
 define('USER_ROLE_DIRECTOR_OF_MEMBER_SERVICE',       9);
 define('USER_ROLE_EXECUTIVE',                       11);
 define('USER_ROLE_SUB_USER',                        12);
-define('USER_ROLE_CLAIM_EXAMINER',                  14);    // Deleted : RID = 14
+define('USER_ROLE_CLAIM_EXAMINER',                  26);    // Deleted : RID = 14
 define('USER_ROLE_SALES_DIRECTOR',                  15);
 define('USER_ROLE_SENIOR_ACCOUNT_MANAGER',          17);
 define('USER_ROLE_LEADUSER',                        23);

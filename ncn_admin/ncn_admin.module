@@ -445,45 +445,89 @@ function ncn_admin_theme() {
 }
 
 /**
-    hook_user
+    hook_user (drupal 6)
 */
-function ncn_admin_user($op, $edit, $account, $category = NULL) {
-    switch ($op) {
-    case 'login':
-        if ( (isset($account->profile_memberid)&&is_member($account->profile_memberid)) || is_distributor($account) || is_associate($account) || is_subuser($account) || is_leaduser($account)) {
-            drupal_goto('account');
-        } else if (module_exists('ncn_ceportal') && is_claim_examiner($account)) {
-            drupal_goto('ce_portal/home');
-        } else {
-            drupal_goto('admin');
-            //drupal_goto('account');
-        }
-        break;
+// function ncn_admin_user($op, $edit, $account, $category = NULL) {
+//     switch ($op) {
+//     case 'login':
+//         if ( (isset($account->profile_memberid) && is_member($account->profile_memberid)) || is_distributor($account) || is_associate($account) || is_subuser($account) || is_leaduser($account)) {
+//             drupal_goto('account');
+//         } else if (module_exists('ncn_ceportal') && is_claim_examiner($account)) {
+//             drupal_goto('ce_portal/home');
+//         } else {
+//             drupal_goto('admin');
+//             //drupal_goto('account');   
+//         }
+//         break;
         
-    case 'logout':
-        /*$isRedirectHome = (isset($account->profile_memberid)&&is_member($account->profile_memberid)) || is_distributor($account) || is_associate($account) || is_subuser($account) || is_claim_examiner($account);
-        if ($isRedirectHome) {
-            drupal_goto();
-        } else {
-            drupal_goto('admin');
-        }*/
-        break;
-    case 'delete':
-        if (isset($account->profile_memberid)) {
-        //  $query = "DELETE FROM member_id_pool WHERE member_id = '" . $account->profile_memberid . "' AND used = '1' ";
-            $result = db_query('DELETE FROM {member_id_pool} WHERE member_id =:a AND used = 1',array(':a'=>$account->profile_memberid));
-        //  $query = "DELETE FROM member_first_free WHERE member_id = '" . $account->profile_memberid . "' AND status = 1 ";
-            $result = db_query('DELETE FROM {member_first_free} WHERE member_id = :a AND status = 1',array(':a'=>$account->profile_memberid));
-        //  $query = "DELETE FROM member_gold_demo WHERE member_id = '" . $account->profile_memberid . "' AND status = 1 ";
-            $result = db_query('DELETE FROM {member_gold_demo} WHERE member_id = :a AND status = 1',array(':a'=>$account->profile_memberid));
-        //  $query = "DELETE FROM ncn_member_logo WHERE member_id = '" . $account->profile_memberid . "' AND status = 1 ";
-            $result = db_query('DELETE FROM {ncn_member_logo} WHERE member_id = :a AND status = 1',array(':a'=>$account->profile_memberid));
-        }
-        break;
+//     case 'logout':
+//         /*$isRedirectHome = (isset($account->profile_memberid)&&is_member($account->profile_memberid)) || is_distributor($account) || is_associate($account) || is_subuser($account) || is_claim_examiner($account);
+//         if ($isRedirectHome) {
+//             drupal_goto();
+//         } else {
+//             drupal_goto('admin');
+//         }*/
+//         break;
+//     case 'delete':
+//         if (isset($account->profile_memberid)) {
+//         //  $query = "DELETE FROM member_id_pool WHERE member_id = '" . $account->profile_memberid . "' AND used = '1' ";
+//             $result = db_query('DELETE FROM {member_id_pool} WHERE member_id =:a AND used = 1',array(':a'=>$account->profile_memberid));
+//         //  $query = "DELETE FROM member_first_free WHERE member_id = '" . $account->profile_memberid . "' AND status = 1 ";
+//             $result = db_query('DELETE FROM {member_first_free} WHERE member_id = :a AND status = 1',array(':a'=>$account->profile_memberid));
+//         //  $query = "DELETE FROM member_gold_demo WHERE member_id = '" . $account->profile_memberid . "' AND status = 1 ";
+//             $result = db_query('DELETE FROM {member_gold_demo} WHERE member_id = :a AND status = 1',array(':a'=>$account->profile_memberid));
+//         //  $query = "DELETE FROM ncn_member_logo WHERE member_id = '" . $account->profile_memberid . "' AND status = 1 ";
+//             $result = db_query('DELETE FROM {ncn_member_logo} WHERE member_id = :a AND status = 1',array(':a'=>$account->profile_memberid));
+//         }
+//         break;
+//     }
+// }
+
+/**
+ * hook_user_login
+ */
+function ncn_admin_user_login(&$edit, $account) {
+    if ( (isset($account->profile_memberid) && is_member($account->profile_memberid)) || is_distributor($account) || is_associate($account) || is_subuser($account) || is_leaduser($account)) {
+        drupal_goto('account');
+    } else if (module_exists('ncn_ceportal') && is_claim_examiner($account)) {
+        drupal_goto('ce_portal/home');
+    } else {
+        drupal_goto('admin');
+        //drupal_goto('account');
     }
 }
 
-//------------------------------------------------------------------------------
+/**
+ * hook_user_logout
+ */
+function ncn_admin_user_logout($account) {
+    /*$isRedirectHome = (isset($account->profile_memberid)&&is_member($account->profile_memberid)) || is_distributor($account) || is_associate($account) || is_subuser($account) || is_claim_examiner($account);
+    if ($isRedirectHome) {
+        drupal_goto();
+    } else {
+        drupal_goto('admin');
+    }*/
+}
+
+/**
+ * hook_user_delete
+ */
+function ncn_admin_user_delete($account) {
+    if (isset($account->profile_memberid)) {
+    //  $query = "DELETE FROM member_id_pool WHERE member_id = '" . $account->profile_memberid . "' AND used = '1' ";
+        $result = db_query('DELETE FROM {member_id_pool} WHERE member_id =:a AND used = 1',array(':a'=>$account->profile_memberid));
+    //  $query = "DELETE FROM member_first_free WHERE member_id = '" . $account->profile_memberid . "' AND status = 1 ";
+        $result = db_query('DELETE FROM {member_first_free} WHERE member_id = :a AND status = 1',array(':a'=>$account->profile_memberid));
+    //  $query = "DELETE FROM member_gold_demo WHERE member_id = '" . $account->profile_memberid . "' AND status = 1 ";
+        $result = db_query('DELETE FROM {member_gold_demo} WHERE member_id = :a AND status = 1',array(':a'=>$account->profile_memberid));
+    //  $query = "DELETE FROM ncn_member_logo WHERE member_id = '" . $account->profile_memberid . "' AND status = 1 ";
+        $result = db_query('DELETE FROM {ncn_member_logo} WHERE member_id = :a AND status = 1',array(':a'=>$account->profile_memberid));
+    }
+}
+
+/**
+ * hook_mail
+ */
 function ncn_admin_mail($key, &$message, $params)
 {
     $language = $message['language'];

@@ -40,8 +40,8 @@ function extended_menu_preprocess_page(&$vars, $hook)
 	$_url_arg = explode('/', request_uri());
 	if (($user->uid > 1 && is_claim_examiner($user)) || ($user->uid == 1 && $_url_arg[1] == 'ce_portal'))
 	{
-		$menu_map = extended_menu_get_menu_top2levels('menu-ce-portal');
-		$menu_parent_children = extended_get_menu_children_parents_set('menu-ce-portal');
+		$menu_map = extended_menu_get_menu_top2levels('menu-ce-portal-menu');
+		$menu_parent_children = extended_get_menu_children_parents_set('menu-ce-portal-menu');
 	}
 	else
 	{
