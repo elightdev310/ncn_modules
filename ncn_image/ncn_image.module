@@ -446,6 +446,7 @@ function ncn_upload_changed_image() {
     } else if ($file->filemime != 'image/jpeg' && $file->filemime != 'image/jpg' && $file->filemime != 'image/gif' && $file->filemime != 'image/png' && strtolower(substr($file->filename, -4)) != ".bmp") {
         $result['flag'] = 'error2';
         $result['msg']  = t('You need to upload image file.');
+        file_delete($file);
     } else {
         $claim_dir = "sites/default/files/user_files/$claim_id/";
         
@@ -455,15 +456,16 @@ function ncn_upload_changed_image() {
         
 //      $filename = preg_replace("/[^a-zA-Z0-9\s\.]/", "_", basename($file->filename));
         $res = file_copy($file, "public://user_files/$claim_id/", FILE_EXISTS_RENAME);
-        
-        if ( strtolower(substr($file->filename, -4)) == ".bmp" ) {
-            $old_filepath = drupal_realpath($file->uri);
-            $result_convert = convert_bmp_to_jpg($file);
-//          file_delete($old_filepath);
-            @unlink($old_filepath);
+        file_delete($file);
+
+        if ( strtolower(substr($res->filename, -4)) == ".bmp" ) {
+            $old_filepath = drupal_realpath($res->uri);
+            $result_convert = convert_bmp_to_jpg($res);
+            //@unlink($old_filepath);
+            file_delete($res);
             if ($result_convert === FALSE) {
                 $result['flag'] = 'error4';
-                $result['msg']  = "Failed to convert uploaded bmp file to png file. ($file->filename)";
+                $result['msg']  = "Failed to convert uploaded bmp file to png file. ($res->filename)";
             } else {
                 $res = $result_convert;
             }

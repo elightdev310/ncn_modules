@@ -1371,6 +1371,7 @@ function ncn_admin_scopeform_submit($roomname) {
         return;
     } else if ($file->filemime != 'image/jpeg' && $file->filemime != 'image/jpg' && $file->filemime != 'image/gif' && $file->filemime != 'image/png' && strtolower(substr($file->filename, -4)) != ".bmp") {
         drupal_set_message("Scope file should be only Image (room name: $roomname)", "error");
+        file_delete($file);
         return;
     }
 
@@ -1382,9 +1383,12 @@ function ncn_admin_scopeform_submit($roomname) {
     }
 
     $res = file_copy($file, "public://invoices/{$claim_id}", FILE_EXISTS_RENAME);
+    file_delete($file);
+
+    $file = $res;
 
     // add invoice to database
-    if ($res)
+    if ($file)
     {
         if ( strtolower(substr($file->filename, -4)) == ".bmp" ) {
             
@@ -1420,9 +1424,8 @@ function ncn_admin_scopeform_submit($roomname) {
 //          $revision = $row['revision']+1;
 
             $revision = 0;  
-//          file_delete($row['filepath']);
-
-            @unlink(drupal_realpath($row['filepath']));
+            file_delete($row['filepath']);
+            // @unlink(drupal_realpath($row['filepath']));
 
             $query = db_query('UPDATE {claims_scope} SET filename=:a, filepath=:b, filemime=:d,
             `timestamp`=:e WHERE claim_id=:f AND roomname=:g',array(':a'=>$file->filename,':b'=>$filePath.$file->filename,
@@ -1458,6 +1461,7 @@ function ncn_admin_auto_scopeform_full_pdf_submit($claim_id, $roomname) {
         return;
     } else if ($file->filemime != 'application/pdf') {
         drupal_set_message("Scope file should be only PDF (room name: $roomname)", "error");
+        file_delete($file);
         return;
     }
     
@@ -1501,7 +1505,8 @@ function ncn_admin_auto_scopeform_full_pdf_submit($claim_id, $roomname) {
         );
             
         $bAction = _ncn_image_api('crop', $api_params);
-        @unlink(drupal_realpath($img_file->uri));
+        //@unlink(drupal_realpath($img_file->uri));
+        file_delete($img_file);
         if ($bAction) {
             // get last revision
         //  $query = "SELECT * FROM claims_scope WHERE claim_id=".$claim_id." AND roomname=\"".$roomname."\"";
@@ -1523,7 +1528,8 @@ function ncn_admin_auto_scopeform_full_pdf_submit($claim_id, $roomname) {
                 
                 $revision = 0;  
 
-                @unlink(drupal_realpath($row['filepath']));
+                //@unlink(drupal_realpath($row['filepath']));
+                file_delete($row['filepath']);
 
                 $query = db_query('UPDATE {claims_scope} SET filename=:a , filepath=:b , filemime=:c , `timestamp`=:d WHERE claim_id=:e AND roomname=:f',
                 array(':a'=>$dest_file['filename'],':b'=>$filePath.$dest_file['filename'],':c'=>$dest_file['filemime'],
@@ -1563,57 +1569,59 @@ function ncn_admin_scopeform_full_pdf_submit($claim_id, $roomname) {
     } else if ($file->filemime != 'application/pdf') {
         //drupal_set_message("Scope file should be only PDF (room name: $roomname)", "error");
         $json_data['error'] = "Scope file should be only PDF (room name: $roomname)";
+        file_delete($file);
         //return;
     }
     
     if ($json_data['error'] == '') {
 
-    $filePath = "sites/default/files/invoices/$claim_id/";
-    $claim_dir = DRUPAL_ROOT."/".$filePath;
-    
-    if (!is_dir($claim_dir)) {
-        mkdir($claim_dir, 0755);
-    }
-
-    $res = file_copy($file, "public://invoices/{$claim_id}", FILE_EXISTS_RENAME);
-    file_delete($file);
-    
-    $dest_file['uri'] = $res->uri;
-    $dest_file['filename'] = $res->filename;
-
-    $img_file = convert_pdf_to_jpg($res, $claim_dir);
-    if ($img_file == FALSE) {
-        //drupal_set_message(t("Failed to convert PDF to Image, after uploading scope pdf file(room name :!roomname)", array('!roomname'=>$roomname)), "error");
-        $json_data['error'] = "Failed to convert PDF to Image, after uploading scope pdf file(room name :$roomname)";
-        //return;
-    } else {
-    
-        // Scaling converted image
-        $ts = date('U');
-        $dest_file['uri'] .= "_scope_".$ts.".jpg";
-        $dest_file['filename'] .= "_scope_".$ts.".jpg";
-        $dest_file['filemime'] = "image/jpg";
+        $filePath = "sites/default/files/invoices/$claim_id/";
+        $claim_dir = DRUPAL_ROOT."/".$filePath;
         
-        
-        $api_params = array(
-            'action'    => 'scale',
-            'width'     => 600,
-            'height'    => NULL,
-            'upscale'   => FALSE,
-            
-            'source'    => $img_file->filepath,
-            'dest'      => $dest_file['uri']
-        );
-            
-        $bAction = _ncn_image_api('scale', $api_params);
-        @unlink(drupal_realpath($img_file->uri));
-        if ($bAction) {
-            $json_data['filepath'] = str_replace('public://', 'sites/default/files/', $dest_file['uri']);
-            $json_data['filepath'] = base64_encode($json_data['filepath']);
-        } else {
-            $json_data['error'] = "Failed to crop image, after uploading scope pdf file and converting to image (room name :$roomname)";
+        if (!is_dir($claim_dir)) {
+            mkdir($claim_dir, 0755);
         }
-    }
+
+        $res = file_copy($file, "public://invoices/{$claim_id}", FILE_EXISTS_RENAME);
+        file_delete($file);
+        
+        $dest_file['uri'] = $res->uri;
+        $dest_file['filename'] = $res->filename;
+
+        $img_file = convert_pdf_to_jpg($res, $claim_dir);
+        if ($img_file == FALSE) {
+            //drupal_set_message(t("Failed to convert PDF to Image, after uploading scope pdf file(room name :!roomname)", array('!roomname'=>$roomname)), "error");
+            $json_data['error'] = "Failed to convert PDF to Image, after uploading scope pdf file(room name :$roomname)";
+            //return;
+        } else {
+        
+            // Scaling converted image
+            $ts = date('U');
+            $dest_file['uri'] .= "_scope_".$ts.".jpg";
+            $dest_file['filename'] .= "_scope_".$ts.".jpg";
+            $dest_file['filemime'] = "image/jpg";
+            
+            
+            $api_params = array(
+                'action'    => 'scale',
+                'width'     => 600,
+                'height'    => NULL,
+                'upscale'   => FALSE,
+                
+                'source'    => $img_file->filepath,
+                'dest'      => $dest_file['uri']
+            );
+                
+            $bAction = _ncn_image_api('scale', $api_params);
+            //@unlink(drupal_realpath($img_file->uri));
+            file_delete($img_file);
+            if ($bAction) {
+                $json_data['filepath'] = str_replace('public://', 'sites/default/files/', $dest_file['uri']);
+                $json_data['filepath'] = base64_encode($json_data['filepath']);
+            } else {
+                $json_data['error'] = "Failed to crop image, after uploading scope pdf file and converting to image (room name :$roomname)";
+            }
+        }
     }
     
     echo json_encode($json_data);
@@ -1659,93 +1667,6 @@ function ncn_admin_claimsdata_update($claim_id) {
   
   // Synchronize Additional Data
   ncn_admin_sync_additional_data($claim_id, $options);
-}
-
-//------------------------------------------------------------------------------
-// upload user specific document
-function ncn_admin_upload_document($form_state)
-{
-
-    $form = array();
-    $form['#attributes'] = array('enctype' => "multipart/form-data");
-
-    $form['op'] = array(
-        '#type' => 'user_edit',
-        '#value' => 'true',
-    );
-
-    $form['document_title'] = array(
-        '#type' => 'textfield', 
-        '#title' => t('Document Title'),
-    );
-
-    $form['document_upload'] = array(
-        '#type' => 'file',
-        '#title' => t(''),
-    );
-    
-    $form['current_scroll_position'] = array(
-        '#type' => 'hidden',
-        '#attributes' => array('class' => t('current_scroll_position')),
-        '#value' => t(''),
-    );
-    
-    $form['next'] = array('#type' => 'submit', '#weight' => 101, '#value' => t('Upload Document'), '#attributes' => array('onclick' => 'return on_set_scroll_position()'));
-
-    return($form);
-
-}
-
-//------------------------------------------------------------------------------
-function ncn_admin_upload_document_validate($form, $form_state)
-{
-
-    // check title was long enough
-    
-    if (strlen($form_state['values']['document_title']) < 6)
-    {
-        // If you want to require it, you'll want to do it here... something like this:
-        form_set_error('document_title', 'Document title must be at least 6 characters.');
-        return;
-    }
-
-    // check file was uploaded
-    $file = file_save_upload('document_upload');
-
-    if (!$file)
-    {
-        // If you want to require it, you'll want to do it here... something like this:
-        form_set_error('document_upload', 'File missing for upload.');
-    }
-  
-}
-
-//------------------------------------------------------------------------------
-function ncn_admin_upload_document_submit($form, $form_state)
-{
-    $user_id = arg(4);
-
-    if(isset($form_state['clicked_button']['#post']['current_scroll_position']))
-    {
-        $_SESSION['current_scroll_position'] = $form_state['clicked_button']['#post']['current_scroll_position'];
-    } 
-
-    // we know the file was good
-    $file = file_save_upload('document_upload');
-    $res = file_copy($file, 'sites/default/files/user_files/');
-    
-    // add invoice to database
-    if ($res)
-    {
-    //  $query = "INSERT INTO member_documents VALUES(NULL, ".$user_id.", \"".AddSlashes($form_state['values']['document_title'])."\", \"".AddSlashes($file->filepath)."\", \"".AddSlashes($file->filename)."\",  \"".AddSlashes($file->filemime)."\");";
-        $result = db_query('INSERT INTO {member_documents} VALUES(NULL,:a,:b,:c,:d,:e)',
-            array(':a'=>$user_id,':b'=>$form_state['values']['document_title'],':c'=>$file->filepath,':d'=>$file->filename,
-            ':e'=>$file->filemime));
-
-        drupal_set_message('Uploaded new document.', 'status');
-            
-    }
-    
 }
 
 //------------------------------------------------------------------------------

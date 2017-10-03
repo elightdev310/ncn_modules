@@ -67,9 +67,14 @@ function ncn_admin_invoiceform_3_submit($form, &$form_state)
             file_delete($fileObj);
             $file->filepath = str_replace("public://","sites/default/files/",$file->uri);
 
-            $query = db_query('UPDATE {claims_invoices} SET filename=:a, filepath=:b, filemime=:c,
-                timestamp=:d WHERE claim_id=:e AND live=:f',array(':a'=>$file->filename,':b'=>$file->filepath,
-                ':c'=>$file->filemime,':d'=>date('U'),':e'=>$claim_id,':f'=>$live));
+            $query = db_query('UPDATE {claims_invoices} SET filename=:a, filepath=:b, filemime=:c, timestamp=:d 
+                                        WHERE claim_id=:e AND live=:f',
+                                array(':a'=>$file->filename,
+                                      ':b'=>$file->filepath,
+                                      ':c'=>$file->filemime,
+                                      ':d'=>date('U'),
+                                      ':e'=>$claim_id,
+                                      ':f'=>$live));
         }
         
         $result = $query;

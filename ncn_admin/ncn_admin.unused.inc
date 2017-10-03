@@ -2064,3 +2064,90 @@ function user_edit_new($in_admin = true, $uid = false)
         <?php
     }}
 }
+
+//------------------------------------------------------------------------------
+// upload user specific document
+function ncn_admin_upload_document($form_state)
+{
+
+    $form = array();
+    $form['#attributes'] = array('enctype' => "multipart/form-data");
+
+    $form['op'] = array(
+        '#type' => 'user_edit',
+        '#value' => 'true',
+    );
+
+    $form['document_title'] = array(
+        '#type' => 'textfield', 
+        '#title' => t('Document Title'),
+    );
+
+    $form['document_upload'] = array(
+        '#type' => 'file',
+        '#title' => t(''),
+    );
+    
+    $form['current_scroll_position'] = array(
+        '#type' => 'hidden',
+        '#attributes' => array('class' => t('current_scroll_position')),
+        '#value' => t(''),
+    );
+    
+    $form['next'] = array('#type' => 'submit', '#weight' => 101, '#value' => t('Upload Document'), '#attributes' => array('onclick' => 'return on_set_scroll_position()'));
+
+    return($form);
+
+}
+
+//------------------------------------------------------------------------------
+function ncn_admin_upload_document_validate($form, $form_state)
+{
+
+    // check title was long enough
+    
+    if (strlen($form_state['values']['document_title']) < 6)
+    {
+        // If you want to require it, you'll want to do it here... something like this:
+        form_set_error('document_title', 'Document title must be at least 6 characters.');
+        return;
+    }
+
+    // check file was uploaded
+    $file = file_save_upload('document_upload');
+
+    if (!$file)
+    {
+        // If you want to require it, you'll want to do it here... something like this:
+        form_set_error('document_upload', 'File missing for upload.');
+    }
+  
+}
+
+//------------------------------------------------------------------------------
+function ncn_admin_upload_document_submit($form, $form_state)
+{
+    $user_id = arg(4);
+
+    if(isset($form_state['clicked_button']['#post']['current_scroll_position']))
+    {
+        $_SESSION['current_scroll_position'] = $form_state['clicked_button']['#post']['current_scroll_position'];
+    } 
+
+    // we know the file was good
+    $file = file_save_upload('document_upload');
+    $res = file_copy($file, 'sites/default/files/user_files/');
+    
+    // add invoice to database
+    if ($res)
+    {
+    //  $query = "INSERT INTO member_documents VALUES(NULL, ".$user_id.", \"".AddSlashes($form_state['values']['document_title'])."\", \"".AddSlashes($file->filepath)."\", \"".AddSlashes($file->filename)."\",  \"".AddSlashes($file->filemime)."\");";
+        $result = db_query('INSERT INTO {member_documents} VALUES(NULL,:a,:b,:c,:d,:e)',
+            array(':a'=>$user_id,':b'=>$form_state['values']['document_title'],':c'=>$file->filepath,':d'=>$file->filename,
+            ':e'=>$file->filemime));
+
+        drupal_set_message('Uploaded new document.', 'status');
+            
+    }
+    
+}

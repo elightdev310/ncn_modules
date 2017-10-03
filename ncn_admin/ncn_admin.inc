@@ -2915,13 +2915,13 @@ function ncn_admin_upload_member_logo($member_id)
         return FALSE;
     }
 
-    $b_row = db_query("SELECT COUNT(*) as tot FROM {ncn_member_logo} WHERE member_id='$member_id'")->fetchAssoc();
+    $b_row = db_query("SELECT * FROM {ncn_member_logo} WHERE member_id='$member_id'")->fetchAssoc();
     $filepath = variable_get('file_public_path', conf_path() . '/files')."/member_logo/".$member_id."/".$file->filename;
 
-    if ($b_row['tot'] != 0)
+    if (!empty($b_row))
     {
         //$result = db_query("UPDATE {ncn_member_logo} SET filename=':fn', filepath=':fp', filemime=':fm', timestamp=':ts' WHERE member_id=':mid'", array(':fn' => $file->filename, ':fp' => $filepath,':fm' => $file->filemime,':ts' => date('U') ,':mid' => $member_id));
-        
+        file_delete($b_row['filepath']);
         $result =  db_update('ncn_member_logo')->fields(array(
                                                           'filename' => $file->filename,
                                                           'filepath' => $filepath,
