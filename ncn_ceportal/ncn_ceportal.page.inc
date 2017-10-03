@@ -109,7 +109,10 @@ global $base_url;
 }
 
 function ncn_ceportal_render_accept_button($ce_claim, $ce_uid) {
+global $base_url;
+
     $b_anchor = true;
+    $ce_disabled = '';
     if ($ce_claim['assigned']!=0) {
         if ($ce_claim['ce_uid'] == $ce_uid) {
             $span_text = 'Me';
@@ -365,17 +368,18 @@ global $base_url;
 
     $result = db_query("SELECT * FROM {claims_invoices} WHERE claim_id=:claim_id AND `live`=:live ORDER BY revision DESC",
         array(":claim_id"=>$claim_id,":live"=>$claim_file_type));
-    $result = $result->rowCount();
-    $_url_to_file = $base_url.base_path()."account/serve_invoice_file/$claim_id/$claim_file_type/0";
     $output = '';
     $b_reload = false;
-    if ($result>0) {
+    if ($result->rowCount()>0) {
         $b_reload = true;
         $donwload_class = $class." downloadable";
+        $ci = $result->fetchAssoc();
+        $_url_to_file = $base_url.base_path()."account/serve_invoice_file/$claim_id/$claim_file_type/0/".$ci['invoice_id'];
+        $output = "<a href='$_url_to_file' class='$donwload_class ce-file-download link-btn'>Download</a>";
     } else {
         $donwload_class = $class;
     }
-    $output = "<a href='$_url_to_file' class='$donwload_class ce-file-download link-btn'>Download</a>";
+
     
     if ($uploadable) {
         if ($b_reload) {
@@ -383,7 +387,7 @@ global $base_url;
         } else {
             $upload_class = $class;
         }
-        $output .= "<a href='#' id='$id' name='files[$name]' class='$upload_class ce-file-upload link-btn'>Upload</a>";
+        $output .= "<div href='#' id='$id' name='files[$name]' class='$upload_class ce-file-upload link-btn'>Upload</div>";
         drupal_add_js("jQuery(document).ready( function(){
             ncn_ceportal_bind_ajax_upload('#$id', 'files[$name]', '$name', $claim_id, $claim_file_type);
         }); ", 'inline'

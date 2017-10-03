@@ -178,20 +178,6 @@ function ncn_ceportal_mail($key, &$message, $params) {
 	}
 }
 
-function ncn_ceportal_mail_alter(&$message) {
-	/*
-	$_admin = user_load(1);
-	$bcc = $message['headers']['Bcc'];
-	if (strpos($bcc, $_admin->mail) === FALSE) {
-		if (!empty($bcc)) {
-			$bcc .= ", ";
-		}
-		$bcc .= $_admin->mail;
-	}
-	$message['headers']['Bcc'] = $bcc;
-	*/
-}
-
 function ncn_ceportal_form_alter(&$form, &$form_state, $form_id) {
 	switch($form_id) {
 		case 'user_register':

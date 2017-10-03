@@ -112,17 +112,3 @@ function ncn_poll_mail($key, &$message, $params) {
 			break;
 	}*/
 }
-
-function ncn_poll_mail_alter(&$message) {
-	/*
-	$_admin = user_load(1);
-	$bcc = $message['headers']['Bcc'];
-	if (strpos($bcc, $_admin->mail) === FALSE) {
-		if (!empty($bcc)) {
-			$bcc .= ", ";
-		}
-		$bcc .= $_admin->mail;
-	}
-	$message['headers']['Bcc'] = $bcc;
-	*/
-}

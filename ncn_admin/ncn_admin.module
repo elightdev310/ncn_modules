@@ -22,13 +22,14 @@ require_once('ncn_admin.unused.inc');
 
 function ncn_admin_init()
 {
-    drupal_add_library('system', 'jquery.form');
+    //drupal_add_library('system', 'jquery.form');
     drupal_add_library('system', 'ui.datepicker');
     drupal_add_library('system', 'ui.widget');
 
     drupal_add_js(drupal_get_path('module', 'ncn_admin') . '/js_plugins/jquery.maskedinput.min.js');    // 1.4.1
     drupal_add_js(drupal_get_path('module', 'ncn_admin') . '/js_plugins/jquery.tinyscrollbar.js');      // 1.8
     drupal_add_js(drupal_get_path('module', 'ncn_admin') . '/js_plugins/jquery-loading-overlay/loading-overlay.min.js');      // 1.0.2
+    drupal_add_js(drupal_get_path('module', 'ncn_admin') . '/js_plugins/jquery-uploadfile/jquery.uploadfile.min.js');
 
     // JCrop 2.x
     drupal_add_js (drupal_get_path('module', 'ncn_admin').'/js_plugins/Jcrop/js/Jcrop.min.js');
@@ -646,11 +647,11 @@ function ncn_admin_mail($key, &$message, $params)
 }
 
 function ncn_admin_mail_alter(&$message) {
+    $_admin = user_load(1);
     if ($message['id'] == 'user_register_pending_approval') {   //"modulename_key"
-        $_admin = user_load(1);
         $message['headers']['Bcc'] = $_admin->mail;
-    } else {
-        $_admin = user_load(1);
+    } else if ($message['to'] != $_admin->mail ){
+        // Add admin mail as bcc
         $bcc = isset($message['headers']['Bcc'])?$message['headers']['Bcc']:'';
         if (strpos($bcc, $_admin->mail) === FALSE) {
             if (!empty($bcc)) {
@@ -659,7 +660,6 @@ function ncn_admin_mail_alter(&$message) {
             $bcc .= $_admin->mail;
         }
         $message['headers']['Bcc'] = $bcc;
-        
     }
     $message['from'] = "noreply@netclaimsnow.com";
     $message['headers']['From'] = "noreply@netclaimsnow.com";

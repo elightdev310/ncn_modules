@@ -285,26 +285,6 @@ function ncn_create_user_mail($key, &$message, $params)
     }
 }
 
-function ncn_create_user_mail_alter($message) 
-{
-    if ($message['id'] == 'user_register_pending_approval') {   //"modulename_key"
-        $_admin = user_load(1);
-        $message['headers']['Bcc'] = $_admin->mail;
-    } else {
-        $_admin = user_load(1);
-        $bcc = isset($message['headers']['Bcc'])?$message['headers']['Bcc']:'';
-        if (strpos($bcc, $_admin->mail) === FALSE) {
-            if (!empty($bcc)) {
-                $bcc .= ", ";
-            }
-            $bcc .= $_admin->mail;
-        }
-        $message['headers']['Bcc'] = $bcc;
-    }
-    $message['from'] = "noreply@netclaimsnow.com";
-    $message['headers']['From'] = "noreply@netclaimsnow.com";
-}
-
 function user_build_filter_querys() 
 {
     $filters = user_filters();

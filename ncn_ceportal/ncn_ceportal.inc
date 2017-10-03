@@ -239,24 +239,28 @@ function ncn_ceportal_check_claim_available($ce_claim, $ce_claim_id) {
 function ncn_ceportal_ajax_upload_claim_file($claim_id, $claim_file_type) {
 global $user;
 
-    $source_name = $_REQUEST['file_name'];
-    
+    //$source_name = $_REQUEST['file_name'];
+    $source_name = "cefile";
     $r_json = array();
     $r_json['flag'] = 'success';
     
     /***************************************************************************/
     $claim_file_title = ncn_admin_get_claim_file_title($claim_file_type);
     
-    $file = file_save_upload($source_name);
-    $claim_dir = "sites/default/files/invoices/$claim_id/";
-    
-    if (!is_dir($claim_dir)) {
-        mkdir($claim_dir, 0755);
+    $tmp_file = file_save_upload($source_name);
+
+    $claim_dir = "public://invoices/$claim_id";
+
+    if (!is_dir(drupal_realpath($claim_dir))) {
+        mkdir(drupal_realpath($claim_dir), 0755);
     }
-    $res = file_copy($file, $claim_dir);
+    $file = file_copy($tmp_file, $claim_dir, FILE_EXISTS_RENAME);
+    file_delete($tmp_file);
     // add invoice to database
-    if ($res)
+    $res = true;
+    if ($file)
     {
+        $file->filepath = str_replace('public://', 'sites/default/files/', $file->uri);
         $result = db_query("SELECT * FROM {claims_invoices} WHERE claim_id=:a AND `live`=:b ORDER BY revision DESC",
             array(":a"=>$claim_id,":b"=>$claim_file_type));
         if (!($row=$result->fetchAssoc()) ) {
@@ -264,20 +268,32 @@ global $user;
         }
         if (empty($row))
         {   
-            $revision = 0;  
-            $query = "INSERT INTO claims_invoices VALUES(NULL, ".$claim_id.", ".$revision.", \"".AddSlashes($file->filename)."\", \"".AddSlashes($file->filepath)."\", \"".AddSlashes($file->filemime)."\", ".date('U').", ".$claim_file_type.");";
+            $revision = 0;
+            $res = db_query('INSERT INTO {claims_invoices} VALUES(NULL,:a,:b,:c,:d,:e,:f,:g)',
+                                array(':a'=>$claim_id,
+                                      ':b'=>$revision,
+                                      ':c'=>$file->filename,
+                                      ':d'=>$file->filepath,
+                                      ':e'=>$file->filemime,
+                                      ':f'=>date('U'),
+                                      ':g'=>$claim_file_type));
         }
         else
-        {           
-            $revision = 0;  
+        {
+            $revision = 0;
             file_delete($row['filepath']);
-            $query = "UPDATE claims_invoices SET filename=\"".AddSlashes($file->filename)."\", filepath=\"".AddSlashes($file->filepath)."\", filemime=\"".AddSlashes($file->filemime)."\", timestamp=".date('U')." WHERE claim_id=$claim_id AND live=".$claim_file_type;
+            $res = db_query('UPDATE {claims_invoices} SET filename=:a, filepath=:b, filemime=:c, timestamp=:d 
+                                        WHERE claim_id=:e AND live=:f',
+                               array(':a'=>$file->filename,
+                                     ':b'=>$file->filepath,
+                                     ':c'=>$file->filemime,
+                                     ':d'=>date('U'),
+                                     ':e'=>$claim_id,
+                                     ':f'=>$claim_file_type));
         }
-        
-        $res = db_query($query);
     } 
     
-    if ($res) {
+    if ($file && $res) {
         $r_json['message'] = t("Upload a file, successfully (#!claim_id - !file_name)", array('!claim_id'=>$claim_id, '!file_name'=>$claim_file_title));
         drupal_set_message($r_json['message']);
         

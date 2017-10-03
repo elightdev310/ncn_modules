@@ -12,7 +12,7 @@ require_once('ncn_ceportal.scopesheet.inc');
 
 function ncn_ceportal_init() {
     drupal_add_js(drupal_get_path('module', 'ncn_ceportal').'/ncn_ceportal.js');
-    drupal_add_js(drupal_get_path('module', 'ncn_ceportal').'/ajaxupload.3.5.js');
+    //drupal_add_js(drupal_get_path('module', 'ncn_ceportal').'/ajaxupload.3.5.js');
 }
 
 /**
@@ -176,20 +176,6 @@ function ncn_ceportal_mail($key, &$message, $params) {
           $message['body'][] = t(variable_get('checked_assign_to_ce_mail_body', ''), $params, $options);
         break;
     }
-}
-
-function ncn_ceportal_mail_alter(&$message) {
-    /*
-    $_admin = user_load(1);
-    $bcc = $message['headers']['Bcc'];
-    if (strpos($bcc, $_admin->mail) === FALSE) {
-        if (!empty($bcc)) {
-            $bcc .= ", ";
-        }
-        $bcc .= $_admin->mail;
-    }
-    $message['headers']['Bcc'] = $bcc;
-    */
 }
 
 function ncn_ceportal_form_alter(&$form, &$form_state, $form_id) {
