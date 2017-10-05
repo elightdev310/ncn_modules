@@ -27,13 +27,12 @@ function ncn_user_menu()
 	return $item;
 }
 
-function ncn_user_user($op, &$edit, &$account, $category = NULL) {
-  switch ($op) {
-    case "update":
-      if ($account->status == 0 && $edit['status'] == 1)  {
-        ncn_user_update_user_unblock_track($account->uid, date('U'));
-      }
-    break;
+/**
+ * hook_user_presave
+ */
+function ncn_user_user_presave(&$edit, $account, $category) {
+  if ($account->status == 0 && $edit['status'] == 1)  {
+    ncn_user_update_user_unblock_track($account->uid, date('U'));
   }
 }
 

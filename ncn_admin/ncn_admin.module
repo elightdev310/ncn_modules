@@ -488,7 +488,12 @@ function ncn_admin_theme() {
  * hook_user_login
  */
 function ncn_admin_user_login(&$edit, $account) {
-    if ( (isset($account->profile_memberid) && is_member($account->profile_memberid)) || is_distributor($account) || is_associate($account) || is_subuser($account) || is_leaduser($account)) {
+    if ((isset($account->profile_memberid) && is_member($account->profile_memberid)) || 
+        is_distributor($account) || 
+        is_associate($account) || 
+        is_subuser($account) || 
+        is_leaduser($account)) 
+    {
         drupal_goto('account');
     } else if (module_exists('ncn_ceportal') && is_claim_examiner($account)) {
         drupal_goto('ce_portal/home');

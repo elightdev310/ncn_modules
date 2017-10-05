@@ -25,7 +25,7 @@ function extended_menu_preprocess_page(&$vars, $hook)
 	{
 		$user = user_load($user->uid);
 	}
-	if (isset($user->roles[23]))
+	if (is_leaduser($user))
 	{
 		$GLOBALS['account_role'] = "leaduser";
 	}

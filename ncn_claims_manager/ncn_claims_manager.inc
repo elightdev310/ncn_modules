@@ -826,7 +826,7 @@ function invoiced_to_date($uid)
     // get total of all claims (that are not incomplete)
     $total = 0;
 
-    if (isset($_user->roles[23])) {
+    if (is_leaduser($_user)) {
         $query = db_query('SELECT claim_amount FROM {claims} WHERE leaduser=:a and (claim_status=:b OR claim_status=:c)',array(':a'=>$user_id,':b'=>'receivables',':c'=>'archived'));
     } else {
         $query = db_query('SELECT claim_amount FROM {claims} WHERE user_id=:a',array(':a'=>$user_id));

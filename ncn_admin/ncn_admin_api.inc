@@ -954,9 +954,15 @@ function ncn_admin_get_claim_file($claim_id, $claim_file_type, $revision=0) {
 function ncn_admin_get_workplace_name($uid) {
     $_user = user_load($uid);
     if ($_user) {
-        if ((isset($_user->profile_memberid) && is_member($_user->profile_memberid)) || is_distributor($_user) || is_associate($_user) || is_subuser($_user) || is_claim_examiner($_user))
+        if ((isset($_user->profile_memberid) && is_member($_user->profile_memberid)) || 
+            is_distributor($_user) || 
+            is_associate($_user) || 
+            is_subuser($_user) || 
+            is_leaduser($_user))
         {
             return "account";
+        } else if (is_claim_examiner($_user)) {
+            return "ce_portal/home";
         } else {
             return "admin";
         }

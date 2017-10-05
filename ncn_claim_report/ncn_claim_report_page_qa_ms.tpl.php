@@ -69,7 +69,7 @@ table {
 #ncn_table_body{
 	position: absolute;
 	left: 10px;
-	top: 210px;
+	top: 220px;
 }
 
 .col-group div{ width: 80px;}
@@ -133,23 +133,23 @@ foreach ($t_data as $data): ?>
 <?php if ($data['#row_type'] == 'claim') : ?>
 <tr>
 	<td class="col-group"><div>&nbsp;</div></td>
-	<td class="col-member"><div><?php echo $data['member']; ?></div></td>
-	<td class="col-type"><div><?php echo $data['type']; ?></div></td>
-	<td class="col-product"><div><?php echo $data['product']; ?></div></td>
-	<td class="col-owner"><div><?php echo $data['owner']; ?></div></td>
-	<td class="col-claim-id"><div><?php echo $data['claim_id_url']; ?></div></td>
+	<td class="col-member"><div><?php echo isset($data['member'])?$data['member']:''; ?></div></td>
+	<td class="col-type"><div><?php echo isset($data['type'])?$data['type']:''; ?></div></td>
+	<td class="col-product"><div><?php echo isset($data['product'])?$data['product']:''; ?></div></td>
+	<td class="col-owner"><div><?php echo isset($data['owner'])?$data['owner']:''; ?></div></td>
+	<td class="col-claim-id"><div><?php echo isset($data['claim_id_url'])?$data['claim_id_url']:''; ?></div></td>
 	
-	<td class="col-ccl-ei"><div><?php echo $data['check_claim_logfile']; ?></div></td>
-	<td class="col-ce-crs"><div><?php echo $data['ce_claim_ready_to_send']; ?></div></td>
-	<td class="col-ce-cae"><div><?php echo $data['ce_claim_ava_email_sent']; ?></div></td>
-	<td class="col-ce-start"><div><?php echo $data['ce_timer_start']; ?></div></td>
+	<td class="col-ccl-ei"><div><?php echo isset($data['check_claim_logfile'])?$data['check_claim_logfile']:''; ?></div></td>
+	<td class="col-ce-crs"><div><?php echo isset($data['ce_claim_ready_to_send'])?$data['ce_claim_ready_to_send']:''; ?></div></td>
+	<td class="col-ce-cae"><div><?php echo isset($data['ce_claim_ava_email_sent'])?$data['ce_claim_ava_email_sent']:''; ?></div></td>
+	<td class="col-ce-start"><div><?php echo isset($data['ce_timer_start'])?$data['ce_timer_start']:''; ?></div></td>
 	
-	<td class="col-esx-pdf"><div><?php echo $data['esx_pdf_uploaded']; ?></div></td>
+	<td class="col-esx-pdf"><div><?php echo isset($data['esx_pdf_uploaded'])?$data['esx_pdf_uploaded']:''; ?></div></td>
 	
-	<td class="col-am"><div><?php echo $data['account_manager']; ?></div></td>
-	<td class="col-aip-vos"><div><?php echo $data['invoice_posted_on_vos']; ?></div></td>
+	<td class="col-am"><div><?php echo isset($data['account_manager'])?$data['account_manager']:''; ?></div></td>
+	<td class="col-aip-vos"><div><?php echo isset($data['invoice_posted_on_vos'])?$data['invoice_posted_on_vos']:''; ?></div></td>
 
-	<td class="col-due-to"><div><?php echo $data['due_to_time_tt']; ?></div></td>
+	<td class="col-due-to"><div><?php echo isset($data['due_to_time_tt'])?$data['due_to_time_tt']:''; ?></div></td>
 </tr>
 <?php else: ?>
 <tr>

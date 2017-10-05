@@ -69,7 +69,7 @@ table {
 #ncn_table_body{
 	position: absolute;
 	left: 10px;
-	top: 210px;
+	top: 220px;
 }
 
 .col-group div{ width: 100px;}
@@ -125,18 +125,18 @@ if(isset($t_data))
 <?php if ($data['#row_type'] == 'claim') : ?>
 <tr>
 	<td class="col-group"><div>&nbsp;</div></td>
-	<td class="col-member"><div><?php echo $data['member']; ?></div></td>
-	<td class="col-type"><div><?php echo $data['type']; ?></div></td>
-	<td class="col-product"><div><?php echo $data['product']; ?></div></td>
-	<td class="col-owner"><div><?php echo $data['owner']; ?></div></td>
-	<td class="col-claim-id"><div><?php echo $data['claim_id_url']; ?></div></td>
+	<td class="col-member"><div><?php echo isset($data['member'])?$data['member']:''; ?></div></td>
+	<td class="col-type"><div><?php echo isset($data['type'])?$data['type']:''; ?></div></td>
+	<td class="col-product"><div><?php echo isset($data['product'])?$data['product']:''; ?></div></td>
+	<td class="col-owner"><div><?php echo isset($data['owner'])?$data['owner']:''; ?></div></td>
+	<td class="col-claim-id"><div><?php echo isset($data['claim_id_url'])?$data['claim_id_url']:''; ?></div></td>
 
-	<td class="col-ccl-ei"><div><?php echo $data['check_claim_logfile']; ?></div></td>
+	<td class="col-ccl-ei"><div><?php echo isset($data['check_claim_logfile'])?$data['check_claim_logfile']:''; ?></div></td>
 	
-	<td class="col-am-backend"><div><?php echo $data['claim_backend']; ?></div></td>
-	<td class="col-am"><div><?php echo $data['account_manager']; ?></div></td>
+	<td class="col-am-backend"><div><?php echo isset($data['claim_backend'])?$data['claim_backend']:''; ?></div></td>
+	<td class="col-am"><div><?php echo isset($data['account_manager'])?$data['account_manager']:''; ?></div></td>
 	
-	<td class="col-due-to"><div><?php echo $data['due_to_time_tt']; ?></div></td>
+	<td class="col-due-to"><div><?php echo isset($data['due_to_time_tt'])?$data['due_to_time_tt']:''; ?></div></td>
 </tr>
 <?php else: ?>
 <tr>

@@ -607,7 +607,7 @@ function _ncn_claim_manager_homepage_add_claim()
 {
     GLOBAL $user;
     global $base_url;
-    if (isset($user->roles[23])) {
+    if (is_leaduser($user)) {
         $GLOBALS['account_role'] = "leaduser";
     } else if (isset($user->roles[7])) {
         $GLOBALS['account_role'] = "associate";
@@ -697,8 +697,8 @@ function _ncn_claim_manager_homepage_my_active_claims($min_row) {
                     } else {
                         $_approve_deny = 0;
                     }
-                    //echo "<pre>";print_r($user->roles[23]);
-                    if (isset($user->roles[23])) {
+
+                    if (is_leaduser($user)) {
                         $query = "SELECT * FROM claims WHERE leaduser=" . $user->uid . " AND deleted=0 AND claim_status!='unpurchased' $additional_sql ORDER BY `$order_by` DESC limit 0, 4;";
                     } else {
                         $query = "SELECT * FROM claims WHERE user_id=" . $user->uid . " AND deleted=0 AND (claim_status!='unpurchased' ".$additional_sql.") ORDER BY `$order_by` DESC limit 0, 4;";
@@ -741,7 +741,7 @@ function _ncn_claim_manager_homepage_my_active_claims($min_row) {
                             <td width="120px"><?php echo ncn_cd($claim_id, 'customer_name'); ?></td>
 
                             <?php // edit controls
-                            if ($editable == true && !isset($user->roles[23])) {
+                            if ($editable == true && !is_leaduser($user)) {
                                 ?>
                                 <td width="100px">
                                     <?php    if (($row['claim_status'] != "receivables") && ($row['claim_status'] != "paid in full")) {
@@ -766,14 +766,14 @@ function _ncn_claim_manager_homepage_my_active_claims($min_row) {
                                 <td width="100px">
                                     <div class="edit-album-btn clearfix">
                                         <a href="#"
-                                           class="<?php echo $disabled_string; ?>" <?php if ($row['claim_status'] == 'out for review') print 'disabled'; ?> >
+                                           class="" <?php if ($row['claim_status'] == 'out for review') print 'disabled'; ?> >
                                             Edit Album
                                         </a>
                                     </div>
                                 </td>
                             <?php } ?>
                             <?php
-                            if (!isset($user->roles[23])) {
+                            if (!is_leaduser($user)) {
                                 ?>
                                 <td width="100px">
                                     <a href="<?php echo base_path() . "account/additional_claim_info/$claim_id"; ?>"
@@ -789,7 +789,7 @@ function _ncn_claim_manager_homepage_my_active_claims($min_row) {
                             <?php
                             }?>
                             <?php
-                            if (!isset($user->roles[23])) {
+                            if (!is_leaduser($user)) {
                                 ?>
                                 <td>
                                     <!--<a href="#" class="create-invoice-btn enabled" onclick="open_submit_box(<?= $claim_id; ?>);return false;">Create My Invoice</a>-->
@@ -873,7 +873,7 @@ function _ncn_claim_manager_homepage_out_for_reviews($min_row)
                         $_approve_deny = 0;
                     }
 
-                    if (isset($user->roles[23])) {
+                    if (is_leaduser($user)) {
                         $query = "SELECT * FROM claims WHERE leaduser=" . $user->uid . " AND deleted=0 AND claim_status!='unpurchased' $additional_sql ORDER BY `$order_by` DESC limit 0, 4;;";
                     } else {
                         $query = "SELECT * FROM claims WHERE user_id=" . $user->uid . " AND deleted=0 AND claim_status!='unpurchased' $additional_sql ORDER BY `$order_by` DESC limit 0, 4;;";
@@ -991,7 +991,7 @@ function _ncn_claim_manager_homepage_receivables($min_row) {
                         $_approve_deny = 0;
                     }
 
-                    if (isset($user->roles[23])) {
+                    if (is_leaduser($user)) {
                         $query = "SELECT * FROM claims WHERE leaduser=" . $user->uid . " AND deleted=0 AND claim_status!='unpurchased' $additional_sql ORDER BY `$order_by` DESC limit 0, 3;";
                     } else {
                         $query = "SELECT * FROM claims WHERE user_id=" . $user->uid . " AND deleted=0 AND claim_status!='unpurchased' $additional_sql ORDER BY `$order_by` DESC limit 0, 3;";
@@ -1032,7 +1032,7 @@ function _ncn_claim_manager_homepage_receivables($min_row) {
                         <tr>
                             <td width="120px"><?php echo ncn_cd($claim_id, 'customer_name'); ?></td>
                             <td width="150px">
-                                <?php    if ($send_to_archive == true && !isset($user->roles[23])) // payment received functions
+                                <?php    if ($send_to_archive == true && !is_leaduser($user)) // payment received functions
                                 {
                                     ?>
                                     <a href="#" class="pay-full"
@@ -1060,7 +1060,7 @@ function _ncn_claim_manager_homepage_receivables($min_row) {
                             <td>
                                 <!-- <a class="file-notes" href="#" onclick="set_file_note('<?= $base_url; ?>', <?= $claim_id; ?>, true);return false;">Set File Notes</a> -->
                                 <!--<span class="file-notes">file-note</span>-->
-                                <?php    if (!isset($user->roles[23])){ ?>
+                                <?php    if (!is_leaduser($user)){ ?>
                                     <a class="file-notes" href="#" onclick="set_file_note('<?= $base_url; ?>', <?= $claim_id; ?>, true);return false;">Set File Notes</a>
                                 <?php }else{ ?>
                                     <a class="file-notes" href="#">Set File Notes</a>

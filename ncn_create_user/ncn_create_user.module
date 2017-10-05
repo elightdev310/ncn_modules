@@ -196,92 +196,6 @@ function ncn_create_user_mail($key, &$message, $params)
             $message['subject'] = t(variable_get('ncn_associate_signup_subject', ''), $params, $options);
             $message['body'][] = t(variable_get('ncn_associate_signup_body', ''), $params, $options);
             break;
-
-        case "timer_alert":
-            $message['subject'] = t(variable_get('ncn_timer_alert_subject', ''), $params, $options);
-            $message['body'][] = t(variable_get('ncn_timer_alert_body', ''), $params, $options);
-            break;
-        case "timer_expired":
-            $message['subject'] = t(variable_get('ncn_timer_expired_subject', ''), $params, $options);
-            $message['body'][] = t(variable_get('ncn_timer_expired_body', ''), $params, $options);
-            break;
-        case "claim_status_change_notify":
-            $headers = array(
-                'MIME-Version' => '1.0',
-                'Content-Type' => 'text/html; charset=UTF-8; format=flowed',
-                'Content-Transfer-Encoding' => '8Bit',
-                'X-Mailer' => 'Drupal'
-            );
-            foreach ($headers as $key => $value) {
-                $message['headers'][$key] = $value;
-            }
-            $message['subject'] = $params['subject'];
-            $message['body'][] = $params['body'];
-            break;
-        case "claim_status_change_esx_pdf_uploaded":
-            $message['subject'] = $params['subject'];
-            $message['body'][] = $params['body'];
-            break;
-
-        case "claim_docs_rejected":
-            $message['subject'] = $params['subject'];
-            $message['body'][] = ncn_admin_get_mail_body( '{reject_claim}', $message, $params );
-
-            $_admin = user_load(1);
-            $admin_mail = $_admin->mail;    //***
-            $bcc = $admin_mail;
-
-            //$bcc = get_claim_docs_rejected_bcc();
-            //watchdog('check_rejected', t('Bcc mail(!bcc).'), array('!bcc'=>$bcc) );
-            $message['headers']['Bcc'] = $bcc;
-
-            $_claim_user = user_load($claim['user_id']);
-            $_member = get_member_from_id($_claim_user->profile_memberid);
-            if (!empty($_member)) {
-                $_am = user_load($_member['am_uid']);
-                $am_mail = $_am->mail;      //***
-                if ($am_mail!='') {
-                    $Cc = $am_mail;
-                    $message['headers']['CC'] = $Cc;
-                }
-            }
-            $message['headers']['Reply-To'] = "fax@netclaimsnow.com";
-            break;
-        case "member_login":
-            $message['subject'] = "Congratulations!";
-            $message['body'][] = ncn_admin_get_mail_body( '{member_login}', $message, $params );
-            break;
-        case "create_user":
-            $message['subject'] = "Thank You for activating your membership.";
-            $message['body'][] = ncn_admin_get_mail_body( '{create_user}', $message, $params );
-
-            $_admin = user_load(1);
-            $admin_mail = $_admin->mail;    //***
-            $bcc = $admin_mail;
-            $message['headers']['Bcc'] = $bcc;
-
-            break;
-        case "not_received_docs":
-            $message['subject'] = $params['subject'];
-            $message['body'][] = ncn_admin_get_mail_body( '{not_received_docs}', $message, $params );
-            break;
-        case "congrats_claim_reminder":
-            $message['subject'] = "Congratulations on creating your first claim with Net Claims Now!";
-            $message['body'][] = ncn_admin_get_mail_body( '{congrats_claim_reminder}', $message, $params );
-            break;
-        case "order_claim":
-            $message['subject'] = "Net Claims Now Claim Invoice";
-            $message['body'][] = ncn_admin_get_mail_body( '{order_claim}', $message, $params );
-            break;
-        case "submit_change_order_requests":
-            $message['subject'] = t( "Member(!member_id - !member_name) submitted change order requests for claim(#!claim_id)",
-                array('!member_id'=>$params['member_id'], '!member_name'=>$params['member_name'], '!claim_id'=>$params['claim_id']) );
-            $message['body'][] = ncn_admin_get_mail_body( '{submit_change_order_requests}', $message, $params );
-            break;
-        case "charge_change_order":
-            $message['subject'] = $params['subject'];
-            $message['body'][] = ncn_admin_get_mail_body( '{charge_change_order}', $message, $params );
-            break;
     }
 }
 
@@ -2132,14 +2046,14 @@ function ncn_create_user_theme(){
 
 // Get Member's first password ( {date}{firstname}{year} )
 function get_member_password($member_id, $firstname) {
-    $result = db_query("SELECT * FROM member_id_pool WHERE member_id=:mid",array(':mid'=>$member_id));
-    if ($result->rowCount() > 0) {
-        $member = $result->fetchAssoc();
+    $member = get_member_from_id($member_id);
+    if ($member) {
         $time_create = $member['create'];
 
         $passwd = date("j", $time_create).preg_replace("/[^a-zA-Z0-9]/", "", $firstname).date("Y", $time_create);
         return $passwd;
     }
+    
     drupal_set_message( t('Member(!member_id) has a problem. Please contact web master about this.'), array('!member_id'=>$member_id) );
     watchdog('user_mail', t('Member(!member_id) has a problem. Please contact web master about this.'), array('!member_id'=>$member_id) );
     return '';

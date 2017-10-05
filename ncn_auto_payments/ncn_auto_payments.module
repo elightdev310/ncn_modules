@@ -53,8 +53,7 @@ function ncn_auto_payments_menu() {
       'type' => MENU_CALLBACK,
       'access arguments' => array('CC Declined Report'),
     );
-    
-        
+
     return $items;
 }
 
@@ -78,7 +77,7 @@ function ncn_auto_payments_process() {
 
         $node = node_load($product_id);
         if (isset($node->data) && !is_array($node->data)) {
-          $node->data = unserialize($node->data);
+            $node->data = unserialize($node->data);
         }
 
         echo "user($uid): ".$_user->name ."\n";
@@ -180,6 +179,7 @@ function ncn_auto_payments_cron()
         if ( (isset($user->profile_memberid)) && ($user->profile_memberid != '') )
         {
             $member = get_member_from_id($user->profile_memberid);
+            $member_type = $member['member_type'];
             // check member id is good and get last date
             // $query2 = db_query("SELECT * FROM member_id_pool WHERE member_id=:a AND used=:b",array(":a"=>$user->profile_memberid,":b"=>1));
             // $result2 = $query2;
@@ -266,7 +266,6 @@ function ncn_auto_payments_cron()
                         make_monthly_payment($user, $mmf_product_nid, $pid);    
                     }
                 }
-                
             }
         } //// 
     } 

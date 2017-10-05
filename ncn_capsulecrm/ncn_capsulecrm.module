@@ -36,16 +36,12 @@ function ncn_capsulecrm_permission()
 
 
 /**
- * hook_user()
+ * hook_user_update
  */
-function ncn_capsulecrm_user($op, &$edit, &$account, $category = NULL) {
-    switch ($op) {
-    case 'after_update':
-        $_user = user_load($account->uid);
-        if (isset($_user->profile_memberid) && $_user->profile_memberid) {
-            ncn_capsulecrm_set_user_detail_link($account->uid);
-        }
-        break;
+function ncn_capsulecrm_user_update(&$edit, $account, $category) {
+    $_user = user_load($account->uid);
+    if (isset($_user->profile_memberid) && $_user->profile_memberid) {
+        ncn_capsulecrm_set_user_detail_link($account->uid);
     }
 }
 

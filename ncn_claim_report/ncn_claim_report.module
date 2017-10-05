@@ -88,7 +88,7 @@ global $user;
 global $base_url;
 
     $t_data = array();
-    $query = "SELECT * FROM claims WHERE user_id!=69 AND claim_status!='unpurchased' AND deleted=0";
+    $query = "SELECT * FROM claims WHERE user_id!=69 AND claim_status!='unpurchased' AND workflow!='completed_status' AND deleted=0";// AND last_modified>".strtotime('-1 year');
     $query .= " ORDER BY last_modified DESC";
     $result = db_query($query);
 //  while ($claim = mysql_fetch_assoc($result))
@@ -98,8 +98,9 @@ global $base_url;
 
         $claim = (array)$claim;
 
-        if ($claim['workflow'] == 'completed_status') { continue; }
+        // if ($claim['workflow'] == 'completed_status') { continue; }
         if ($claim['workflow'] == '' && $claim['claim_status'] != 'incomplete' && $claim['claim_status'] != 'out for review' && $claim['claim_status'] != 'returned' ) { continue; }
+
         $r_data = array();
         $_user = user_load($claim['user_id']);
         if ($_user) {
@@ -177,10 +178,9 @@ global $base_url;
 
 function ncn_claim_report_render_page() {
     $t_data = ncn_claim_report_get_claim_data();
-    
     $final_data = ncn_claim_report_grouping($t_data);
     $sum = render_payment_cost(ncn_claim_report_get_total_amount());
-    return theme('ncn_claim_report_page',array("final_data"=>$final_data,"sum"=>$sum));
+    return theme('ncn_claim_report_page',array("t_data"=>$final_data,"sum"=>$sum));
 }
 
 function ncn_claim_report_render_page_qa_ms() {
@@ -188,7 +188,7 @@ function ncn_claim_report_render_page_qa_ms() {
     
     $final_data = ncn_claim_report_grouping_qa_ms($t_data);
     $sum = render_payment_cost(ncn_claim_report_get_total_amount());
-    return theme('ncn_claim_report_page_qa_ms',array("final_data"=>$final_data,"sum"=>$sum));
+    return theme('ncn_claim_report_page_qa_ms',array("t_data"=>$final_data,"sum"=>$sum));
 }
 
 function ncn_claim_report_render_page_am() {
@@ -196,7 +196,7 @@ function ncn_claim_report_render_page_am() {
     
     $final_data = ncn_claim_report_grouping_am($t_data);
     $sum = render_payment_cost(ncn_claim_report_get_total_amount());
-    return theme('ncn_claim_report_page_am',array("final_data"=>$final_data,"sum"=>$sum));
+    return theme('ncn_claim_report_page_am',array("t_data"=>$final_data,"sum"=>$sum));
 }
 /*****************************************************************************/
 
@@ -372,7 +372,7 @@ function ncn_claim_report_grouping($t_data) {
     $final_data = array();
     
     $group_no_claim_docs = array(array('#row_type'=>'group', '#group'=>'No Claim Docs'));
-  $group_awaiting_review = array(array('#row_type'=>'group', '#group'=>'Awaiting Review'));
+    $group_awaiting_review = array(array('#row_type'=>'group', '#group'=>'Awaiting Review'));
     $group_ce = array(array('#row_type'=>'group', '#group'=>'CE'));
     $group_ce_assigned = array();
     $group_complete_cdr = array(array('#row_type'=>'group', '#group'=>'Complete Claim Docs Received'));
@@ -387,9 +387,9 @@ function ncn_claim_report_grouping($t_data) {
         case 'no_claim_docs':
             $group_no_claim_docs[] = $r_data;
             break;
-    case 'awaiting_review':
-      $group_awaiting_review[] = $r_data;
-      break;
+        case 'awaiting_review':
+          $group_awaiting_review[] = $r_data;
+          break;
         case 'ce':
             if (isset($r_data['#ce_uid']) && $r_data['#ce_uid']>0) {
                 if (!isset($group_ce_assigned[$r_data['#ce_uid']])) {
@@ -429,8 +429,8 @@ function ncn_claim_report_grouping($t_data) {
     $group_no_claim_docs[0]['#total'] = count($group_no_claim_docs)-1;
     ncn_claim_report_empty_row($group_no_claim_docs);
     
-  $group_awaiting_review[0]['#total'] = count($group_awaiting_review)-1;
-  ncn_claim_report_empty_row($group_awaiting_review);
+    $group_awaiting_review[0]['#total'] = count($group_awaiting_review)-1;
+    ncn_claim_report_empty_row($group_awaiting_review);
   
     $group_complete_cdr[0]['#total'] = count($group_complete_cdr)-1;
     ncn_claim_report_empty_row($group_complete_cdr);
