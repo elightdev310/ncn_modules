@@ -767,18 +767,22 @@ function user_operations_block_callback($user_ary){
         $user_ary = @array_pop($user_ary);
         foreach($user_ary as $usr){
             $_user1 = user_load($usr);
-            $_query = "UPDATE profile_value SET value='no first' WHERE fid=64 AND uid=".$_user1->uid;   // profile_fblocked : 64
-            $result = db_query($_query);
+            if($_user1->status==1){
+                if (isset($_user1->profile_memberid)&&is_member($_user1->profile_memberid)) {
+                    $_query = "UPDATE profile_value SET value='no first' WHERE fid=64 AND uid=".$_user1->uid;   // profile_fblocked : 64
+                    $result = db_query($_query);
 
-            $array['pass'] = get_member_password($_user1->profile_memberid, $_user1->profile_firstname);
-            $user_pass = $array['pass'];
-            $array['password'] = $array['pass'];
+                    $array['pass'] = get_member_password($_user1->profile_memberid, $_user1->profile_firstname);
+                    $user_pass = $array['pass'];
+                    $array['password'] = $array['pass'];
 
-            // Update New Password
-            user_save($_user1, array('pass' => trim($array['password'])));
+                    // Update New Password
+                    user_save($_user1, array('pass' => trim($array['password'])));
 
-            // User block tracking
-            ncn_user_insert_user_block_track($_user1->uid, date('U'));
+                    // User block tracking
+                    ncn_user_insert_user_block_track($_user1->uid, date('U'));
+                }
+            }
         }
     }
 }
