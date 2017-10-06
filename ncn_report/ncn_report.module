@@ -1780,7 +1780,6 @@ function _ncn_report_get_data(&$data, &$total, $report_date, $type) {
 		  $data_part[0] = _ncn_report_get_total($where." AND ptype='$key'");
 		  $data_part[1] = _ncn_report_get_total_revenue($where." AND ptype='$key'");
     }
-
 		$data_part[0] = intval($data_part[0]);
 		$data_part[1] = doubleval($data_part[1]);
 		

@@ -89,18 +89,17 @@ global $base_url;
 
     $t_data = array();
     $query = "SELECT * FROM claims WHERE user_id!=69 AND claim_status!='unpurchased' AND workflow!='completed_status' AND deleted=0";// AND last_modified>".strtotime('-1 year');
-    $query .= " ORDER BY last_modified DESC";
+    $query.= " ORDER BY last_modified DESC";
     $result = db_query($query);
-//  while ($claim = mysql_fetch_assoc($result))
 
+    $start = date('U');
     foreach($result as $claim)
     {
-
         $claim = (array)$claim;
 
-        // if ($claim['workflow'] == 'completed_status') { continue; }
         if ($claim['workflow'] == '' && $claim['claim_status'] != 'incomplete' && $claim['claim_status'] != 'out for review' && $claim['claim_status'] != 'returned' ) { continue; }
 
+        //ncn_print_r(date('U') - $start, 0);
         $r_data = array();
         $_user = user_load($claim['user_id']);
         if ($_user) {
@@ -228,11 +227,10 @@ function ncn_claim_report_get_workflow_rcd_adr($claim_id, &$r_data){
     $query = "SELECT * FROM claims_log WHERE claim_id=$claim_id ORDER BY timestamp DESC ";
     $result = db_query($query);
     
-//  while ($msg_log = $result->fetchAssoc())
+    $claim_workflow = get_claim_workflow_array();
     foreach($result as $msg_log)
     {
         $msg_log = (array)$msg_log;
-        $claim_workflow = get_claim_workflow_array();
         //$claim_workflow['all_doc_recieved']
         $workflow = 'all_doc_recieved';
         $match_msg = "Timer(claim: #$claim_id) has been started";
@@ -248,8 +246,8 @@ function ncn_claim_report_get_workflow_rcd_adr($claim_id, &$r_data){
             return;
         } else {
             $o_match_msg = "Claim workflow updated to: Rejected Claim Documents.";
-      $n_match_msg = "updated claim workflow to Rejected Claim Documents.";
-            if ( strpos($msg_log['message'], $match_msg) !== FALSE || strpos($msg_log['message'], $match_msg) !== FALSE ) {
+            $n_match_msg = "updated claim workflow to Rejected Claim Documents.";
+            if ( strpos($msg_log['message'], $o_match_msg) !== FALSE || strpos($msg_log['message'], $n_match_msg) !== FALSE ) {
                 $r_data['rejected_claim_docs'] = date("m/d/Y H:i:s", $msg_log['timestamp']);
                 return;
             }

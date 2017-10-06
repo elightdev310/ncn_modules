@@ -264,7 +264,9 @@ function update_timer_trigger($claim_id, $workflow, $action, $is_auto=false) {
                 $_member = get_member_from_id($_claim_user->profile_memberid);
                 if (!empty($_member)) {
                     $_am = user_load($_member['am_uid']);
-                    $am_mail = $_am->mail;      //***
+                    if ($_am) {
+                        $am_mail = $_am->mail;      //***
+                    }
                 }
                 
                 $ms_list = get_ms_list();
@@ -287,7 +289,7 @@ function update_timer_trigger($claim_id, $workflow, $action, $is_auto=false) {
                 }
                 
                 drupal_mail( 'ncn_admin', 'claim_status_change_notify', $admin_mail, language_default(), array('subject'=>$subject, 'body'=>$msg), $site_mail);
-                if (isset($am_mail)) {
+                if (isset($am_mail) && $am_mail) {
                     drupal_mail( 'ncn_admin', 'claim_status_change_notify', $am_mail, language_default(), array('subject'=>$subject, 'body'=>$msg), $site_mail );
                 }
                 

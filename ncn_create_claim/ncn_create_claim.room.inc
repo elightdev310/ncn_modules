@@ -187,6 +187,9 @@ function ncn_create_claim_addroomtab()
         $j_result['new_roomname'] = $room_name;
         $_SESSION['claim'][$claim_id]['scope'][$room_name] = array();
 
+        if (!isset($_SESSION['claim_log'][$claim_id])) {
+            $_SESSION['claim_log'][$claim_id] = '';
+        }
         $_SESSION['claim_log'][$claim_id] .= t("!user_name add a room(!roomname).", array('!user_name' => ncn_amin_get_user_role_and_name(), '!roomname' => $room_name));
         $_SESSION['claim_log'][$claim_id] .= "\r\n";
     }
