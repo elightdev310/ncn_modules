@@ -3602,7 +3602,7 @@ function ncn_admin_user_back_to_admin()
         drupal_goto('admin/config/ncn_create_user/all_user_list');
     }
 
-    $redirect_url = ncn_admin_get_workplace_name($uid);
+    $redirect_url = ncn_admin_get_workplace_name($user->uid);
     drupal_goto($redirect_url);
 }
 

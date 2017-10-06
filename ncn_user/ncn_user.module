@@ -38,8 +38,12 @@ function ncn_user_menu_alter(&$items) {
  * hook_user_presave
  */
 function ncn_user_user_presave(&$edit, $account, $category) {
+  // User block tracking
   if ($account->status == 0 && isset($edit['status']) && $edit['status'] == 1)  {
     ncn_user_update_user_unblock_track($account->uid, date('U'));
+  }
+  else if ($account->status == 1 && isset($edit['status']) && $edit['status'] == 0)  {
+    ncn_user_insert_user_block_track($account->uid, date('U'));
   }
 }
 

@@ -778,9 +778,6 @@ function user_operations_block_callback($user_ary){
 
                     // Update New Password
                     user_save($_user1, array('pass' => trim($array['password'])));
-
-                    // User block tracking
-                    ncn_user_insert_user_block_track($_user1->uid, date('U'));
                 }
             }
         }
