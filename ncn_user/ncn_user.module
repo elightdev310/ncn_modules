@@ -18,13 +18,20 @@ function ncn_user_permission()
 }
 
 /**
- * hook_menu function
+ * hook_menu
  */
 function ncn_user_menu()
 {
 	$item = array();
 	
 	return $item;
+}
+
+/**
+ * hook_menu_alter
+ */
+function ncn_user_menu_alter(&$items) {
+  $items['user/register']['page callback'] = 'ncn_user_redirect_register';
 }
 
 /**
@@ -36,6 +43,9 @@ function ncn_user_user_presave(&$edit, $account, $category) {
   }
 }
 
+function ncn_user_redirect_register() {
+  drupal_goto('signup-contact');
+}
 function ncn_user_insert_log_old_member_type($member_id, $old_type, $new_type, $ts_time) {
   $user_id = get_uid_from_memberid($member_id);
   $result = db_query('INSERT INTO {ncn_member_type_change_log}(uid, member_id, old_type, new_type, timestamp)

@@ -359,7 +359,7 @@ function InsertScopesheetData($data) {
     $this->SetDrawColor(0, 0, 0);
     
     /*** Exterior & Interior Temperatures ***/
-    if ($data['eit']) {
+    if (isset($data['eit']) && $data['eit']) {
         $this->SetWidths(array(25, 40, 40, 35, 35));
         $this->Row( array('Date', 'Exterior Temp / RH%', 'Interior Temp / RH%', 'GPP', 'Time of Readings') );
         foreach ($data['eit'] as $key=>$item) {
@@ -376,7 +376,7 @@ function InsertScopesheetData($data) {
     }
     
     /*** Structural Moisture Readings ***/
-    if ($data['smr_standard']) {
+    if (isset($data['smr_standard']) && $data['smr_standard']) {
         $x=$this->GetX();
         $y=$this->GetY();
         $this->SetXY($x+25, $y);
@@ -387,7 +387,7 @@ function InsertScopesheetData($data) {
         $this->Ln(6);
     }
     
-    if ($data['smr']) {
+    if (isset($data['smr']) && $data['smr']) {
         $this->SetWidths(array(25, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12));
         $this->Row( array('Date', 'Wall 1', 'Wall 2', 'Wall 3', 'Wall 4', 'Area 1', 'Area 2', 'Area 3', 'Area 4', 'Center', 'Area 1', 'Area 2', 'Area 3', 'Area 4', 'Center') );
         foreach ($data['smr'] as $key=>$item) {
@@ -401,7 +401,7 @@ function InsertScopesheetData($data) {
         $this->Ln(6);
     }
     
-    if ($data['ep']) {
+    if (isset($data['ep']) && $data['ep']) {
         $this->SetWidths(array(40, 120));
         foreach ($data['ep'] as $key=>$item) {
             $this->Row( array(
