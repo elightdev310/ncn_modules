@@ -736,3 +736,534 @@ function ncn_admin_upload_invoice($form_state)
     return $form;
     
 }
+
+function _add_pdf_invoice($file, $claim_id) {
+    
+    $live = 1;
+    // get last revision
+//  $query = "SELECT revision FROM claims_invoices WHERE claim_id=".$claim_id." AND `live`=".$live." ORDER BY revision DESC LIMIt 0,1";
+    $result = db_query('SELECT revision FROM {claims_invoices} WHERE claim_id=:a AND live=:b ORDER BY revision DESC LIMIt 0,1',
+    array(':a'=>$claim_id,':b'=>$live));
+    $row_count = $result->rowCount();
+    
+    if ($row_count == 0)
+    {   $revision = 0;  }
+    else
+    {
+        $row = $result->fetchAssoc();
+        $revision = $row['revision']+1;
+    }
+    
+    // insert new data
+    // $query = "INSERT INTO claims_invoices VALUES(NULL, ".$claim_id.", ".$revision.", \"".AddSlashes($file['filename'])."\", \"".AddSlashes($file['filepath'])."\", \"".AddSlashes($file['filemime'])."\", ".date('U').", ".$live.");";
+    $result = db_query('INSERT INTO {claims_invoices} VALUES(NULL,:a,:b,:c,:d,:e,:f,:g)',
+        array(':a'=>$claim_id,':b'=>$revision,':c'=>$file['filename'],':d'=>$file['filepath'],':e'=>$file['filemime'],
+            ':f'=>date('U'),':g'=>$live));
+    
+    // add entry to logfile
+    if ($live == 1)
+    {   $log_message = ncn_amin_get_user_role_and_name()." created new file: ".$file['filename'].", revision #".$revision;    }
+    else
+    {   $log_message = ncn_amin_get_user_role_and_name()." created new file: ".$file['filename'].", revision #".$revision;    }
+    
+    ncn_admin_insert_claim_log($claim_id, date('U'), $log_message);
+}
+
+/**
+Generate Final Invoice
+*/
+function generate_final_invoice($claim_id) {
+    $final_invoice_name = "";
+
+    $dir_url = variable_get('file_directory_path', 'sites/default/files') . "/invoices/$claim_id/";
+    
+    if (!is_dir($dir_url)) {
+        mkdir($dir_url, 0755);
+    }
+    
+    $file3_info = get_claim_file($claim_id, 3);     // Service Contract
+    $file4_info = get_claim_file($claim_id, 4);     // Certificate of Completion
+    $file5_info = get_claim_file($claim_id, 5);     // Completed Invoice
+    
+    $additional_file_removed = false;
+    $scope_pdf_count = 0;
+    
+    $base_abs_path = $_SERVER['DOCUMENT_ROOT'];
+    $foption = "";
+    $error = false;
+    try{
+        // 1st pdf
+        $first_pdf_url = _get_first_pdf($claim_id, $dir_url);
+        if ($first_pdf_url == '[no-coversheet]') {
+            // skip first pdf(cover sheet)
+        }   else if ($first_pdf_url) {
+            $foption .= " -f $base_abs_path/$first_pdf_url";
+        } else {
+            $error = true;
+        }
+        // && $_SERVER['REMOTE_ADDR']!='103.240.34.101'
+        if (!$error) {
+            // 2th pdf  (Completed Invoice)
+            if (!empty($file5_info)) {
+                $foption .= " -f $base_abs_path/".$file5_info['filepath'];
+            }
+            // 3rd pdf
+            if (!empty($file3_info) || !empty($file4_info)) {
+                $third_pdf_url = _get_third_pdf($file3_info, $file4_info, $dir_url);
+                if (!empty($third_pdf_url)) {
+                    $foption .= " -f $base_abs_path/$third_pdf_url";
+                }
+            }
+            /*if (!empty($file3_info)) {
+                $foption .= " -f $base_abs_path/".$file3_info['filepath'];
+            }
+            // 4th pdf
+            if (!empty($file4_info)) {
+                $foption .= " -f $base_abs_path/".$file4_info['filepath'];
+            }*/
+            
+            // Additional Documents
+            $additional_file_removed = TRUE;
+            $pdf_file_additional_pdfs = _get_additional_docs_pdf($claim_id, $dir_url, $additional_file_removed);
+            if ($pdf_file_additional_pdfs) {
+                $foption .= " -f $base_abs_path/$pdf_file_additional_pdfs";
+            }
+            
+            // 5th pdf
+            $pdf_file_url_pattern = _get_scope_pdf($claim_id, $dir_url, $scope_pdf_count);
+            if ($scope_pdf_count) {
+                for ($index = 0; $index<$scope_pdf_count; $index+=1) {
+                    $pdf_file_url = $pdf_file_url_pattern.$index.".pdf";
+                    $foption .= " -f $base_abs_path/$pdf_file_url";
+                }
+            }
+        }
+    } catch(Exception $ex) {
+        drupal_set_message($ex->getMessage(), 'error');
+        $error = true;
+    }
+    
+    if (!$error) {
+        
+        $final_invoice_filename = 'invoice_'.date('U').'.pdf';
+        $final_invoice_name = $dir_url.$final_invoice_filename;
+        $out_option = " -o $base_abs_path/$final_invoice_name";
+        
+        //drupal_set_message($foption);
+        
+        /*if($_SERVER['REMOTE_ADDR']=="103.240.34.101"){
+            echo $foption;
+        }*/
+        
+                
+        if ($foption != "") {
+            //$command = "java -jar C:/pdfsam/lib/pdfsam-console-2.3.1e.jar $foption $out_option concat";
+            //$command = "java -jar ../pdfsam/lib/pdfsam-console-2.3.1e.jar $foption $out_option concat";
+            $command = "java -jar ".$_SERVER["DOCUMENT_ROOT"]."/pdfsam/lib/pdfsam-console-2.3.1e.jar $foption $out_option concat";
+            
+            $output = shell_exec($command);
+            
+            if (!is_file($final_invoice_name)) {
+                drupal_set_message('Failed to create an invoice.', 'error');
+                //drupal_set_message('You need to upload essential files to create an invoice.', 'error');
+                $error = true;
+            } else {
+            
+                if (ncn_admin_is_claim_first_free($claim_id)) {
+                    // generate locked pdf // 2011-08-02
+                    //$command = "java -jar C:/pdfwatermark/ncn_pdf_watermark.jar $base_abs_path/$final_invoice_name";
+                    //$command = "java -jar ../pdfwatermark/ncn_pdf_watermark.jar $base_abs_path/$final_invoice_name";
+                    $command = "java -jar ".$_SERVER["DOCUMENT_ROOT"]."/pdfwatermark/ncn_pdf_watermark.jar $base_abs_path/$final_invoice_name";
+
+                    $output = shell_exec($command);
+                    $final_locked_invoice_name = ncn_admin_get_locked_invoice_filename($final_invoice_name);
+                    
+                    if (!is_file($final_locked_invoice_name)) {
+                        drupal_set_message('Failed to create an locked invoice.', 'error');
+                    }
+                }
+            }
+        }
+        else{
+            $error = true;
+        }
+    }
+    
+    // clear temporary files
+    if (isset($first_pdf_url) && $first_pdf_url && $first_pdf_url!='[no-coversheet]') {  
+        $first_pdf_file = new stdClass();
+        $first_pdf_file->filepath = $first_pdf_url;
+        $first_pdf_file->filename = basename($first_pdf_url);
+        $first_pdf_file->uri = str_replace("sites/default/files/","public://",$first_pdf_url);
+        //file_delete($first_pdf_url);
+        file_delete($first_pdf_file);
+    }
+    
+    if (isset($third_pdf_url) && $third_pdf_url) {   
+        $third_pdf_file = new stdClass();
+        $third_pdf_file->uri = str_replace("sites/default/files/","public://",$third_pdf_url);
+        //file_delete($third_pdf_url);
+        file_delete($third_pdf_file);
+    }   
+    
+    if ($additional_file_removed && isset($pdf_file_additional_pdfs) && $pdf_file_additional_pdfs ) {
+        $additional_pdf_file = new stdClass();
+        $additional_pdf_file->uri = str_replace("sites/default/files/","public://",$pdf_file_additional_pdfs);
+        //file_delete($pdf_file_additional_pdfs);
+        file_delete($additional_pdf_file);
+    }
+    
+    if ($scope_pdf_count) {
+        for ($index = 0; $index<$scope_pdf_count; $index+=1) {
+            $pdf_file_url = $pdf_file_url_pattern.$index.".pdf";
+            $scope_pdf_file = new stdClass();
+            $scope_pdf_file->uri = str_replace("sites/default/files/","public://",$pdf_file_url);
+            //file_delete($pdf_file_url);
+            file_delete($scope_pdf_file);
+        }
+    }
+    
+    if ($error) { return; }
+    
+    drupal_set_message("Final Invoice Created, Successfully.");
+    drupal_set_message("File : $final_invoice_name");
+    if (isset($final_locked_invoice_name)&&is_file($final_locked_invoice_name)) {
+        drupal_set_message("Locked Invoice File : $final_locked_invoice_name");
+    }
+    
+    $file_info = array(
+        'filename' => $final_invoice_filename,
+        'filepath' => $final_invoice_name,
+        'filemime' => 'application/pdf'
+    );
+    _add_pdf_invoice($file_info, $claim_id);
+}
+
+function ncn_admin_get_locked_invoice_filename($fname) {
+    return substr($fname, 0, -4)."_locked.pdf";
+}
+
+function _get_format_phone_string($str) {
+    if (trim($str) == "") {
+        return '';
+    }
+    $str = str_replace('-', '', $str);
+    $str1 = substr($str, 0, 3);
+    $str2 = substr($str, 3, 3);
+    $str3 = substr($str, 6);
+    $str = "$str1-$str2-$str3";
+    
+    return $str;
+}
+
+function _get_format_tax_id_string($str) {
+    if (trim($str) == "") {
+        return '';
+    }
+    $str = str_replace('-', '', $str);
+    $str1 = substr($str, 0, 2);
+    $str2 = substr($str, 2);
+    $str = "$str1-$str2";
+    
+    return $str;
+}
+
+function _get_first_pdf($claim_id, $dir_url) {
+    
+    $pdf_file_url = $dir_url.time()."_first.pdf";
+    //$template_first_page = "invoice_cover_sheet.doc";
+    
+    //get essential data
+    $invoice_data = get_extended_data($claim_id);   
+    $claim_invoice_type = isset($invoice_data['claim_invoice_type'])?$invoice_data['claim_invoice_type']:'';
+
+    if ( strpos($claim_invoice_type , "*no*") !== false ) {
+        return '[no-coversheet]';
+    }
+    
+    $claim_data = get_claim_data($claim_id);
+    $_user = user_load($claim_data['user_id']);
+    $data = array();
+    
+    $data['company_name']           = $_user->profile_legalname;    //'ABC Restoration, Inc';
+    $data['tax_id_number']          = $_user->profile_taxid;        //'12-3456789';
+    
+    $data['company_address1']       = $_user->profile_address;      //'123 Company Lane';
+    $data['company_address2']       = $_user->profile_city.', '.$_user->profile_state.' '.$_user->profile_zip;      //  'Dallas, TX. 75201';
+    $data['company_office_phone']   = _get_format_phone_string($_user->profile_officephone);    //'555-555-1234';
+    
+    $data['client_name']            = ncn_cd($claim_id, 'customer_name');   //'Robert Smith';
+    $data['property1']              = ncn_cd($claim_id, 'insured_address'); //'123 Company Lane';
+    $data['property2']              = ncn_cd($claim_id, 'insured_city').', '.ncn_cd($claim_id, 'insured_state').' '.ncn_cd($claim_id, 'insured_zip');       //'Dallas, TX. 75201';
+    $data['home_phone']             = _get_format_phone_string(ncn_cd($claim_id, 'insured_phone_number'));
+    
+    $data['date_of_loss']           = ncn_cd($claim_id, 'date_of_loss');    //'12/07/10';
+    
+    $data = array_merge($invoice_data, $data);
+    
+    $logo = ncn_admin_get_member_logo_info($_user->profile_memberid);
+    $b_logo = true;
+    if (empty($logo)) { $b_logo = false; }
+    $result = ncn_admin_make_cover_sheet($pdf_file_url, $data, $b_logo);
+
+    if(is_file($pdf_file_url)) {
+        
+        /********* add Member Logo into coversheet page ************/
+        if (empty($logo)) {
+            return $pdf_file_url;
+        }
+        $file = new stdClass();
+        $file->filepath = $pdf_file_url;
+        $file->filename = basename($pdf_file_url);
+        $file->filemime = "application/pdf";        
+        $file->uri = str_replace("sites/default/files/","public://",$file->filepath);
+        
+        $logo_params = array(
+                'x' => 100,
+                'y' => 50,
+                'width' => 350,
+                'height' => 150,
+                'valign' => 'bottom',
+            );
+            
+        $final_cv_pdf = generate_pdf_with_member_logo($_user->profile_memberid, $file, $logo_params);
+
+        //file_delete($pdf_file_url);
+        if ($final_cv_pdf) {
+            return $final_cv_pdf;
+        } else {
+            drupal_set_message('Failed to make a cover sheet with logo.', 'error');
+        }
+    } else if ($result !== FALSE) {
+        drupal_set_message('Failed to make a cover sheet.', 'error');
+    }
+    
+    return '';
+    
+}
+
+function _get_third_pdf($file3, $file4, $dir_url) {
+    $both_image = 0;
+    if (!empty($file3['filepath']) && is_file($file3['filepath']) ) {
+        if ( strtolower(substr($file3['filepath'], -4)) == ".jpg" ) {
+            $both_image += 3;
+        }
+    }
+    if (!empty($file4['filepath']) && is_file($file4['filepath']) ) {
+        if ( strtolower(substr($file4['filepath'], -4)) == ".jpg" ) {
+            $both_image += 4;
+        }
+    }
+    if ( $both_image==0 ) {
+        return '';
+    }
+    
+    $pdf_file_url = $dir_url.time()."_third.pdf";
+    
+    $pdf=new NCNPDF();
+    $pdf->AddPage();
+    if ($both_image == 7) {
+        $pdf->Image($file3['filepath'], 0, 20, 120);
+        $pdf->Image($file4['filepath'], 120, 20, 80);
+    } else if ($both_image == 3) {
+        $pdf->Image($file3['filepath'], 0, 20, 200);
+    } else if ($both_image == 4) {
+        $pdf->Image($file4['filepath'], 0, 20, 200);
+    }
+    
+    $pdf->Output($pdf_file_url, 'F');
+    
+    if(is_file($pdf_file_url)) {
+        return $pdf_file_url;
+    } else {
+        drupal_set_message('Failed to make a \"Service Contact & Certificate of Completion" page.', 'error');
+    }
+    return '';
+}
+
+function _get_scope_pdf($claim_id, $dir_url, &$pdf_count) {
+    $scope_file = get_claim_scope_file($claim_id);
+    
+//  $query = "SELECT * FROM claims_data WHERE claim_id=".$claim_id." AND `key`='scope'";
+    $result = db_query('SELECT * FROM {claims_data} WHERE claim_id=:a AND `key`=:b',array(':a'=>$claim_id,':b'=>'scope'));
+    $row_count = $result->rowCount();
+    
+    if ($row_count == 0) { return ''; }
+    
+    // get the data
+    $row = $result->fetchAssoc();
+    $data = unserialize($row['val']);
+    
+    $customer_name = ncn_cd($claim_id, 'customer_name');
+    
+    $pdf=new NCNPDF();
+  
+    $pdf_count = 0;
+    $room_count = 0;
+    
+    foreach ($data as $roomname => $roomdata)
+    {
+        if ($roomname != "type")
+        {
+            $room_count += 1;
+        }
+    }
+    
+    $scope_per_pdf = 5;
+    $pdf_count = 0;
+    $page_count = 0;
+    $pdf_file_url_pattern = $dir_url.time()."_scope_";
+    $i = 0;
+    
+    // search first room and render
+    if (!ncn_admin_is_photo_first_room_deleted($claim_id)) {
+    foreach ($data as $roomname => $roomdata)
+    {
+        if ($roomname != "type")
+        {
+            $default_room_name = ncn_admin_claim_get_default_room_name($claim_id);
+            if ($roomname == $default_room_name) {
+                $first_flag = true;
+            }
+            
+            if ($first_flag) {
+                if ($i % $scope_per_pdf == 0 && $page_count) {
+                    if ($pdf) {
+                        $pdf_file_url = $pdf_file_url_pattern.$pdf_count.".pdf";
+                        $pdf->Output($pdf_file_url, 'F');
+                        
+                        $pdf_count += 1;
+                    }
+                    $pdf=new PDF();
+                    $page_count = 0;
+                }
+            
+        if (!ncn_admin_invoice_check_default_room_data_exist($claim_id, $roomdata)) { break; }
+                $pdf->AddPage();    
+                $page_count++;
+        
+                $roomdata['captions'] = _get_image_captions($claim_id, $roomname, 3);
+                $pdf->Header_Invoice($customer_name);           
+                $pdf->Photo_Table_Invoice($roomdata);
+                
+                $i += 1;
+                break;
+            }
+        }
+    }
+    }
+    
+    // other rooms
+    foreach ($data as $roomname => $roomdata)
+    {
+        if ($roomname != "type")
+        {
+            $first_flag = false;
+            $default_room_name = ncn_admin_claim_get_default_room_name($claim_id);
+            if ($roomname == $default_room_name) {
+                $first_flag = true;
+            }
+            
+            if(!$first_flag) {
+                if ($i % $scope_per_pdf == 0 && $page_count) {
+                    if ($pdf) {
+                        $pdf_file_url = $pdf_file_url_pattern.$pdf_count.".pdf";
+                        $pdf->Output($pdf_file_url, 'F');
+                        
+                        $pdf_count += 1;
+                    }
+                    $pdf=new PDF();
+                    $page_count = 0;
+                }
+            
+                if (!ncn_admin_invoice_check_room_data_exist($claim_id, $roomname, $roomdata)) { continue; }
+                $pdf->AddPage();    
+                $page_count++;
+        
+                $roomdata['captions'] = _get_image_captions($claim_id, $roomname, 6);
+                $pdf->Header_Invoice($customer_name." - ".$roomname);           
+                $top2 = $pdf->RoomPhoto_Table_Invoice($roomdata);
+                if (isset($scope_file[$roomname])) {
+                    $pdf->draw_scope_file($scope_file[$roomname], $top2);
+                } else {
+                    /** Dry Log ScopeSheet**/
+                    $ss_data = array();
+                    $ss_eit = ncn_admin_get_ss_eit_list($claim_id, $roomname);
+                    $ss_smr = ncn_admin_get_ss_smr_list($claim_id, $roomname); 
+                    $ss_ep  = ncn_admin_get_ss_ep_list($claim_id, $roomname);
+                    $ss_smr_standard    = ncn_admin_get_ss_structural_moisture_readings($claim_id, $roomname);
+                    ncn_admin_array_trim($ss_smr_standard);
+                    
+                    if (!empty($ss_eit)) { $ss_data['eit'] = $ss_eit; }
+                    if (!empty($ss_smr)) { $ss_data['smr'] = $ss_smr; }
+                    if (!empty($ss_ep )) { $ss_data['ep']  = ncn_admin_ss_ep_print_format_data($ss_ep);  }
+                    if (!empty($ss_smr_standard)) { $ss_data['smr_standard'] = $ss_smr_standard; }
+                    
+                    if (!empty($ss_data)) {
+                        $pdf->SetY($top2);
+                        $pdf->InsertScopesheetData($ss_data);
+                    }
+                }
+                
+                $i += 1;
+            }
+        }
+    }
+    
+    
+    if ($pdf && $page_count) {
+        $pdf_file_url = $pdf_file_url_pattern.$pdf_count.".pdf";
+        $pdf->Output($pdf_file_url, 'F');       
+        $pdf_count += 1;
+    }
+    
+    //$scope_link = '<a href="http://www.netclaimsnow.com/'.$pdf_file_url.'" target="_blank">Scopesheet PDF</a>';
+    //drupal_set_message(t($scope_link), 'status');
+    return $pdf_file_url_pattern;
+}
+
+function ncn_admin_invoice_check_default_room_data_exist($claim_id, $roomdata) {
+  $ret = FALSE;
+  for ($i=0; $i<3; $i++) {
+    $img_index = 'image'.$i;
+    if (isset($roomdata[$img_index])&&is_file($roomdata[$img_index]['path'])) {
+      $ret = TRUE; break;
+    }
+  }
+  return $ret;
+}
+function ncn_admin_invoice_check_room_data_exist($claim_id, $roomname, $roomdata) {
+    //* photo album//
+    $ret = FALSE;
+    for ($i=0; $i<6; $i++) {
+        $img_index = 'image'.$i;
+        if (isset($roomdata[$img_index])&&is_file($roomdata[$img_index]['path'])) {
+            $ret = TRUE; break;
+        }
+    }
+    
+    //ScopeSheet
+    if (!$ret) {
+        $scope_file = get_claim_scope_file($claim_id);
+        if (isset($scope_file[$roomname])) {
+            $ret = TRUE;
+        } else {
+            $ss_data = array();
+            $ss_eit = ncn_admin_get_ss_eit_list($claim_id, $roomname);
+            $ss_smr = ncn_admin_get_ss_smr_list($claim_id, $roomname); 
+            $ss_ep  = ncn_admin_get_ss_ep_list($claim_id, $roomname);
+            $ss_smr_standard    = ncn_admin_get_ss_structural_moisture_readings($claim_id, $roomname);
+            ncn_admin_array_trim($ss_smr_standard);
+            
+            if (!empty($ss_eit)) { $ss_data['eit'] = $ss_eit; }
+            if (!empty($ss_smr)) { $ss_data['smr'] = $ss_smr; }
+            if (!empty($ss_ep )) { $ss_data['ep']  = ncn_admin_ss_ep_print_format_data($ss_ep);  }
+            if (!empty($ss_smr_standard)) { $ss_data['smr_standard'] = $ss_smr_standard; }
+            
+            if (!empty($ss_data)) {
+                $ret = TRUE;
+            }
+        }
+    }
+    return $ret;
+}

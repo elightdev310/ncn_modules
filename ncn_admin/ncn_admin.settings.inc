@@ -623,58 +623,6 @@ function ncn_admin_email_settings_form_submit($form, &$form_state)
 }
 
 //------------------------------------------------------------------------------
-// Implementation of hook_perm().
-function ncn_admin_permission()
-{
-    /*return array(   'administer ncn_admin settings', 'administer ncn_admin_pool settings', 
-                      'view ncn claim', 'login for test', 'payment transaction', 'ncn_admin view addtional claim data', 
-                      'ncn_admin edit addtional claim data', 'ncn_admin view room scopesheet', 'ncn_admin edit room scopesheet', 
-                      'ncn_admin edit username', 'ncn_admin edit member type', 'ncn_admin edit claim note'
-    );*/
-    
-    return array(
-        'administer ncn_admin settings' => array(
-          'title' => t('administer ncn_admin settings'),
-        ),
-        'administer ncn_admin_pool settings' => array(
-          'title' => t('administer ncn_admin_pool settings'),
-        ),
-        'view ncn claim' => array(
-          'title' => t('view ncn claim'),
-        ),      
-        'login for test' => array(
-          'title' => t('login for test'),
-        ),
-        'payment transaction' => array(
-          'title' => t('payment transaction'),
-        ),
-        'ncn_admin view addtional claim data' => array(
-          'title' => t('ncn_admin view addtional claim data'),
-        ),
-        'ncn_admin edit addtional claim data' => array(
-          'title' => t('ncn_admin edit addtional claim data'),
-        ),
-        'ncn_admin view room scopesheet' => array(
-          'title' => t('ncn_admin view room scopesheet'),
-        ),
-        'ncn_admin edit room scopesheet' => array(
-          'title' => t('ncn_admin edit room scopesheet'),
-        ),
-        'ncn_admin edit username' => array(
-          'title' => t('ncn_admin edit username'),
-        ), 
-        'ncn_admin edit member type' => array(
-          'title' => t('ncn_admin edit member type'),
-        ), 
-        'ncn_admin edit claim note' => array(
-          'title' => t('ncn_admin edit claim note'),
-        )
-    );  
-    
-}
-
-
-//------------------------------------------------------------------------------
 // entry function
 function ncn_admin_page()
 {
@@ -749,13 +697,3 @@ GLOBAL $base_url;
     return($content);
 //  return system_settings_form($form);
 }
-
-/*
-    $query = "";
-    $result = db_query($query);
-    $row_count = $result->rowCount();
-    $row = (array)$result;
-    
-    mysql_real_escape_string
-    mysql_insert_id();
-*/

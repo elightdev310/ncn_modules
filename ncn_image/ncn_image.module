@@ -287,9 +287,10 @@ function ncn_image_action_save() {
     if ($claim_id) {
         $style_path = drupal_realpath("public://styles");
         $claim_folder = "/public/user_files/".$claim_id;
+        deleteDir($style_path."/full_size".$claim_folder);
+        deleteDir($style_path."/image_tab_upload".$claim_folder);
         deleteDir($style_path."/medium".$claim_folder);
         deleteDir($style_path."/photo_album".$claim_folder);
-        deleteDir($style_path."/image_tab_upload".$claim_folder);
     }
 
     $result['success'] = ($bSave==TRUE)? "success":"error";

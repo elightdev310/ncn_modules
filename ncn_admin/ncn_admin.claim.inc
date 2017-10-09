@@ -1303,331 +1303,6 @@ GLOBAL $base_url;
     exit;
 }
 
-
-function ncn_admin_scopeform($claim_id, $roomname)
-{
-    ob_start();
-?>
-
-<p class="description" style="font-weight: bold;">
-    If you don't upload scopesheet for final invoice, then we would generate this scopesheet using scopesheet data when creating a final invoice.
-</p>
-
-<form id="ncn_admin_scopeform_<?php echo $roomname; ?>" class="attach-description" enctype="multipart/form-data" method="post">
-    <input type="file" size="60" id="ncn_scope_file_<?php echo $roomname; ?>" name="files[ncn_scope_file_<?php echo $roomname; ?>]" accept="image/jpg, image/jpeg, image/gif, image/png, image/bmp" />
-    <input type="hidden" name="roomname" value="<?php echo $roomname; ?>" />
-    <input type="hidden" name="scope_upload_function" value="scope" />
-    <input type="hidden" name="current_scroll_position" class="current_scroll_position" value="" />
-    <input type="submit" onclick="return on_set_scroll_position();" value="Upload Exact Scope Image File" />
-</form>
-<p class="description">
-    Upload cropped scope image file using this form. When creating invoice, uploaded image file is used, directly.
-</p>
-
-<form id="ncn_admin_auto_scopeform_pdf_<?php echo $roomname; ?>" class="attach-description" enctype="multipart/form-data" method="post">
-    <input type="file" size="60" id="ncn_scope_auto_pdf_file_<?php echo str_replace(' ', '_', $roomname); ?>" name="files[ncn_scope_auto_pdf_file_<?php echo $roomname; ?>]" accept="application/pdf" />
-    <input type="hidden" name="roomname" value="<?php echo $roomname; ?>" />
-    <input type="hidden" name="scope_upload_function" value="scope_auto_full_pdf" />
-    <input type="hidden" name="current_scroll_position" class="current_scroll_position" value="" />
-    <input type="submit" onclick="return on_set_scroll_position();" value="Upload Full Scope PDF File And Crop Automatically"  />
-</form>
-<p class="description">
-    Upload full scope pdf file using this form. When uploading, scope image file would be cut from scope pdf, automatically.
-</p>
-
-<form id="ncn_admin_scopeform_pdf_<?php echo $roomname; ?>" class="attach-description" enctype="multipart/form-data" method="post">
-    <input type="file" size="60" id="ncn_scope_pdf_file_<?php echo str_replace(' ', '_', $roomname); ?>" name="files[ncn_scope_pdf_file_<?php echo $roomname; ?>]" accept="application/pdf" />
-    <!--<input type="hidden" name="roomname" value="<?php echo $roomname; ?>" />
-    <input type="hidden" name="scope_upload_function" value="scope_full_pdf" /> -->
-    <input type="hidden" name="current_scroll_position" class="current_scroll_position" value="" />
-    <input type="button" value="Upload Full Scope PDF File And Crop Manually" onclick="return on_click_upload_scope_full_pdf('<?php echo $GLOBALS['base_url']; ?>', 'ncn_scope_pdf_file_<?php echo str_replace(' ', '_', $roomname); ?>', '<?php echo $claim_id; ?>', '<?php echo $roomname; ?>' ); " />
-</form>
-<p class="description">
-    Upload full scope pdf file using this form. After uploading, you need to cut from scope file, manually.
-</p>
-<?php 
-    $content = ob_get_contents();
-    ob_end_clean();
-    
-    return $content;
-}
-
-function ncn_admin_scopeform_submit($roomname) {
-    //$roomname = $form_state['values']['roomname'];
-    $claim_id = arg(4);
-    
-    // we know the file was good
-    $source = 'ncn_scope_file_'.$roomname;
-    
-    if(isset($form_state['clicked_button']['#post']['current_scroll_position']))
-    {
-        $_SESSION['current_scroll_position'] = $form_state['clicked_button']['#post']['current_scroll_position'];
-    } 
-    
-    $file = file_save_upload($source);
-    
-    if (!$file) {
-        drupal_set_message("File of missing for upload (room name :$roomname)", "error");
-        return;
-    } else if ($file->filemime != 'image/jpeg' && $file->filemime != 'image/jpg' && $file->filemime != 'image/gif' && $file->filemime != 'image/png' && strtolower(substr($file->filename, -4)) != ".bmp") {
-        drupal_set_message("Scope file should be only Image (room name: $roomname)", "error");
-        file_delete($file);
-        return;
-    }
-
-    $filePath = "sites/default/files/invoices/$claim_id/";
-    $claim_dir = DRUPAL_ROOT."/".$filePath;
-    
-    if (!is_dir($claim_dir)) {
-        mkdir($claim_dir, 0755);
-    }
-
-    $res = file_copy($file, "public://invoices/{$claim_id}", FILE_EXISTS_RENAME);
-    file_delete($file);
-
-    $file = $res;
-
-    // add invoice to database
-    if ($file)
-    {
-        if ( strtolower(substr($file->filename, -4)) == ".bmp" ) {
-            
-//          $old_filepath = drupal_realpath($file->uri);
-            $result_convert = convert_bmp_to_jpg($file);
-            file_delete($file);
-            if ($result_convert === FALSE) {
-                drupal_set_message("Failed to convert uploaded bmp file to png file. ($roomname)", 'error');
-                return;
-            }
-            $file = $result_convert;
-        }else{
-            $file = $res;
-        }
-    
-        // get last revision
-    //  $query = "SELECT * FROM claims_scope WHERE claim_id=".$claim_id." AND roomname=\"".$roomname."\"";
-        $result = db_query('SELECT * FROM {claims_scope} WHERE claim_id=:a AND roomname=:b',
-            array(':a'=>$claim_id,':b'=>$roomname));
-        $row_count = $result->rowCount();
-        
-        
-        if ($row_count == 0)
-        {   
-            $revision = 0;  
-            $query = db_query('INSERT INTO {claims_scope} VALUES(NULL,:a,:b,:c,:d,:e,:f)',
-                array(':a'=>$claim_id,':b'=>$roomname,':c'=>$file->filename,':d'=>$filePath.$file->filename,
-                ':e'=>$file->filemime,':f'=>date('U')));
-        }
-        else
-        {
-            $row = (array)$result->fetchAssoc();
-//          $revision = $row['revision']+1;
-
-            $revision = 0;  
-            file_delete($row['filepath']);
-            // @unlink(drupal_realpath($row['filepath']));
-
-            $query = db_query('UPDATE {claims_scope} SET filename=:a, filepath=:b, filemime=:d,
-            `timestamp`=:e WHERE claim_id=:f AND roomname=:g',array(':a'=>$file->filename,':b'=>$filePath.$file->filename,
-                ':d'=>$file->filemime,':e'=>date('U'),':f'=>$claim_id,':g'=>$roomname));
-        }
-        
-        $result = $query;
-        
-        $log_message = t("!user_name uploaded Scope File of Room(!room_name). Filename: !file_name", array('!user_name'=>ncn_amin_get_user_role_and_name(), '!room_name'=>$roomname, '!file_name'=>$file->filename));
-        ncn_admin_insert_claim_log($claim_id, date('U'), $log_message);
-        // success!
-        $log_message = t("Uploaded Scope File of Room(!room_name). Filename: !file_name", array('!room_name'=>$roomname, '!file_name'=>$file->filename));
-        drupal_set_message('File "'.$file->filename.'" was uploaded (roomname: '.$roomname.').', 'status');
-    } else {
-        
-    }
-}
-
-// upload scope pdf file and crop automatically.
-function ncn_admin_auto_scopeform_full_pdf_submit($claim_id, $roomname) {
-    
-    // we know the file was good
-    $source = 'ncn_scope_auto_pdf_file_'.$roomname;
-    
-    $file = file_save_upload($source);
-
-    $json_data = array();
-    $json_data['error'] = '';
-    $json_data['roomname'] = $source;
-    
-    if (!$file) {
-        drupal_set_message("File of missing for upload (room name :$roomname)", "error");
-        return;
-    } else if ($file->filemime != 'application/pdf') {
-        drupal_set_message("Scope file should be only PDF (room name: $roomname)", "error");
-        file_delete($file);
-        return;
-    }
-    
-    if ($json_data['error'] == '') {
-
-    $filePath = "sites/default/files/invoices/$claim_id/";
-    $claim_dir = DRUPAL_ROOT."/".$filePath;
-    
-    if (!is_dir($claim_dir)) {
-        mkdir($claim_dir, 0755);
-    }
-
-    $res = file_copy($file, "public://invoices/{$claim_id}", FILE_EXISTS_RENAME);
-    file_delete($file);
-
-    $dest_file['uri'] = $res->uri;
-    $dest_file['filename'] = $res->filename;
-    
-    $img_file = convert_pdf_to_jpg($res, $claim_dir);
-
-    if ($img_file == FALSE) {
-        drupal_set_message(t("Failed to convert PDF to Image, after uploading scope pdf file(room name :!roomname)", array('!roomname'=>$roomname)), "error");
-        return;
-    } else {
-        // Croping converted image
-        $ts = date('U');
-        $dest_file['uri'] .= "_cut_".$ts.".jpg";
-        $dest_file['filename'] .= "_cut_".$ts.".jpg";
-        $dest_file['filemime'] = "image/jpg";
-        
-        
-        $api_params = array(
-            'action'    => 'crop',
-            'width'     => variable_get('ncn_scope_file_crop_width', '0'),
-            'height'    => variable_get('ncn_scope_file_crop_height', '0'),
-            'x'         => variable_get('ncn_scope_file_crop_x', '0'),
-            'y'         => variable_get('ncn_scope_file_crop_y', '0'),
-            
-            'source'    => $img_file->uri,
-            'dest'      => $dest_file['uri']
-        );
-            
-        $bAction = _ncn_image_api('crop', $api_params);
-        //@unlink(drupal_realpath($img_file->uri));
-        file_delete($img_file);
-        if ($bAction) {
-            // get last revision
-        //  $query = "SELECT * FROM claims_scope WHERE claim_id=".$claim_id." AND roomname=\"".$roomname."\"";
-            $result = db_query('SELECT * FROM {claims_scope} WHERE claim_id=:a AND roomname=:b',
-                array(':a'=>$claim_id,':b'=>$roomname));
-            $row_count = $result->rowCount();
-            
-            if ($row_count == 0)
-            {   
-                $revision = 0;  
-                $query = db_query('INSERT INTO {claims_scope} VALUES(NULL,:a,:b,:c,:d,:e,:f)',
-                    array(':a'=>$claim_id,':b'=>$roomname,':c'=>$dest_file['filename'],
-                    ':d'=>$filePath.$dest_file['filename'],':e'=>$dest_file['filemime'],':f'=>date('U')));
-            }
-            else
-            {
-                $row = (array)$result->fetchAssoc();
-                //$revision = $row['revision']+1;
-                
-                $revision = 0;  
-
-                //@unlink(drupal_realpath($row['filepath']));
-                file_delete($row['filepath']);
-
-                $query = db_query('UPDATE {claims_scope} SET filename=:a , filepath=:b , filemime=:c , `timestamp`=:d WHERE claim_id=:e AND roomname=:f',
-                array(':a'=>$dest_file['filename'],':b'=>$filePath.$dest_file['filename'],':c'=>$dest_file['filemime'],
-                    ':d'=>date('U'),':e'=>$claim_id,':f'=>$roomname));
-            }
-      
-            $result = $query;
-            drupal_set_message('File "'.$dest_file['filename'].'" was generated (roomname: '.$roomname.').', 'status');
-      
-      $log_message = t("!user_name generated Scope File of Room !room_name. Filename: !file_name", array('!user_name'=>ncn_amin_get_user_role_and_name(), '!room_name'=>$roomname, '!file_name'=>$dest_file['filename']));
-      ncn_admin_insert_claim_log($claim_id, date('U'), $log_message);
-        } else {
-            drupal_set_message(t("Failed to crop image, after uploading scope pdf file and converting to image (room name :!roomname)", array('!roomname'=>$roomname)), "error");
-            return;
-            
-        }
-    }
-    }
-    
-}
-
-// upload scope pdf file and crop manually.
-function ncn_admin_scopeform_full_pdf_submit($claim_id, $roomname) {
-    
-    // we know the file was good
-    $source = 'ncn_scope_pdf_file_'.$roomname;
-    
-    $file = file_save_upload($source);
-    
-    $json_data = array();
-    $json_data['error'] = '';
-    
-    if (!$file) {
-        //drupal_set_message("File of missing for upload (room name :$roomname)", "error");
-        $json_data['error'] = "File of missing for upload (room name :$roomname)";
-        //return;
-    } else if ($file->filemime != 'application/pdf') {
-        //drupal_set_message("Scope file should be only PDF (room name: $roomname)", "error");
-        $json_data['error'] = "Scope file should be only PDF (room name: $roomname)";
-        file_delete($file);
-        //return;
-    }
-    
-    if ($json_data['error'] == '') {
-
-        $filePath = "sites/default/files/invoices/$claim_id/";
-        $claim_dir = DRUPAL_ROOT."/".$filePath;
-        
-        if (!is_dir($claim_dir)) {
-            mkdir($claim_dir, 0755);
-        }
-
-        $res = file_copy($file, "public://invoices/{$claim_id}", FILE_EXISTS_RENAME);
-        file_delete($file);
-        
-        $dest_file['uri'] = $res->uri;
-        $dest_file['filename'] = $res->filename;
-
-        $img_file = convert_pdf_to_jpg($res, $claim_dir);
-        if ($img_file == FALSE) {
-            //drupal_set_message(t("Failed to convert PDF to Image, after uploading scope pdf file(room name :!roomname)", array('!roomname'=>$roomname)), "error");
-            $json_data['error'] = "Failed to convert PDF to Image, after uploading scope pdf file(room name :$roomname)";
-            //return;
-        } else {
-        
-            // Scaling converted image
-            $ts = date('U');
-            $dest_file['uri'] .= "_scope_".$ts.".jpg";
-            $dest_file['filename'] .= "_scope_".$ts.".jpg";
-            $dest_file['filemime'] = "image/jpg";
-            
-            
-            $api_params = array(
-                'action'    => 'scale',
-                'width'     => 600,
-                'height'    => NULL,
-                'upscale'   => FALSE,
-                
-                'source'    => $img_file->filepath,
-                'dest'      => $dest_file['uri']
-            );
-                
-            $bAction = _ncn_image_api('scale', $api_params);
-            //@unlink(drupal_realpath($img_file->uri));
-            file_delete($img_file);
-            if ($bAction) {
-                $json_data['filepath'] = str_replace('public://', 'sites/default/files/', $dest_file['uri']);
-                $json_data['filepath'] = base64_encode($json_data['filepath']);
-            } else {
-                $json_data['error'] = "Failed to crop image, after uploading scope pdf file and converting to image (room name :$roomname)";
-            }
-        }
-    }
-    
-    echo json_encode($json_data);
-    
-}
-
 function ncn_admin_claimsdata_update($claim_id) {
     $error = false;
   $options = array();
@@ -1667,82 +1342,6 @@ function ncn_admin_claimsdata_update($claim_id) {
   
   // Synchronize Additional Data
   ncn_admin_sync_additional_data($claim_id, $options);
-}
-
-//------------------------------------------------------------------------------
-function ncn_admin_draw_scope_upload($claim_id, $roomname, $pvc_disabled='', $start_num) {
-GLOBAL $base_url;
-    ob_start();
-?>
-    <div class="scope_file">
-        <fieldset class="">
-            <legend class="">
-            </legend>
-            <div class="scope_form">
-            <?php
-                if ($pvc_disabled != 'disabled') {
-                    print ncn_admin_scopeform($claim_id, $roomname );
-                }
-            ?>
-            
-                <div id="invoice_revisions">
-                <table>
-                <tbody>
-                    <thead class="tableHeader-processed">
-                    <tr>
-                        <th>File</th>
-                        <th>Timestamp</th>
-                        <th>Action</th>
-                    </tr>
-                    </thead>
-                    <?php
-                    // get latest 5 invoice revisions
-                    // $query = "SELECT * FROM claims_scope WHERE claim_id=".$claim_id." AND roomname =\"$roomname\"";
-                    $result = db_query('SELECT * FROM {claims_scope} WHERE claim_id=:a AND roomname=:b',array(':a'=>$claim_id,':b'=>$roomname));
-                    $row_count = $result->rowCount();
-                    
-                    // run through invoice revisions
-                    for ($i=0; $i<$row_count; $i++)
-                    {
-                        $row = $result->fetchAssoc();
-                        ?>              
-                        <tr class="<?php if ($i%2) print "even"; else print "odd"; ?>">
-                            <td><img src="<?php echo $base_url ?>/sites/all/modules/ncn_claims_manager/images/pdf_icon_16.gif" width="16" height="16" align="left" />&nbsp;<a href="<?= $base_url; ?>/account/serve_scope_file/<?= $claim_id; ?>/<?= $row['roomname']; ?>"><?= StripSlashes($row['filename']); ?></a></td>
-                            <td><?= date("m/d/Y H:i:s", $row['timestamp']); ?></td>
-                            <td>
-                                <?php if ($pvc_disabled != 'disabled'): ?>
-                                <a class="scope_file_<?=$i+$start_num*1000?>" href="<?= $base_url; ?>/account/delete_scope_file/<?= $claim_id; ?>/<?= $row['roomname']; ?>" onclick='set_scroll_position("scope_file_<?=$i+$start_num*1000 ?>"); return confirm("Are you sure you want to delete this file?");'>[delete]</a>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                        <?php
-                    }
-                    
-                    // no results
-                    if ($row_count == 0)
-                    {
-                        ?>
-                        <tr>
-                            <td coslpan=3>No files uploaded</td>
-                        </tr>
-                        <?php
-                    }                               
-                ?>                  
-                </tbody>
-                </table>
-                </div>
-            </div>
-        </fieldset>
-            
-        
-
-    </div>
-    <?php
-
-    $content = ob_get_contents();
-    ob_end_clean();
-    
-    return $content;
 }
 
 //------------------------------------------------------------------------------
@@ -2132,6 +1731,11 @@ function ncn_admin_list_claims()
     }
 }
 
+/**
+ * URL: admin/config/ncn_admin/deleteclaim/{claim_id}
+ * 
+ * Delete Claim (just marked as deleted claim)
+ */
 function ncn_admin_delete_claim($claim_id) {
 
     //$query = "DELETE FROM claims  WHERE claim_id =$claim_id";
@@ -2147,21 +1751,6 @@ function ncn_admin_delete_claim($claim_id) {
     
     drupal_set_message($msg, $msg_type);
     
-    /*$query = "DELETE FROM claims_data  WHERE claim_id =$claim_id";
-    $result = db_query($query);
-    
-    $query = "DELETE FROM claims_invoice  WHERE claim_id =$claim_id";
-    $result = db_query($query);
-    
-    $query = "DELETE FROM claims_log WHERE claim_id =$claim_id";
-    $result = db_query($query);
-    
-    $query = "DELETE FROM claims_scope WHERE claim_id =$claim_id";
-    $result = db_query($query);
-    
-    $query = "DELETE FROM claim_img_captions WHERE claim_id =$claim_id";
-    $result = db_query($query);
-    */
     // track delete of claims
     $timestamp = date('U');
     $query = "INSERT INTO track_delete_claim VALUES( NULL, $claim_id, $timestamp )";
@@ -2172,6 +1761,58 @@ function ncn_admin_delete_claim($claim_id) {
       $dest = urldecode($dest);
       drupal_goto($dest);
   }
+}
+
+/**
+ * Delete Claim Permanently.
+ *
+ * Remove all records in DB
+ */
+function ncn_admin_permanent_delete_claim($claim_id, $file=false) {
+    if (!$claim_id) {
+        return false;
+    }
+
+    $query = "DELETE FROM claims WHERE claim_id =$claim_id AND (deleted=1 OR claim_status='unpurchased')";
+    $result = db_query($query);
+    if ($result->rowCount()) {
+        watchdog('ncn-admin-delete-claim', 'Deleted Claim #'.$claim_id.' Permanently.');
+
+        db_query("DELETE FROM claims_data               WHERE claim_id=$claim_id");
+        db_query("DELETE FROM claims_data_extra         WHERE claim_id=$claim_id");
+        // db_query("DELETE FROM claims_invoices           WHERE claim_id=$claim_id");
+        db_query("DELETE FROM claims_log                WHERE claim_id=$claim_id");
+        db_query("DELETE FROM claims_rooms_data_extra   WHERE claim_id=$claim_id");
+        db_query("DELETE FROM claims_scope              WHERE claim_id=$claim_id");
+        // db_query("DELETE FROM claim_extra_file          WHERE claim_id=$claim_id");
+        db_query("DELETE FROM claim_img_captions        WHERE claim_id=$claim_id");
+        db_query("DELETE FROM claim_mail_expiration     WHERE claim_id=$claim_id");
+        db_query("DELETE FROM claim_note                WHERE claim_id=$claim_id");
+        db_query("DELETE FROM claim_timer_trigger       WHERE claim_id=$claim_id");
+
+        db_query("DELETE FROM free_gold_demo_claims     WHERE claim_id=$claim_id");
+        db_query("DELETE FROM invoice_extended_data     WHERE claim_id=$claim_id");
+
+        db_query("DELETE FROM ncn_ce_claims             WHERE claim_id=$claim_id");
+        db_query("DELETE FROM ncn_ce_claim_accept       WHERE claim_id=$claim_id");
+        db_query("DELETE FROM ncn_ce_claim_trigger      WHERE claim_id=$claim_id");
+        db_query("DELETE FROM ncn_change_order          WHERE claim_id=$claim_id");
+
+        // Remove claim files 
+        if ($file) {
+            // Styled Image
+            $style_path = drupal_realpath("public://styles");
+            $claim_folder = "/public/user_files/".$claim_id;
+            deleteDir($style_path."/full_size".$claim_folder);
+            deleteDir($style_path."/image_tab_upload".$claim_folder);
+            deleteDir($style_path."/medium".$claim_folder);
+            deleteDir($style_path."/photo_album".$claim_folder);
+
+            // Room Image & Invoice files
+            deleteDir(drupal_realpath("public://user_files/$claim_id"));
+            deleteDir(drupal_realpath("public://invoices/$claim_id"));
+        }
+    }
 }
 
 function ncn_admin_delete_scope_file() {
@@ -2234,537 +1875,6 @@ GLOBAL $user;
     readfile($row['filepath']); 
 
     exit;
-}
-
-function _add_pdf_invoice($file, $claim_id) {
-    
-    $live = 1;
-    // get last revision
-//  $query = "SELECT revision FROM claims_invoices WHERE claim_id=".$claim_id." AND `live`=".$live." ORDER BY revision DESC LIMIt 0,1";
-    $result = db_query('SELECT revision FROM {claims_invoices} WHERE claim_id=:a AND live=:b ORDER BY revision DESC LIMIt 0,1',
-    array(':a'=>$claim_id,':b'=>$live));
-    $row_count = $result->rowCount();
-    
-    if ($row_count == 0)
-    {   $revision = 0;  }
-    else
-    {
-        $row = $result->fetchAssoc();
-        $revision = $row['revision']+1;
-    }
-    
-    // insert new data
-    // $query = "INSERT INTO claims_invoices VALUES(NULL, ".$claim_id.", ".$revision.", \"".AddSlashes($file['filename'])."\", \"".AddSlashes($file['filepath'])."\", \"".AddSlashes($file['filemime'])."\", ".date('U').", ".$live.");";
-    $result = db_query('INSERT INTO {claims_invoices} VALUES(NULL,:a,:b,:c,:d,:e,:f,:g)',
-        array(':a'=>$claim_id,':b'=>$revision,':c'=>$file['filename'],':d'=>$file['filepath'],':e'=>$file['filemime'],
-            ':f'=>date('U'),':g'=>$live));
-    
-    // add entry to logfile
-    if ($live == 1)
-    {   $log_message = ncn_amin_get_user_role_and_name()." created new file: ".$file['filename'].", revision #".$revision;    }
-    else
-    {   $log_message = ncn_amin_get_user_role_and_name()." created new file: ".$file['filename'].", revision #".$revision;    }
-    
-    ncn_admin_insert_claim_log($claim_id, date('U'), $log_message);
-}
-
-/**
-Generate Final Invoice
-*/
-function generate_final_invoice($claim_id) {
-    $final_invoice_name = "";
-
-    $dir_url = variable_get('file_directory_path', 'sites/default/files') . "/invoices/$claim_id/";
-    
-    if (!is_dir($dir_url)) {
-        mkdir($dir_url, 0755);
-    }
-    
-    $file3_info = get_claim_file($claim_id, 3);     // Service Contract
-    $file4_info = get_claim_file($claim_id, 4);     // Certificate of Completion
-    $file5_info = get_claim_file($claim_id, 5);     // Completed Invoice
-    
-    $additional_file_removed = false;
-    $scope_pdf_count = 0;
-    
-    $base_abs_path = $_SERVER['DOCUMENT_ROOT'];
-    $foption = "";
-    $error = false;
-    try{
-        // 1st pdf
-        $first_pdf_url = _get_first_pdf($claim_id, $dir_url);
-        if ($first_pdf_url == '[no-coversheet]') {
-            // skip first pdf(cover sheet)
-        }   else if ($first_pdf_url) {
-            $foption .= " -f $base_abs_path/$first_pdf_url";
-        } else {
-            $error = true;
-        }
-        // && $_SERVER['REMOTE_ADDR']!='103.240.34.101'
-        if (!$error) {
-            // 2th pdf  (Completed Invoice)
-            if (!empty($file5_info)) {
-                $foption .= " -f $base_abs_path/".$file5_info['filepath'];
-            }
-            // 3rd pdf
-            if (!empty($file3_info) || !empty($file4_info)) {
-                $third_pdf_url = _get_third_pdf($file3_info, $file4_info, $dir_url);
-                if (!empty($third_pdf_url)) {
-                    $foption .= " -f $base_abs_path/$third_pdf_url";
-                }
-            }
-            /*if (!empty($file3_info)) {
-                $foption .= " -f $base_abs_path/".$file3_info['filepath'];
-            }
-            // 4th pdf
-            if (!empty($file4_info)) {
-                $foption .= " -f $base_abs_path/".$file4_info['filepath'];
-            }*/
-            
-            // Additional Documents
-            $additional_file_removed = TRUE;
-            $pdf_file_additional_pdfs = _get_additional_docs_pdf($claim_id, $dir_url, $additional_file_removed);
-            if ($pdf_file_additional_pdfs) {
-                $foption .= " -f $base_abs_path/$pdf_file_additional_pdfs";
-            }
-            
-            // 5th pdf
-            $pdf_file_url_pattern = _get_scope_pdf($claim_id, $dir_url, $scope_pdf_count);
-            if ($scope_pdf_count) {
-                for ($index = 0; $index<$scope_pdf_count; $index+=1) {
-                    $pdf_file_url = $pdf_file_url_pattern.$index.".pdf";
-                    $foption .= " -f $base_abs_path/$pdf_file_url";
-                }
-            }
-        }
-    } catch(Exception $ex) {
-        drupal_set_message($ex->getMessage(), 'error');
-        $error = true;
-    }
-    
-    if (!$error) {
-        
-        $final_invoice_filename = 'invoice_'.date('U').'.pdf';
-        $final_invoice_name = $dir_url.$final_invoice_filename;
-        $out_option = " -o $base_abs_path/$final_invoice_name";
-        
-        //drupal_set_message($foption);
-        
-        /*if($_SERVER['REMOTE_ADDR']=="103.240.34.101"){
-            echo $foption;
-        }*/
-        
-                
-        if ($foption != "") {
-            //$command = "java -jar C:/pdfsam/lib/pdfsam-console-2.3.1e.jar $foption $out_option concat";
-            //$command = "java -jar ../pdfsam/lib/pdfsam-console-2.3.1e.jar $foption $out_option concat";
-            $command = "java -jar ".$_SERVER["DOCUMENT_ROOT"]."/pdfsam/lib/pdfsam-console-2.3.1e.jar $foption $out_option concat";
-            
-            $output = shell_exec($command);
-            
-            if (!is_file($final_invoice_name)) {
-                drupal_set_message('Failed to create an invoice.', 'error');
-                //drupal_set_message('You need to upload essential files to create an invoice.', 'error');
-                $error = true;
-            } else {
-            
-                if (ncn_admin_is_claim_first_free($claim_id)) {
-                    // generate locked pdf // 2011-08-02
-                    //$command = "java -jar C:/pdfwatermark/ncn_pdf_watermark.jar $base_abs_path/$final_invoice_name";
-                    //$command = "java -jar ../pdfwatermark/ncn_pdf_watermark.jar $base_abs_path/$final_invoice_name";
-                    $command = "java -jar ".$_SERVER["DOCUMENT_ROOT"]."/pdfwatermark/ncn_pdf_watermark.jar $base_abs_path/$final_invoice_name";
-
-                    $output = shell_exec($command);
-                    $final_locked_invoice_name = ncn_admin_get_locked_invoice_filename($final_invoice_name);
-                    
-                    if (!is_file($final_locked_invoice_name)) {
-                        drupal_set_message('Failed to create an locked invoice.', 'error');
-                    }
-                }
-            }
-        }
-        else{
-            $error = true;
-        }
-    }
-    
-    // clear temporary files
-    if (isset($first_pdf_url) && $first_pdf_url && $first_pdf_url!='[no-coversheet]') {  
-        $first_pdf_file = new stdClass();
-        $first_pdf_file->filepath = $first_pdf_url;
-        $first_pdf_file->filename = basename($first_pdf_url);
-        $first_pdf_file->uri = str_replace("sites/default/files/","public://",$first_pdf_url);
-        //file_delete($first_pdf_url);
-        file_delete($first_pdf_file);
-    }
-    
-    if (isset($third_pdf_url) && $third_pdf_url) {   
-        $third_pdf_file = new stdClass();
-        $third_pdf_file->uri = str_replace("sites/default/files/","public://",$third_pdf_url);
-        //file_delete($third_pdf_url);
-        file_delete($third_pdf_file);
-    }   
-    
-    if ($additional_file_removed && isset($pdf_file_additional_pdfs) && $pdf_file_additional_pdfs ) {
-        $additional_pdf_file = new stdClass();
-        $additional_pdf_file->uri = str_replace("sites/default/files/","public://",$pdf_file_additional_pdfs);
-        //file_delete($pdf_file_additional_pdfs);
-        file_delete($additional_pdf_file);
-    }
-    
-    if ($scope_pdf_count) {
-        for ($index = 0; $index<$scope_pdf_count; $index+=1) {
-            $pdf_file_url = $pdf_file_url_pattern.$index.".pdf";
-            $scope_pdf_file = new stdClass();
-            $scope_pdf_file->uri = str_replace("sites/default/files/","public://",$pdf_file_url);
-            //file_delete($pdf_file_url);
-            file_delete($scope_pdf_file);
-        }
-    }
-    
-    if ($error) { return; }
-    
-    drupal_set_message("Final Invoice Created, Successfully.");
-    drupal_set_message("File : $final_invoice_name");
-    if (isset($final_locked_invoice_name)&&is_file($final_locked_invoice_name)) {
-        drupal_set_message("Locked Invoice File : $final_locked_invoice_name");
-    }
-    
-    $file_info = array(
-        'filename' => $final_invoice_filename,
-        'filepath' => $final_invoice_name,
-        'filemime' => 'application/pdf'
-    );
-    _add_pdf_invoice($file_info, $claim_id);
-}
-
-function ncn_admin_get_locked_invoice_filename($fname) {
-    return substr($fname, 0, -4)."_locked.pdf";
-}
-
-function _get_format_phone_string($str) {
-    if (trim($str) == "") {
-        return '';
-    }
-    $str = str_replace('-', '', $str);
-    $str1 = substr($str, 0, 3);
-    $str2 = substr($str, 3, 3);
-    $str3 = substr($str, 6);
-    $str = "$str1-$str2-$str3";
-    
-    return $str;
-}
-
-function _get_format_tax_id_string($str) {
-    if (trim($str) == "") {
-        return '';
-    }
-    $str = str_replace('-', '', $str);
-    $str1 = substr($str, 0, 2);
-    $str2 = substr($str, 2);
-    $str = "$str1-$str2";
-    
-    return $str;
-}
-
-function _get_first_pdf($claim_id, $dir_url) {
-    
-    $pdf_file_url = $dir_url.time()."_first.pdf";
-    //$template_first_page = "invoice_cover_sheet.doc";
-    
-    //get essential data
-    $invoice_data = get_extended_data($claim_id);   
-    $claim_invoice_type = isset($invoice_data['claim_invoice_type'])?$invoice_data['claim_invoice_type']:'';
-
-    if ( strpos($claim_invoice_type , "*no*") !== false ) {
-        return '[no-coversheet]';
-    }
-    
-    $claim_data = get_claim_data($claim_id);
-    $_user = user_load($claim_data['user_id']);
-    $data = array();
-    
-    $data['company_name']           = $_user->profile_legalname;    //'ABC Restoration, Inc';
-    $data['tax_id_number']          = $_user->profile_taxid;        //'12-3456789';
-    
-    $data['company_address1']       = $_user->profile_address;      //'123 Company Lane';
-    $data['company_address2']       = $_user->profile_city.', '.$_user->profile_state.' '.$_user->profile_zip;      //  'Dallas, TX. 75201';
-    $data['company_office_phone']   = _get_format_phone_string($_user->profile_officephone);    //'555-555-1234';
-    
-    $data['client_name']            = ncn_cd($claim_id, 'customer_name');   //'Robert Smith';
-    $data['property1']              = ncn_cd($claim_id, 'insured_address'); //'123 Company Lane';
-    $data['property2']              = ncn_cd($claim_id, 'insured_city').', '.ncn_cd($claim_id, 'insured_state').' '.ncn_cd($claim_id, 'insured_zip');       //'Dallas, TX. 75201';
-    $data['home_phone']             = _get_format_phone_string(ncn_cd($claim_id, 'insured_phone_number'));
-    
-    $data['date_of_loss']           = ncn_cd($claim_id, 'date_of_loss');    //'12/07/10';
-    
-    $data = array_merge($invoice_data, $data);
-    
-    $logo = ncn_admin_get_member_logo_info($_user->profile_memberid);
-    $b_logo = true;
-    if (empty($logo)) { $b_logo = false; }
-    $result = ncn_admin_make_cover_sheet($pdf_file_url, $data, $b_logo);
-
-    if(is_file($pdf_file_url)) {
-        
-        /********* add Member Logo into coversheet page ************/
-        if (empty($logo)) {
-            return $pdf_file_url;
-        }
-        $file = new stdClass();
-        $file->filepath = $pdf_file_url;
-        $file->filename = basename($pdf_file_url);
-        $file->filemime = "application/pdf";        
-        $file->uri = str_replace("sites/default/files/","public://",$file->filepath);
-        
-        $logo_params = array(
-                'x' => 100,
-                'y' => 50,
-                'width' => 350,
-                'height' => 150,
-                'valign' => 'bottom',
-            );
-            
-        $final_cv_pdf = generate_pdf_with_member_logo($_user->profile_memberid, $file, $logo_params);
-
-        //file_delete($pdf_file_url);
-        if ($final_cv_pdf) {
-            return $final_cv_pdf;
-        } else {
-            drupal_set_message('Failed to make a cover sheet with logo.', 'error');
-        }
-    } else if ($result !== FALSE) {
-        drupal_set_message('Failed to make a cover sheet.', 'error');
-    }
-    
-    return '';
-    
-}
-
-function _get_third_pdf($file3, $file4, $dir_url) {
-    $both_image = 0;
-    if (!empty($file3['filepath']) && is_file($file3['filepath']) ) {
-        if ( strtolower(substr($file3['filepath'], -4)) == ".jpg" ) {
-            $both_image += 3;
-        }
-    }
-    if (!empty($file4['filepath']) && is_file($file4['filepath']) ) {
-        if ( strtolower(substr($file4['filepath'], -4)) == ".jpg" ) {
-            $both_image += 4;
-        }
-    }
-    if ( $both_image==0 ) {
-        return '';
-    }
-    
-    $pdf_file_url = $dir_url.time()."_third.pdf";
-    
-    $pdf=new NCNPDF();
-    $pdf->AddPage();
-    if ($both_image == 7) {
-        $pdf->Image($file3['filepath'], 0, 20, 120);
-        $pdf->Image($file4['filepath'], 120, 20, 80);
-    } else if ($both_image == 3) {
-        $pdf->Image($file3['filepath'], 0, 20, 200);
-    } else if ($both_image == 4) {
-        $pdf->Image($file4['filepath'], 0, 20, 200);
-    }
-    
-    $pdf->Output($pdf_file_url, 'F');
-    
-    if(is_file($pdf_file_url)) {
-        return $pdf_file_url;
-    } else {
-        drupal_set_message('Failed to make a \"Service Contact & Certificate of Completion" page.', 'error');
-    }
-    return '';
-}
-
-function _get_scope_pdf($claim_id, $dir_url, &$pdf_count) {
-    $scope_file = get_claim_scope_file($claim_id);
-    
-//  $query = "SELECT * FROM claims_data WHERE claim_id=".$claim_id." AND `key`='scope'";
-    $result = db_query('SELECT * FROM {claims_data} WHERE claim_id=:a AND `key`=:b',array(':a'=>$claim_id,':b'=>'scope'));
-    $row_count = $result->rowCount();
-    
-    if ($row_count == 0) { return ''; }
-    
-    // get the data
-    $row = $result->fetchAssoc();
-    $data = unserialize($row['val']);
-    
-    $customer_name = ncn_cd($claim_id, 'customer_name');
-    
-    $pdf=new NCNPDF();
-  
-    $pdf_count = 0;
-    $room_count = 0;
-    
-    foreach ($data as $roomname => $roomdata)
-    {
-        if ($roomname != "type")
-        {
-            $room_count += 1;
-        }
-    }
-    
-    $scope_per_pdf = 5;
-    $pdf_count = 0;
-    $page_count = 0;
-    $pdf_file_url_pattern = $dir_url.time()."_scope_";
-    $i = 0;
-    
-    // search first room and render
-    if (!ncn_admin_is_photo_first_room_deleted($claim_id)) {
-    foreach ($data as $roomname => $roomdata)
-    {
-        if ($roomname != "type")
-        {
-            $default_room_name = ncn_admin_claim_get_default_room_name($claim_id);
-            if ($roomname == $default_room_name) {
-                $first_flag = true;
-            }
-            
-            if ($first_flag) {
-                if ($i % $scope_per_pdf == 0 && $page_count) {
-                    if ($pdf) {
-                        $pdf_file_url = $pdf_file_url_pattern.$pdf_count.".pdf";
-                        $pdf->Output($pdf_file_url, 'F');
-                        
-                        $pdf_count += 1;
-                    }
-                    $pdf=new PDF();
-                    $page_count = 0;
-                }
-            
-        if (!ncn_admin_invoice_check_default_room_data_exist($claim_id, $roomdata)) { break; }
-                $pdf->AddPage();    
-                $page_count++;
-        
-                $roomdata['captions'] = _get_image_captions($claim_id, $roomname, 3);
-                $pdf->Header_Invoice($customer_name);           
-                $pdf->Photo_Table_Invoice($roomdata);
-                
-                $i += 1;
-                break;
-            }
-        }
-    }
-    }
-    
-    // other rooms
-    foreach ($data as $roomname => $roomdata)
-    {
-        if ($roomname != "type")
-        {
-            $first_flag = false;
-            $default_room_name = ncn_admin_claim_get_default_room_name($claim_id);
-            if ($roomname == $default_room_name) {
-                $first_flag = true;
-            }
-            
-            if(!$first_flag) {
-                if ($i % $scope_per_pdf == 0 && $page_count) {
-                    if ($pdf) {
-                        $pdf_file_url = $pdf_file_url_pattern.$pdf_count.".pdf";
-                        $pdf->Output($pdf_file_url, 'F');
-                        
-                        $pdf_count += 1;
-                    }
-                    $pdf=new PDF();
-                    $page_count = 0;
-                }
-            
-                if (!ncn_admin_invoice_check_room_data_exist($claim_id, $roomname, $roomdata)) { continue; }
-                $pdf->AddPage();    
-                $page_count++;
-        
-                $roomdata['captions'] = _get_image_captions($claim_id, $roomname, 6);
-                $pdf->Header_Invoice($customer_name." - ".$roomname);           
-                $top2 = $pdf->RoomPhoto_Table_Invoice($roomdata);
-                if (isset($scope_file[$roomname])) {
-                    $pdf->draw_scope_file($scope_file[$roomname], $top2);
-                } else {
-                    /** Dry Log ScopeSheet**/
-                    $ss_data = array();
-                    $ss_eit = ncn_admin_get_ss_eit_list($claim_id, $roomname);
-                    $ss_smr = ncn_admin_get_ss_smr_list($claim_id, $roomname); 
-                    $ss_ep  = ncn_admin_get_ss_ep_list($claim_id, $roomname);
-                    $ss_smr_standard    = ncn_admin_get_ss_structural_moisture_readings($claim_id, $roomname);
-                    ncn_admin_array_trim($ss_smr_standard);
-                    
-                    if (!empty($ss_eit)) { $ss_data['eit'] = $ss_eit; }
-                    if (!empty($ss_smr)) { $ss_data['smr'] = $ss_smr; }
-                    if (!empty($ss_ep )) { $ss_data['ep']  = ncn_admin_ss_ep_print_format_data($ss_ep);  }
-                    if (!empty($ss_smr_standard)) { $ss_data['smr_standard'] = $ss_smr_standard; }
-                    
-                    if (!empty($ss_data)) {
-                        $pdf->SetY($top2);
-                        $pdf->InsertScopesheetData($ss_data);
-                    }
-                }
-                
-                $i += 1;
-            }
-        }
-    }
-    
-    
-    if ($pdf && $page_count) {
-        $pdf_file_url = $pdf_file_url_pattern.$pdf_count.".pdf";
-        $pdf->Output($pdf_file_url, 'F');       
-        $pdf_count += 1;
-    }
-    
-    //$scope_link = '<a href="http://www.netclaimsnow.com/'.$pdf_file_url.'" target="_blank">Scopesheet PDF</a>';
-    //drupal_set_message(t($scope_link), 'status');
-    return $pdf_file_url_pattern;
-}
-
-function ncn_admin_invoice_check_default_room_data_exist($claim_id, $roomdata) {
-  $ret = FALSE;
-  for ($i=0; $i<3; $i++) {
-    $img_index = 'image'.$i;
-    if (isset($roomdata[$img_index])&&is_file($roomdata[$img_index]['path'])) {
-      $ret = TRUE; break;
-    }
-  }
-  return $ret;
-}
-function ncn_admin_invoice_check_room_data_exist($claim_id, $roomname, $roomdata) {
-    //* photo album//
-    $ret = FALSE;
-    for ($i=0; $i<6; $i++) {
-        $img_index = 'image'.$i;
-        if (isset($roomdata[$img_index])&&is_file($roomdata[$img_index]['path'])) {
-            $ret = TRUE; break;
-        }
-    }
-    
-    //ScopeSheet
-    if (!$ret) {
-        $scope_file = get_claim_scope_file($claim_id);
-        if (isset($scope_file[$roomname])) {
-            $ret = TRUE;
-        } else {
-            $ss_data = array();
-            $ss_eit = ncn_admin_get_ss_eit_list($claim_id, $roomname);
-            $ss_smr = ncn_admin_get_ss_smr_list($claim_id, $roomname); 
-            $ss_ep  = ncn_admin_get_ss_ep_list($claim_id, $roomname);
-            $ss_smr_standard    = ncn_admin_get_ss_structural_moisture_readings($claim_id, $roomname);
-            ncn_admin_array_trim($ss_smr_standard);
-            
-            if (!empty($ss_eit)) { $ss_data['eit'] = $ss_eit; }
-            if (!empty($ss_smr)) { $ss_data['smr'] = $ss_smr; }
-            if (!empty($ss_ep )) { $ss_data['ep']  = ncn_admin_ss_ep_print_format_data($ss_ep);  }
-            if (!empty($ss_smr_standard)) { $ss_data['smr_standard'] = $ss_smr_standard; }
-            
-            if (!empty($ss_data)) {
-                $ret = TRUE;
-            }
-        }
-    }
-    return $ret;
 }
 
 function ncn_admin_array_trim($data){
@@ -2856,25 +1966,11 @@ function get_extended_data($claim_id) {
     return $data;
 }
 
-function save_image_captions($claim_id) {
-    $roomname   = $_POST['roomname'];
-    $img_count  = $_POST['image_count'];
-    
-    for ($i=0; $i<$img_count; $i++) {
-        $img_index = 'image'.$i;
-        $data[$i] = $_POST[$img_index];
-    }
-    
-    if (_save_image_captions($claim_id, $roomname, $data)) {
-        drupal_set_message("Image captions updated, successfully. (room:$roomname)");
-    $log_message = ncn_amin_get_user_role_and_name()." updated Image Captions . (room:$roomname)";
-    ncn_admin_insert_claim_log($claim_id, date('U'), $log_message);
-    } else {
-        drupal_set_message("Failed to update image captions. (room:$roomname)", 'error');
-    }
-    
-}
-
+/**
+ * URL: admin/config/ncn_admin/track_delete_claims
+ * 
+ * Deleted Claims
+ */
 function track_delete_claims_page() {
 global $base_url;
     if (arg(4) == 'undelete') {
@@ -3045,6 +2141,30 @@ global $base_url;
     return $content;
 }
 
+/*
+ * Undelet Claim
+ */
+function undelete_claim_action($claim_id) {
+//  $query = "DELETE FROM track_delete_claim WHERE claim_id=$claim_id";
+    $result = db_query('DELETE FROM {track_delete_claim} WHERE claim_id=:a',array(':a'=>$claim_id));
+    if (!$result) {
+        handle_mysql_syntax_error('30110-NCN-ADMIN', $query);
+        return FALSE;
+    }
+    
+//  $query = "UPDATE claims SET deleted=0 WHERE claim_id=$claim_id AND deleted=1";
+    $result = db_query('UPDATE {claims} SET deleted=0 WHERE claim_id=:a AND deleted=1',array(':a'=>$claim_id));
+    if (!$result) {
+        handle_mysql_syntax_error('30110-NCN-ADMIN', $query);
+        return FALSE;
+    }
+    
+    drupal_set_message(t('Claim(#%claim_id) undeleted, successfully.', array('%claim_id'=>$claim_id)));
+    
+    return TRUE;
+}
+
+
 function draw_ncn_claim_data($claim_id) {
 //  $query = "SELECT * FROM claims_data WHERE claim_id=".$claim_id." AND field_type!='hidden' AND field_type!='submit' AND field_type!='token' ORDER BY `weight` ASC;";
     $result = db_query('SELECT * FROM {claims_data} WHERE claim_id=:a AND field_type!=:b AND field_type!=:c AND field_type!=:d ORDER BY weight ASC',
@@ -3144,40 +2264,4 @@ function draw_ncn_claim_data($claim_id) {
     $content = ob_get_contents();
     ob_end_clean();
     return $content;
-}
-
-/*
- * Undelet Claim
- */
-function undelete_claim_action($claim_id) {
-//  $query = "DELETE FROM track_delete_claim WHERE claim_id=$claim_id";
-    $result = db_query('DELETE FROM {track_delete_claim} WHERE claim_id=:a',array(':a'=>$claim_id));
-    if (!$result) {
-        handle_mysql_syntax_error('30110-NCN-ADMIN', $query);
-        return FALSE;
-    }
-    
-//  $query = "UPDATE claims SET deleted=0 WHERE claim_id=$claim_id AND deleted=1";
-    $result = db_query('UPDATE {claims} SET deleted=0 WHERE claim_id=:a AND deleted=1',array(':a'=>$claim_id));
-    if (!$result) {
-        handle_mysql_syntax_error('30110-NCN-ADMIN', $query);
-        return FALSE;
-    }
-    
-    drupal_set_message(t('Claim(#%claim_id) undeleted, successfully.', array('%claim_id'=>$claim_id)));
-    
-    return TRUE;
-}
-
-/*
- *
- */
-function ncn_admin_claim_file_note_change($claim_id) {
-    $file_note = $_POST['claim_file_note'];
-    $hid = ncn_capsulecrm_note_add_note($claim_id, $file_note);
-  
-    $file_note = base64_encode(strip_tags($file_note));
-    $log_message = ncn_amin_get_user_role_and_name()." update notes on file to '".$_POST['claim_file_note']."' ";
-    drupal_set_message($log_message, 'status');
-    ncn_admin_insert_claim_log($claim_id, date('U'), $log_message);
 }

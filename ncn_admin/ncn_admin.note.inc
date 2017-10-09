@@ -231,3 +231,12 @@ function ncn_admin_note_check_mode($claim_id) {
   return 'new';
 }
 
+function ncn_admin_claim_file_note_change($claim_id) {
+    $file_note = $_POST['claim_file_note'];
+    $hid = ncn_capsulecrm_note_add_note($claim_id, $file_note);
+  
+    $file_note = base64_encode(strip_tags($file_note));
+    $log_message = ncn_amin_get_user_role_and_name()." update notes on file to '".$_POST['claim_file_note']."' ";
+    drupal_set_message($log_message, 'status');
+    ncn_admin_insert_claim_log($claim_id, date('U'), $log_message);
+}
