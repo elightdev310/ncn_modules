@@ -173,7 +173,7 @@ function ncn_report_download_claims_on_mobile() {
   $report_name = "Claims on Mobile Report ($str_date)";
   
   header('Content-Type: application/vnd.ms-excel');
-  header('Content-Disposition: attachment;filename="'.$report_name.'"');
+  header('Content-Disposition: attachment;filename="'.$report_name.'.xls"');
   header('Cache-Control: max-age=0');
   $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
   $objWriter->save('php://output');

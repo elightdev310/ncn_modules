@@ -1675,7 +1675,7 @@ function ncn_admin_list_claims()
             {
             
                 // carry on
-            //  $query2 = "SELECT * FROM claims_log WHERE claim_id=".$claim_id.";";
+                // $query2 = "SELECT * FROM claims_log WHERE claim_id=".$claim_id.";";
                 $result2 = db_query('SELECT * FROM {claims_log} WHERE claim_id=:a',array(':a'=>$claim_id));
                 $entries_in_log = $result2->rowCount();
                 

@@ -2176,7 +2176,7 @@ function ncn_report_download() {
 	$report_name = ucfirst($type)." Sales Report ($str_date)";
 	
 	header('Content-Type: application/vnd.ms-excel');
-	header('Content-Disposition: attachment;filename="'.$report_name.'"');
+	header('Content-Disposition: attachment;filename="'.$report_name.'.xls"');
 	header('Cache-Control: max-age=0');
 	$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
 	$objWriter->save('php://output');
@@ -2502,7 +2502,7 @@ require_once 'sites/all/libraries/php_xls/Classes/PHPExcel.php';
 	$report_name = "Monthly Distributor Sales Summary Report ($str_date)";
 	
 	header('Content-Type: application/vnd.ms-excel');
-	header('Content-Disposition: attachment;filename="'.$report_name.'"');
+	header('Content-Disposition: attachment;filename="'.$report_name.'.xls"');
 	header('Cache-Control: max-age=0');
 	$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
 	$objWriter->save('php://output');
@@ -2579,7 +2579,7 @@ function ncn_report_download_associate() {
 	$report_name = "Monthly Associate Sales Summary Report ($str_date)";
 	
 	header('Content-Type: application/vnd.ms-excel');
-	header('Content-Disposition: attachment;filename="'.$report_name.'"');
+	header('Content-Disposition: attachment;filename="'.$report_name.'.xls"');
 	header('Cache-Control: max-age=0');
 	$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
 	$objWriter->save('php://output');
@@ -2664,7 +2664,7 @@ function ncn_report_download_monthly_detailed($type) {
 	$report_name = "[".$_user->profile_firstname." ".$_user->profile_lastname."]Detailed Monthly Sales Report ($str_date)";
 	
 	header('Content-Type: application/vnd.ms-excel');
-	header('Content-Disposition: attachment;filename="'.$report_name.'"');
+	header('Content-Disposition: attachment;filename="'.$report_name.'.xls"');
 	header('Cache-Control: max-age=0');
 	$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
 	$objWriter->save('php://output');
@@ -2740,7 +2740,7 @@ function ncn_report_download_company_sales_summary() {
 	$report_name = "Company Sales Summary Report ($str_date)";
 	
 	header('Content-Type: application/vnd.ms-excel');
-	header('Content-Disposition: attachment;filename="'.$report_name.'"');
+	header('Content-Disposition: attachment;filename="'.$report_name.'.xls"');
 	header('Cache-Control: max-age=0');
 	$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
 	$objWriter->save('php://output');
@@ -2907,15 +2907,6 @@ function send_monthly_mail() {
 	
 	$subject = 'NCN Monthly Sales Report ('.date('F Y', $report_date).')';
 	$msg = compose_monthly_mail($report_date);
-	
-/*	$to = 'elight.haha@gmail.com';
-	drupal_mail('ncn_report', 'monthly_report', $to, language_default(), array('subject'=>$subject, 'body'=>$msg));*/
-	
-	if($_SERVER['REMOTE_ADDR']=='103.240.34.101'){
-
-		var_dump($msg);
-		exit;
-	}	
 	
 	$to = 'reports@netclaimsnow.com';
 	drupal_mail('ncn_report', 'monthly_report', $to, language_default(), array('subject'=>$subject, 'body'=>$msg));

