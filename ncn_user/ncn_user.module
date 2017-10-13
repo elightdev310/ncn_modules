@@ -41,6 +41,17 @@ function ncn_user_user_presave(&$edit, $account, $category) {
   // User block tracking
   if ($account->status == 0 && isset($edit['status']) && $edit['status'] == 1)  {
     ncn_user_update_user_unblock_track($account->uid, date('U'));
+
+    // Check Member's CC Expiration
+    $_user = user_load($account->uid);
+    if (is_member_user($_user)) {
+      if (isset($_user->profile_memberid) && $_user->profile_memberid) {
+        ncn_auto_payments_check_expiration_member_cc($_user->profile_memberid, 
+                    array('member_name' => $_user->profile_firstname." ".$_user->profile_lastname, 
+                          'activation'  => true, 
+                          'mail'        => $_user->mail));
+      }
+    }
   }
   else if ($account->status == 1 && isset($edit['status']) && $edit['status'] == 0)  {
     ncn_user_insert_user_block_track($account->uid, date('U'));
