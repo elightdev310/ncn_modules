@@ -1142,7 +1142,7 @@ function register_user_save($account, $array = array(), $category = 'account') {
         }
 
         // Build the finished user object.
-        drupal_set_message('User ID: '. $array['uid'] . ' - ' . $user->uid);
+        // drupal_set_message('User ID: '. $array['uid'] . ' - ' . $user->uid);
         
     }
 

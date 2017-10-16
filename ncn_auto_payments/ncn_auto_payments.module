@@ -104,19 +104,20 @@ function ncn_auto_assign_member_role() {
     }
 }
 
-//------------------------------------------------------------------------------
-// used to notify admin of any monthly payments that failed
+/**
+ * hook_mail()
+ * used to notify admin of any monthly payments that failed
+ */
 function ncn_auto_payments_mail($key, &$message, $params)
 {
 GLOBAL $auto_payment_messages;
 
     $language = $message['language'];
-    $variables = user_mail_tokens($params['account'], $language);
 
     switch ($key)
     {
         case 'message':
-          $message['subject'] = t('Automated Payment Watchdog', $params, $language->language);
+          $message['subject'] = t('Automated Payment Watchdog', $params, array('langcode'=>$language->language));
           $message['body'][] = $auto_payment_messages;
             break;
         case 'credit_card_declined':
@@ -133,7 +134,8 @@ GLOBAL $auto_payment_messages;
             $message['subject'] = $params['subject'];
             $message['body'][] = $params['body'];
             
-            $bcc = "rayjakes@idesolutions.co.uk";
+            //$bcc = "rayjakes@idesolutions.co.uk";
+            $bcc = '';
             $site_mail = variable_get('site_mail', '');
             if ($site_mail != "") {
                 $bcc .= ", $site_mail";
