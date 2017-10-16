@@ -735,6 +735,7 @@ function user_operations_unblock_callback($user_ary){
                     $am_uid = $member['am_uid'];
                     $am = user_load($am_uid);
                     $params = array(
+                        '!email'    => $_user1->mail, 
                         '!username' => $_user1->name,
                         '!password' => $user_pass,
                         '!am' => $am,

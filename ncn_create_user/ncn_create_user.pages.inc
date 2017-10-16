@@ -930,6 +930,7 @@ function register_user_save($account, $array = array(), $category = 'account') {
             $am_uid = $member['am_uid'];
             $am = user_load($am_uid);
             $params = array(
+                '!email'    => $_user1->mail, 
                 '!username' => $_user1->name,
                 '!password' => $user_pass,
                 '!am' => $am,

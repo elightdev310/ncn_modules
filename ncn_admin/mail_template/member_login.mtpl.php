@@ -22,7 +22,8 @@
 					using the following
 				</div>
 				<div style="padding: 10px; color: #1d5ca8; background-color: #e4ebf4; width: 280px;	font-size: 14px; margin:15px 0px;">
-					username: <b><?php echo $params['!username']; ?></b><br/>
+					<!-- username: <b><?php echo $params['!username']; ?></b><br/> -->
+					email: <b><?php echo $params['!email']; ?></b><br/>
 					password: <b><?php echo $params['!password']; ?></b>
 				</div>
 				<div style="margin:15px 0px;" >

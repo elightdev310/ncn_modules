@@ -3236,6 +3236,7 @@ function ncn_admin_send_reminder_mail($uid)
         $am = user_load($am_uid);
         $user_pass = get_member_password($_user->profile_memberid, $_user->profile_firstname);
         $params = array(
+            '!email'    => $_user->mail,
             '!username' => $_user->name,
             '!password' => $user_pass,
             '!am' => $am,
