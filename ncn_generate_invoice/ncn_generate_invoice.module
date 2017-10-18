@@ -14,6 +14,9 @@ function ncn_generate_invoice_menu()
     return $items;
 }
 
+/**
+ * account/serve_pdf/{file_path}/{file_name}
+ */
 //------------------------------------------------------------------------------
 function doctopdf_and_serve()
 {
@@ -25,12 +28,6 @@ function doctopdf_and_serve()
         $user_id = get_uid_from_memberid($parent_mid);
         $user = user_load($user_id);
     }
-    
-    
-//  echo "<pre>";
-//  print_r($user);
-//  echo "</pre>";
-//  exit;
 
     $outfile = $user->profile_legalname." ".base64_decode(arg(3)).".pdf";
     $outfile = preg_replace("/[^a-zA-Z0-9\s\.]/", "", $outfile);
@@ -39,10 +36,7 @@ function doctopdf_and_serve()
     {   echo "Access denied.";exit; }
 
     $filename = base64_decode(arg(2));
-    /*echo $filename;
-    echo "<br/>";
-    echo $outfile;
-    exit;*/
+    
     // check file exists
     if (!file_exists($filename))
     {   echo "File not found";exit; }
@@ -175,7 +169,7 @@ function doctopdf_and_serve()
             $file->filemime = "application/pdf";
             $file->uri = str_replace("sites/default/files/","public://",$file->filepath);
 
-            $dir_url = "sites/default/files/tmp/";
+            $dir_url = "public://tmp/";
             $result = file_copy($file, $dir_url);
       
             try{

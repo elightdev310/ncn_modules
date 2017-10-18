@@ -1429,14 +1429,25 @@ function ncn_admin_member_report()
     $n_coach_on_call_member = 0;
     $n_gold_coach_member = 0;
     $n_gold_member_1st_special = 0;
+
     $n_gold_member_pause = 0;
     $n_silver_member_pause = 0;
     $n_gold_lite_member_pause = 0;
     $n_coach_on_call_member_pause = 0;
     $n_gold_coach_member_pause = 0;
     $n_gold_member_demo = 0;
+
+    $n_csi_member = 0;
+    $n_csi_member_pause = 0;
+    $n_platinum_member = 0;             // v2
+    $n_platinum_member_pause = 0;       // v2
+
     $total_member = 0;
-    $result = db_query('SELECT * FROM {users}');
+
+    $result = db_query("SELECT * FROM {users} as u 
+                        LEFT JOIN {users_roles} AS ur ON (ur.uid = u.uid) 
+                        WHERE ur.rid=:rid", array(':rid'=>USER_ROLE_MEMBER));
+
     foreach($result as $row)
     {
         $row = (array)$row;
@@ -1450,7 +1461,7 @@ function ncn_admin_member_report()
             if (!empty($member))
             {
                 $total_member+= 1;
-                if ($member['member_type'] == 0)
+                if ($member['member_type'] == MT_GOLD)
                 { // Gold
                     $n_gold_member+= 1;
                     if ($_user->status == 0 && (!isset($_user->profile_fblocked) || $_user->profile_fblocked != 'first'))
@@ -1471,7 +1482,7 @@ function ncn_admin_member_report()
                     }
                 }
                 else
-                if ($member['member_type'] == 1)
+                if ($member['member_type'] == MT_SILVER)
                 { // Silver
                     $n_silver_member+= 1;
                     if ($_user->status == 0 && (!isset($_user->profile_fblocked) || $_user->profile_fblocked != 'first'))
@@ -1480,7 +1491,16 @@ function ncn_admin_member_report()
                     }
                 }
                 else
-                if ($member['member_type'] == 2)
+                if ($member['member_type'] == MT_PLATINUM)
+                { // Platinum
+                    $n_platinum_member+= 1;
+                    if ($_user->status == 0 && (!isset($_user->profile_fblocked) || $_user->profile_fblocked != 'first'))
+                    {
+                        $n_platinum_member_pause+= 1;
+                    }
+                }
+                else
+                if ($member['member_type'] == MT_GOLD_LITE)
                 { // Gold Lite
                     $n_gold_lite_member+= 1;
                     if ($_user->status == 0 && (!isset($_user->profile_fblocked) || $_user->profile_fblocked != 'first'))
@@ -1489,7 +1509,7 @@ function ncn_admin_member_report()
                     }
                 }
                 else
-                if ($member['member_type'] == 3)
+                if ($member['member_type'] == MT_COACH_ON_CALL)
                 { // Coach on Call
                     $n_coach_on_call_member+= 1;
                     if ($_user->status == 0 && (!isset($_user->profile_fblocked) || $_user->profile_fblocked != 'first'))
@@ -1498,12 +1518,20 @@ function ncn_admin_member_report()
                     }
                 }
                 else
-                if ($member['member_type'] == 4)
+                if ($member['member_type'] == MT_GOLD_COACH)
                 { // Gold Coach
                     $n_gold_coach_member+= 1;
                     if ($_user->status == 0 && (!isset($_user->profile_fblocked) || $_user->profile_fblocked != 'first'))
                     {
                         $n_gold_coach_member_pause+= 1;
+                    }
+                }
+                if ($member['member_type'] == MT_CSI)
+                { // CSI
+                    $n_csi_member+= 1;
+                    if ($_user->status == 0 && (!isset($_user->profile_fblocked) || $_user->profile_fblocked != 'first'))
+                    {
+                        $n_csi_member_pause+= 1;
                     }
                 }
             }
@@ -1522,13 +1550,19 @@ function ncn_admin_member_report()
     $n_coach_on_call_member_pause_ua = 0;
     $n_gold_coach_member_pause_ua = 0;
     $n_gold_member_demo_ua = 0;
+
+    $n_csi_member_ua = 0;
+    $n_csi_member_pause_ua = 0;
+    $n_platinum_member_ua = 0;             // v2
+    $n_platinum_member_pause_ua = 0;       // v2
+
     $total_member_ua = 0;
     $result = db_query('SELECT * FROM {member_id_pool} WHERE used=0');
     foreach($result as $member)
     {
         $member = (array)$member;
         $total_member_ua+= 1;
-        if ($member['member_type'] == 0)
+        if ($member['member_type'] == MT_GOLD)
         { // Gold
             $n_gold_member_ua+= 1;
             if ($member['status'] == 0)
@@ -1547,7 +1581,7 @@ function ncn_admin_member_report()
             }
         }
         else
-        if ($member['member_type'] == 1)
+        if ($member['member_type'] == MT_SILVER)
         { // Silver
             $n_silver_member_ua+= 1;
             if ($member['status'] == 0)
@@ -1556,7 +1590,16 @@ function ncn_admin_member_report()
             }
         }
         else
-        if ($member['member_type'] == 2)
+        if ($member['member_type'] == MT_PLATINUM)
+        { // Platinum
+            $n_platinum_member_ua+= 1;
+            if ($member['status'] == 0)
+            {
+                $n_platinum_member_pause_ua+= 1;
+            }
+        }
+        else
+        if ($member['member_type'] == MT_GOLD_LITE)
         { // Gold Lite
             $n_gold_lite_member_ua+= 1;
             if ($member['status'] == 0)
@@ -1565,7 +1608,7 @@ function ncn_admin_member_report()
             }
         }
         else
-        if ($member['member_type'] == 3)
+        if ($member['member_type'] == MT_COACH_ON_CALL)
         { // Coach on Call
             $n_coach_on_call_member_ua+= 1;
             if ($member['status'] == 0)
@@ -1574,12 +1617,21 @@ function ncn_admin_member_report()
             }
         }
         else
-        if ($member['member_type'] == 4)
+        if ($member['member_type'] == MT_GOLD_COACH)
         { // Gold Coach
             $n_gold_coach_member_ua+= 1;
             if ($member['status'] == 0)
             {
                 $n_gold_coach_member_pause_ua+= 1;
+            }
+        }
+        else
+        if ($member['member_type'] == MT_CSI)
+        { // Platinum
+            $n_csi_member_ua+= 1;
+            if ($member['status'] == 0)
+            {
+                $n_csi_member_pause_ua+= 1;
             }
         }
     }
@@ -1609,29 +1661,23 @@ function ncn_admin_member_report()
 
             <td>Gold Member</td>
 
-            <td><?php
-    echo ($n_gold_member + $n_gold_member_ua); ?></td>
+            <td><?php echo ($n_gold_member + $n_gold_member_ua); ?></td>
 
-            <td><?php
-    echo $n_gold_member; ?></td>
+            <td><?php echo $n_gold_member; ?></td>
 
-            <td><?php
-    echo $n_gold_member_ua; ?></td>
+            <td><?php echo $n_gold_member_ua; ?></td>
 
         </tr>
 
-        <tr class="even">
+        <!-- <tr class="even">
 
             <td>&nbsp;&nbsp;&nbsp;Gold Member 1st Special</td>
 
-            <td><?php
-    echo ($n_gold_member_1st_special + $n_gold_member_1st_special_ua); ?></td>
+            <td><?php echo ($n_gold_member_1st_special + $n_gold_member_1st_special_ua); ?></td>
 
-            <td><?php
-    echo $n_gold_member_1st_special; ?></td>
+            <td><?php echo $n_gold_member_1st_special; ?></td>
 
-            <td><?php
-    echo $n_gold_member_1st_special_ua; ?></td>
+            <td><?php echo $n_gold_member_1st_special_ua; ?></td>
 
         </tr>
 
@@ -1639,29 +1685,23 @@ function ncn_admin_member_report()
 
             <td>&nbsp;&nbsp;&nbsp;Gold Member Demo</td>
 
-            <td><?php
-    echo ($n_gold_member_demo + $n_gold_member_demo_ua); ?></td>
+            <td><?php echo ($n_gold_member_demo + $n_gold_member_demo_ua); ?></td>
 
-            <td><?php
-    echo $n_gold_member_demo; ?></td>
+            <td><?php echo $n_gold_member_demo; ?></td>
 
-            <td><?php
-    echo $n_gold_member_demo_ua; ?></td>
+            <td><?php echo $n_gold_member_demo_ua; ?></td>
 
-        </tr>
+        </tr> -->
 
         <tr class="even">
 
             <td>&nbsp;&nbsp;&nbsp;Gold Member Pause</td>
 
-            <td><?php
-    echo ($n_gold_member_pause + $n_gold_member_pause_ua); ?></td>
+            <td><?php echo ($n_gold_member_pause + $n_gold_member_pause_ua); ?></td>
 
-            <td><?php
-    echo $n_gold_member_pause; ?></td>
+            <td><?php echo $n_gold_member_pause; ?></td>
 
-            <td><?php
-    echo $n_gold_member_pause_ua; ?></td>
+            <td><?php echo $n_gold_member_pause_ua; ?></td>
 
         </tr>
 
@@ -1669,14 +1709,11 @@ function ncn_admin_member_report()
 
             <td>Silver Member</td>
 
-            <td><?php
-    echo $n_silver_member + $n_silver_member_ua; ?></td>
+            <td><?php echo $n_silver_member + $n_silver_member_ua; ?></td>
 
-            <td><?php
-    echo $n_silver_member; ?></td>
+            <td><?php echo $n_silver_member; ?></td>
 
-            <td><?php
-    echo $n_silver_member_ua; ?></td>
+            <td><?php echo $n_silver_member_ua; ?></td>
 
         </tr>
 
@@ -1684,31 +1721,48 @@ function ncn_admin_member_report()
 
             <td>&nbsp;&nbsp;&nbsp;Silver Member Pause</td>
 
-            <td><?php
-    echo ($n_silver_member_pause + $n_silver_member_pause_ua); ?></td>
+            <td><?php echo ($n_silver_member_pause + $n_silver_member_pause_ua); ?></td>
 
-            <td><?php
-    echo $n_silver_member_pause; ?></td>
+            <td><?php echo $n_silver_member_pause; ?></td>
 
-            <td><?php
-    echo $n_silver_member_pause_ua; ?></td>
+            <td><?php echo $n_silver_member_pause_ua; ?></td>
 
         </tr>
 
         
+        <tr class="odd">
+
+            <td>Platinum Member</td>
+
+            <td><?php echo $n_platinum_member + $n_platinum_member_ua; ?></td>
+
+            <td><?php echo $n_platinum_member; ?></td>
+
+            <td><?php echo $n_platinum_member_ua; ?></td>
+
+        </tr>
+
+        <tr class="even">
+
+            <td>&nbsp;&nbsp;&nbsp;Platinum Member Pause</td>
+
+            <td><?php echo ($n_platinum_member_pause + $n_platinum_member_pause_ua); ?></td>
+
+            <td><?php echo $n_platinum_member_pause; ?></td>
+
+            <td><?php echo $n_platinum_member_pause_ua; ?></td>
+
+        </tr>
 
         <tr class="odd">
 
             <td>Gold Lite Member</td>
 
-            <td><?php
-    echo $n_gold_lite_member + $n_gold_lite_member_ua; ?></td>
+            <td><?php echo $n_gold_lite_member + $n_gold_lite_member_ua; ?></td>
 
-            <td><?php
-    echo $n_gold_lite_member; ?></td>
+            <td><?php echo $n_gold_lite_member; ?></td>
 
-            <td><?php
-    echo $n_gold_lite_member_ua; ?></td>
+            <td><?php echo $n_gold_lite_member_ua; ?></td>
 
         </tr>
 
@@ -1716,14 +1770,11 @@ function ncn_admin_member_report()
 
             <td>&nbsp;&nbsp;&nbsp;Gold Lite Member Pause</td>
 
-            <td><?php
-    echo ($n_gold_lite_member_pause + $n_gold_lite_member_pause_ua); ?></td>
+            <td><?php echo ($n_gold_lite_member_pause + $n_gold_lite_member_pause_ua); ?></td>
 
-            <td><?php
-    echo $n_gold_lite_member_pause; ?></td>
+            <td><?php echo $n_gold_lite_member_pause; ?></td>
 
-            <td><?php
-    echo $n_gold_lite_member_pause_ua; ?></td>
+            <td><?php echo $n_gold_lite_member_pause_ua; ?></td>
 
         </tr>
 
@@ -1733,14 +1784,11 @@ function ncn_admin_member_report()
 
             <td>Coach on Call Member</td>
 
-            <td><?php
-    echo $n_coach_on_call_member + $n_coach_on_call_member_ua; ?></td>
+            <td><?php echo $n_coach_on_call_member + $n_coach_on_call_member_ua; ?></td>
 
-            <td><?php
-    echo $n_coach_on_call_member; ?></td>
+            <td><?php echo $n_coach_on_call_member; ?></td>
 
-            <td><?php
-    echo $n_coach_on_call_member_ua; ?></td>
+            <td><?php echo $n_coach_on_call_member_ua; ?></td>
 
         </tr>
 
@@ -1748,14 +1796,11 @@ function ncn_admin_member_report()
 
             <td>&nbsp;&nbsp;&nbsp;Coach on Call Member Pause</td>
 
-            <td><?php
-    echo ($n_coach_on_call_member_pause + $n_coach_on_call_member_pause_ua); ?></td>
+            <td><?php echo ($n_coach_on_call_member_pause + $n_coach_on_call_member_pause_ua); ?></td>
 
-            <td><?php
-    echo $n_coach_on_call_member_pause; ?></td>
+            <td><?php echo $n_coach_on_call_member_pause; ?></td>
 
-            <td><?php
-    echo $n_coach_on_call_member_pause_ua; ?></td>
+            <td><?php echo $n_coach_on_call_member_pause_ua; ?></td>
 
         </tr>
 
@@ -1763,14 +1808,11 @@ function ncn_admin_member_report()
 
             <td>Gold Coach Member</td>
 
-            <td><?php
-    echo $n_gold_coach_member + $n_gold_coach_member_ua; ?></td>
+            <td><?php echo $n_gold_coach_member + $n_gold_coach_member_ua; ?></td>
 
-            <td><?php
-    echo $n_gold_coach_member; ?></td>
+            <td><?php echo $n_gold_coach_member; ?></td>
 
-            <td><?php
-    echo $n_gold_coach_member_ua; ?></td>
+            <td><?php echo $n_gold_coach_member_ua; ?></td>
 
         </tr>
 
@@ -1778,20 +1820,38 @@ function ncn_admin_member_report()
 
             <td>&nbsp;&nbsp;&nbsp;Gold Coach Member Pause</td>
 
-            <td><?php
-    echo ($n_gold_coach_member_pause + $n_gold_coach_member_pause_ua); ?></td>
+            <td><?php echo ($n_gold_coach_member_pause + $n_gold_coach_member_pause_ua); ?></td>
 
-            <td><?php
-    echo $n_gold_coach_member_pause; ?></td>
+            <td><?php echo $n_gold_coach_member_pause; ?></td>
 
-            <td><?php
-    echo $n_gold_coach_member_pause_ua; ?></td>
+            <td><?php echo $n_gold_coach_member_pause_ua; ?></td>
 
         </tr>
 
-        
+        <tr class="odd">
 
-        
+            <td>CSI Member</td>
+
+            <td><?php echo $n_csi_member + $n_csi_member_ua; ?></td>
+
+            <td><?php echo $n_csi_member; ?></td>
+
+            <td><?php echo $n_csi_member_ua; ?></td>
+
+        </tr>
+
+        <tr class="even">
+
+            <td>&nbsp;&nbsp;&nbsp;CSI Member Pause</td>
+
+            <td><?php echo ($n_csi_member_pause + $n_csi_member_pause_ua); ?></td>
+
+            <td><?php echo $n_csi_member_pause; ?></td>
+
+            <td><?php echo $n_csi_member_pause_ua; ?></td>
+
+        </tr>
+
 
         <tr class="odd">
 
@@ -1803,14 +1863,11 @@ function ncn_admin_member_report()
 
             <td>Total</td>
 
-            <td><?php
-    echo ($total_member + $total_member_ua); ?></td>
+            <td><?php echo ($total_member + $total_member_ua); ?></td>
 
-            <td><?php
-    echo $total_member; ?></td>
+            <td><?php echo $total_member; ?></td>
 
-            <td><?php
-    echo $total_member_ua; ?></td>
+            <td><?php echo $total_member_ua; ?></td>
 
         </tr>
 

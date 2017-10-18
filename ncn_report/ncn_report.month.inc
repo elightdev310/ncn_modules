@@ -20,7 +20,7 @@ global $base_url;
   } else {
     $report_date = arg(3);
   }
-  //$report_date = strtotime("03/10/2011");
+  
   $length = 6;
   $data = ncn_report_month_get_multi_month_report_data($report_date, $length);
   
