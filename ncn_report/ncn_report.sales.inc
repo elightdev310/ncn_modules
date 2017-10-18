@@ -43,7 +43,7 @@ GLOBAL $base_url;
     </div>
 </div>
 <?php
-    build_table($data, $total, $best_total, TRUE);
+    build_table($report_date, $data, $total, $best_total, TRUE);
     $content = ob_get_contents();
     ob_end_clean();
     return $content;
@@ -98,7 +98,7 @@ GLOBAL $base_url;
     </div>
 </div>
 <?php           
-    build_table($data, $total, $best_total, TRUE);
+    build_table($report_date, $data, $total, $best_total, TRUE);
     $content = ob_get_contents();
     ob_end_clean();
     return $content;
@@ -150,7 +150,7 @@ GLOBAL $base_url;
     </div>
 </div>
 <?php           
-    build_table($data, $total, $best_total, TRUE);
+    build_table($report_date, $data, $total, $best_total, TRUE);
     $content = ob_get_contents();
     ob_end_clean();
     return $content;
@@ -557,7 +557,8 @@ function get_user_list($role_number) {
 }
 
 ///////////////////////////////////////////////////////////////////////////
-function build_table($data, $total, $best_total='', $grouping=FALSE) {
+function build_table($report_date, $data, $total, $best_total='', $grouping=FALSE) {
+    $version = ncn_get_version_time($report_date);
 ?>
 
 <?php  if ($best_total != ''): ?>
@@ -569,9 +570,9 @@ function build_table($data, $total, $best_total='', $grouping=FALSE) {
 <div class="report-content arp">
 <?php
 if ($grouping) {
-    print build_table_grouping($data, $total);
+    print build_table_grouping($data, $total, $version);
 } else {
-    print build_table_mail($data, $total);
+    print build_table_mail($data, $total, $version);
 }
 ?>
 </div>
@@ -696,7 +697,7 @@ function build_table_distributor_detailed($data) {
 <?php 
 }
 
-function _ncn_report_get_data(&$data, &$total, $report_date, $type) {
+function _ncn_report_get_data_structure_v1(&$data) {
     $data['SUF-F']  = array(0, 0);
     $data['SUF-P']  = array(0, 0);
     $data['SUF-DF'] = array(0, 0);
@@ -847,16 +848,16 @@ function _ncn_report_get_data(&$data, &$total, $report_date, $type) {
     $data['RC-GL-RECON-WS']     = array(0, 0);
     $data['CC-GL-RECON-WS']     = array(0, 0);
   
-  $data['RC-GL-WATER-WS-EXPEDITE']    = array(0, 0);
-  $data['CC-GL-WATER-WS-EXPEDITE']    = array(0, 0);
-  $data['RC-GL-FIRE-WS-EXPEDITE']     = array(0, 0);
-  $data['CC-GL-FIRE-WS-EXPEDITE']     = array(0, 0);
-  $data['RC-GL-FIRE-SSC-EXPEDITE']    = array(0, 0);
-  $data['CC-GL-FIRE-SSC-EXPEDITE']    = array(0, 0);
-  $data['RC-GL-MOLD-WS-EXPEDITE']     = array(0, 0);
-  $data['CC-GL-MOLD-WS-EXPEDITE']     = array(0, 0);
-  $data['RC-GL-RECON-WS-EXPEDITE']    = array(0, 0);
-  $data['CC-GL-RECON-WS-EXPEDITE']    = array(0, 0);
+    $data['RC-GL-WATER-WS-EXPEDITE']    = array(0, 0);
+    $data['CC-GL-WATER-WS-EXPEDITE']    = array(0, 0);
+    $data['RC-GL-FIRE-WS-EXPEDITE']     = array(0, 0);
+    $data['CC-GL-FIRE-WS-EXPEDITE']     = array(0, 0);
+    $data['RC-GL-FIRE-SSC-EXPEDITE']    = array(0, 0);
+    $data['CC-GL-FIRE-SSC-EXPEDITE']    = array(0, 0);
+    $data['RC-GL-MOLD-WS-EXPEDITE']     = array(0, 0);
+    $data['CC-GL-MOLD-WS-EXPEDITE']     = array(0, 0);
+    $data['RC-GL-RECON-WS-EXPEDITE']    = array(0, 0);
+    $data['CC-GL-RECON-WS-EXPEDITE']    = array(0, 0);
     
     /* Claim Coach on Call*/
     $data['RC-COC-WATER']   = array(0, 0);
@@ -868,14 +869,14 @@ function _ncn_report_get_data(&$data, &$total, $report_date, $type) {
     $data['RC-COC-RECON']   = array(0, 0);
     $data['CC-COC-RECON']   = array(0, 0);
   
-  $data['RC-COC-WATER-EXPEDITE']   = array(0, 0);
-  $data['CC-COC-WATER-EXPEDITE']   = array(0, 0);
-  $data['RC-COC-FIRE-SCC-EXPEDITE'] = array(0, 0);
-  $data['CC-COC-FIRE-SCC-EXPEDITE'] = array(0, 0);
-  $data['RC-COC-MOLD-EXPEDITE']   = array(0, 0);
-  $data['CC-COC-MOLD-EXPEDITE']   = array(0, 0);
-  $data['RC-COC-RECON-EXPEDITE']   = array(0, 0);
-  $data['CC-COC-RECON-EXPEDITE']   = array(0, 0);  
+    $data['RC-COC-WATER-EXPEDITE']   = array(0, 0);
+    $data['CC-COC-WATER-EXPEDITE']   = array(0, 0);
+    $data['RC-COC-FIRE-SCC-EXPEDITE'] = array(0, 0);
+    $data['CC-COC-FIRE-SCC-EXPEDITE'] = array(0, 0);
+    $data['RC-COC-MOLD-EXPEDITE']   = array(0, 0);
+    $data['CC-COC-MOLD-EXPEDITE']   = array(0, 0);
+    $data['RC-COC-RECON-EXPEDITE']   = array(0, 0);
+    $data['CC-COC-RECON-EXPEDITE']   = array(0, 0);  
     
     $data['RC-COC-WATER-WS']    = array(0, 0);
     $data['CC-COC-WATER-WS']    = array(0, 0);
@@ -941,6 +942,179 @@ function _ncn_report_get_data(&$data, &$total, $report_date, $type) {
     $data['SUF-AR-SERVICES'] = array(0, 0);
     $data['AR-SERVICES']     = array(0, 0);
     $data['PEER-REVIEWS']    = array(0, 0);
+}
+
+function _ncn_report_get_data_structure_v2(&$data) {
+    $data['SUF-F']  = array(0, 0);
+    $data['SUF-P']  = array(0, 0);
+    $data['SUF-DF'] = array(0, 0);
+    $data['SUF-DP'] = array(0, 0);
+    $data['MMF']    = array(0, 0);
+    $data['MMF-SILVER']  = array(0, 0);     //v2
+    $data['MMF-PLATINUM']= array(0, 0);     //v2
+
+    $data['SUF-CPR']    = array(0, 0);
+
+    $data['MFF']    = array(0, 0);
+    
+    /* Claim Gold*/
+    $data['RC-G-WATER'] = array(0, 0);
+    $data['CC-G-WATER'] = array(0, 0);
+    $data['RC-G-FIRE']  = array(0, 0);
+    $data['CC-G-FIRE']  = array(0, 0);
+    $data['RC-G-MOLD']  = array(0, 0);
+    $data['CC-G-MOLD']  = array(0, 0);
+    $data['RC-G-RECON'] = array(0, 0);
+    $data['CC-G-RECON'] = array(0, 0);
+  
+    $data['RC-G-WATER-EXPEDITE']   = array(0, 0);
+    $data['CC-G-WATER-EXPEDITE']   = array(0, 0);
+    $data['RC-G-FIRE-EXPEDITE']    = array(0, 0);
+    $data['CC-G-FIRE-EXPEDITE']    = array(0, 0);
+    $data['RC-G-MOLD-EXPEDITE']    = array(0, 0);
+    $data['CC-G-MOLD-EXPEDITE']    = array(0, 0);
+    $data['RC-G-RECON-EXPEDITE']   = array(0, 0);
+    $data['CC-G-RECON-EXPEDITE']   = array(0, 0);
+    
+    $data['RC-G-WATER-WS']  = array(0, 0);
+    $data['CC-G-WATER-WS']  = array(0, 0);
+    $data['RC-G-FIRE-WS']   = array(0, 0);
+    $data['CC-G-FIRE-WS']   = array(0, 0);
+    $data['RC-G-MOLD-WS']   = array(0, 0);
+    $data['CC-G-MOLD-WS']   = array(0, 0);
+    $data['RC-G-RECON-WS']  = array(0, 0);
+    $data['CC-G-RECON-WS']  = array(0, 0);
+
+    $data['RC-G-WATER-WS-EXPEDITE']   = array(0, 0);
+    $data['CC-G-WATER-WS-EXPEDITE']   = array(0, 0);
+    $data['RC-G-FIRE-WS-EXPEDITE']    = array(0, 0);
+    $data['CC-G-FIRE-WS-EXPEDITE']    = array(0, 0);
+    $data['RC-G-MOLD-WS-EXPEDITE']    = array(0, 0);
+    $data['CC-G-MOLD-WS-EXPEDITE']    = array(0, 0);
+    $data['RC-G-RECON-WS-EXPEDITE']   = array(0, 0);
+    $data['CC-G-RECON-WS-EXPEDITE']   = array(0, 0);
+    
+    /* Claim Silver*/
+    $data['RC-S-WATER']     = array(0, 0);
+    $data['CC-S-WATER']     = array(0, 0);
+    $data['RC-S-FIRE']      = array(0, 0);
+    $data['CC-S-FIRE']      = array(0, 0);
+    $data['RC-S-MOLD']      = array(0, 0);
+    $data['CC-S-MOLD']      = array(0, 0);
+    $data['RC-S-RECON']     = array(0, 0);
+    $data['CC-S-RECON']     = array(0, 0);
+  
+    $data['RC-S-WATER-EXPEDITE']    = array(0, 0);
+    $data['CC-S-WATER-EXPEDITE']    = array(0, 0);
+    $data['RC-S-FIRE-EXPEDITE']     = array(0, 0);
+    $data['CC-S-FIRE-EXPEDITE']     = array(0, 0);
+    $data['RC-S-MOLD-EXPEDITE']     = array(0, 0);
+    $data['CC-S-MOLD-EXPEDITE']     = array(0, 0);
+    $data['RC-S-RECON-EXPEDITE']    = array(0, 0);
+    $data['CC-S-RECON-EXPEDITE']    = array(0, 0);
+    
+    $data['RC-S-WATER-WS']  = array(0, 0);
+    $data['CC-S-WATER-WS']  = array(0, 0);
+    $data['RC-S-FIRE-WS']   = array(0, 0);
+    $data['CC-S-FIRE-WS']   = array(0, 0);
+    $data['RC-S-MOLD-WS']    = array(0, 0);
+    $data['CC-S-MOLD-WS']   = array(0, 0);
+    $data['RC-S-RECON-WS']  = array(0, 0);
+    $data['CC-S-RECON-WS']  = array(0, 0);
+  
+    $data['RC-S-WATER-WS-EXPEDITE']   = array(0, 0);
+    $data['CC-S-WATER-WS-EXPEDITE']   = array(0, 0);
+    $data['RC-S-FIRE-WS-EXPEDITE']    = array(0, 0);
+    $data['CC-S-FIRE-WS-EXPEDITE']    = array(0, 0);
+    $data['RC-S-MOLD-WS-EXPEDITE']    = array(0, 0);
+    $data['CC-S-MOLD-WS-EXPEDITE']    = array(0, 0);
+    $data['RC-S-RECON-WS-EXPEDITE']   = array(0, 0);
+    $data['CC-S-RECON-WS-EXPEDITE']   = array(0, 0);
+
+    /* Claim Platinum*/
+    $data['RC-P-WATER']     = array(0, 0);
+    $data['CC-P-WATER']     = array(0, 0);
+    $data['RC-P-FIRE']      = array(0, 0);
+    $data['CC-P-FIRE']      = array(0, 0);
+    $data['RC-P-MOLD']      = array(0, 0);
+    $data['CC-P-MOLD']      = array(0, 0);
+    $data['RC-P-RECON']     = array(0, 0);
+    $data['CC-P-RECON']     = array(0, 0);
+  
+    $data['RC-P-WATER-EXPEDITE']    = array(0, 0);
+    $data['CC-P-WATER-EXPEDITE']    = array(0, 0);
+    $data['RC-P-FIRE-EXPEDITE']     = array(0, 0);
+    $data['CC-P-FIRE-EXPEDITE']     = array(0, 0);
+    $data['RC-P-MOLD-EXPEDITE']     = array(0, 0);
+    $data['CC-P-MOLD-EXPEDITE']     = array(0, 0);
+    $data['RC-P-RECON-EXPEDITE']    = array(0, 0);
+    $data['CC-P-RECON-EXPEDITE']    = array(0, 0);
+    
+    $data['RC-P-WATER-WS']  = array(0, 0);
+    $data['CC-P-WATER-WS']  = array(0, 0);
+    $data['RC-P-FIRE-WS']   = array(0, 0);
+    $data['CC-P-FIRE-WS']   = array(0, 0);
+    $data['RC-P-MOLD-WS']    = array(0, 0);
+    $data['CC-P-MOLD-WS']   = array(0, 0);
+    $data['RC-P-RECON-WS']  = array(0, 0);
+    $data['CC-P-RECON-WS']  = array(0, 0);
+  
+    $data['RC-P-WATER-WS-EXPEDITE']   = array(0, 0);
+    $data['CC-P-WATER-WS-EXPEDITE']   = array(0, 0);
+    $data['RC-P-FIRE-WS-EXPEDITE']    = array(0, 0);
+    $data['CC-P-FIRE-WS-EXPEDITE']    = array(0, 0);
+    $data['RC-P-MOLD-WS-EXPEDITE']    = array(0, 0);
+    $data['CC-P-MOLD-WS-EXPEDITE']    = array(0, 0);
+    $data['RC-P-RECON-WS-EXPEDITE']   = array(0, 0);
+    $data['CC-P-RECON-WS-EXPEDITE']   = array(0, 0);
+    
+    /////////
+    $data['RC-G-FIRE-SCC']  = array(0, 0);
+    $data['RC-G-FIRE-SSC']  = array(0, 0);
+    $data['CC-G-FIRE-SCC']  = array(0, 0);
+    $data['CC-G-FIRE-SSC']  = array(0, 0);
+  
+    $data['RC-G-FIRE-SCC-EXPEDITE']   = array(0, 0);
+    $data['RC-G-FIRE-SSC-EXPEDITE']   = array(0, 0);
+    $data['CC-G-FIRE-SCC-EXPEDITE']   = array(0, 0);
+    $data['CC-G-FIRE-SSC-EXPEDITE']   = array(0, 0);
+    
+    $data['RC-S-FIRE-SCC']  = array(0, 0);
+    $data['RC-S-FIRE-SSC']  = array(0, 0);
+    $data['CC-S-FIRE-SCC']  = array(0, 0);
+    $data['CC-S-FIRE-SSC']  = array(0, 0);
+  
+    $data['RC-S-FIRE-SCC-EXPEDITE']   = array(0, 0);
+    $data['RC-S-FIRE-SSC-EXPEDITE']   = array(0, 0);
+    $data['CC-S-FIRE-SCC-EXPEDITE']   = array(0, 0);
+    $data['CC-S-FIRE-SSC-EXPEDITE']   = array(0, 0);
+
+    $data['RC-P-FIRE-SCC']  = array(0, 0);
+    $data['RC-P-FIRE-SSC']  = array(0, 0);
+    $data['CC-P-FIRE-SCC']  = array(0, 0);
+    $data['CC-P-FIRE-SSC']  = array(0, 0);
+  
+    $data['RC-P-FIRE-SCC-EXPEDITE']   = array(0, 0);
+    $data['RC-P-FIRE-SSC-EXPEDITE']   = array(0, 0);
+    $data['CC-P-FIRE-SCC-EXPEDITE']   = array(0, 0);
+    $data['CC-P-FIRE-SSC-EXPEDITE']   = array(0, 0);
+
+    //////////////////
+    $data['COF']    = array(0, 0);
+  
+    $data['SUF-AR-SERVICES'] = array(0, 0);
+    $data['AR-SERVICES']     = array(0, 0);
+    $data['PEER-REVIEWS']    = array(0, 0);
+}
+
+function _ncn_report_get_data(&$data, &$total, $report_date, $type) {
+    $version = ncn_get_version_time($report_date);
+
+    if ($version == '1.0') {
+        _ncn_report_get_data_structure_v1($data);
+    } else {
+        _ncn_report_get_data_structure_v2($data);
+    }
 
     $from = $to = 0;
     if ($type == "daily") {
@@ -1340,29 +1514,32 @@ function ncn_report_download() {
     
     $objPHPExcel->setActiveSheetIndex(0)->setCellValue("A5" , $report_title);
     
-  $table_data = ncn_report_get_sale_report_table_data();
-  $count_data = count($table_data);
-  if ($count_data>0) {
+    $version = ncn_get_version_time($report_date);
+
+    $table_data = ncn_report_get_sale_report_table_data($version);
+    $count_data = count($table_data);
+    if ($count_data>0) {
     $objPHPExcel->getActiveSheet()->insertNewRowBefore(9, $count_data);  
-  }
-  for ($i=0; $i<$count_data; $i++) {
-    $source = "A7:B7";
-    if ($i%2 == 1) {
-      $source = "A8:B8";
     }
-    $row_index = $i+9;
-    $dest = "A$row_index:B$row_index";
-    $objPHPExcel->getActiveSheet()->duplicateStyle( $objPHPExcel->getActiveSheet()->getStyle($source), $dest );
-    
-    $source = "C7";
-    if ($i%2 == 1) {
-      $source = "C8";
+    for ($i=0; $i<$count_data; $i++) {
+        $source = "A7:B7";
+        if ($i%2 == 1) {
+          $source = "A8:B8";
+        }
+        $row_index = $i+9;
+        $dest = "A$row_index:B$row_index";
+        $objPHPExcel->getActiveSheet()->duplicateStyle( $objPHPExcel->getActiveSheet()->getStyle($source), $dest );
+        
+        $source = "C7";
+        if ($i%2 == 1) {
+          $source = "C8";
+        }
+        $dest = "C$row_index";
+        
+        $objPHPExcel->getActiveSheet()->duplicateStyle( $objPHPExcel->getActiveSheet()->getStyle($source), $dest );
+        
     }
-    $dest = "C$row_index";
     
-    $objPHPExcel->getActiveSheet()->duplicateStyle( $objPHPExcel->getActiveSheet()->getStyle($source), $dest );
-    
-  }
   $objPHPExcel->getActiveSheet()->removeRow(7+$count_data, 2);
   
   $row = 7;
@@ -1390,9 +1567,9 @@ function ncn_report_download() {
     exit;
 }
 
-function ncn_report_get_sale_report_table_data() {
+function ncn_report_get_sale_report_table_data($version) {
   $data = array();
-  $group_data = ncn_report_get_grouping_data();
+  $group_data = ncn_report_get_grouping_data($version);
   foreach ($group_data as $key=>$g_data) {
     if ($g_data['type'] == 'GROUP') {
       $data = array_merge($data, $g_data['child']);

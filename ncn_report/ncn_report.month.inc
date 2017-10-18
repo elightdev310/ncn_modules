@@ -20,12 +20,17 @@ global $base_url;
   } else {
     $report_date = arg(3);
   }
-  
+
   $length = 6;
   $data = ncn_report_month_get_multi_month_report_data($report_date, $length);
   
+  $version = ncn_get_version_time($report_date);
+
   ob_start();
 ?>
+
+<?php if ($version == '1.0'): ?>
+<!-- Version 1.0 -->
 <div class="sales-report-header clear-block">
   <div class="report-date">
     <span><input type="text" id="datepicker" value="<?php echo date("F Y", $report_date); ?>" size="20" readonly></span>&nbsp;
@@ -101,6 +106,12 @@ global $base_url;
         <td>Gold lite</td>
         <?php foreach ($data as $month=>$m_data): ?>
         <td><?php print $m_data['monthly_renewal']['gold_lite']; ?></td>
+        <?php endforeach; ?>
+      </tr>
+      <tr>
+        <td>Other</td>
+        <?php foreach ($data as $month=>$m_data): ?>
+        <td><?php print $m_data['monthly_renewal']['other']; ?></td>
         <?php endforeach; ?>
       </tr>
       
@@ -184,6 +195,167 @@ global $base_url;
     </tbody>
   </table>
 </div>
+<?php else: ?>
+<!-- Version 2.0 -->
+<div class="sales-report-header clear-block">
+  <div class="report-date">
+    <span><input type="text" id="datepicker" value="<?php echo date("F Y", $report_date); ?>" size="20" readonly></span>&nbsp;
+  </div>
+  <input type="hidden" id="report_url" value="<?php echo $url; ?>" />
+  <?php echo ncn_report_insert_date_script(); ?>
+</div>
+<div class="ncn-month-report report-content">
+  <table>
+    <thead>
+      <th>Month</th>
+      <?php foreach ($data as $month=>$m_data): ?>
+      <th><?php print date("F Y", $month); ?></th>
+      <?php endforeach; ?>
+    </thead>
+    <tbody>
+      <tr class="group">
+        <td>Start Ups</td>
+        <?php foreach ($data as $month=>$m_data): ?>
+        <td><?php print $m_data['start_up']['total']; ?></td>
+        <?php endforeach; ?>
+      </tr>
+      <tr>
+        <td>Gold</td>
+        <?php foreach ($data as $month=>$m_data): ?>
+        <td><?php print $m_data['start_up']['gold']; ?></td>
+        <?php endforeach; ?>
+      </tr>
+      <tr>
+        <td>Silver</td>
+        <?php foreach ($data as $month=>$m_data): ?>
+        <td><?php print $m_data['start_up']['silver']; ?></td>
+        <?php endforeach; ?>
+      </tr>
+      <tr>
+        <td>Platinum</td>
+        <?php foreach ($data as $month=>$m_data): ?>
+        <td><?php print $m_data['start_up']['platinum']; ?></td>
+        <?php endforeach; ?>
+      </tr>
+      <tr>
+        <td>Other</td>
+        <?php foreach ($data as $month=>$m_data): ?>
+        <td><?php print $m_data['start_up']['other']; ?></td>
+        <?php endforeach; ?>
+      </tr>
+      
+      <tr class="group">
+        <td>Monthly Renewals</td>
+        <?php foreach ($data as $month=>$m_data): ?>
+        <td><?php print $m_data['monthly_renewal']['total']; ?></td>
+        <?php endforeach; ?>
+      </tr>
+      <tr>
+        <td>Gold</td>
+        <?php foreach ($data as $month=>$m_data): ?>
+        <td><?php print $m_data['monthly_renewal']['gold']; ?></td>
+        <?php endforeach; ?>
+      </tr>
+      <tr>
+        <td>Silver</td>
+        <?php foreach ($data as $month=>$m_data): ?>
+        <td><?php print $m_data['monthly_renewal']['silver']; ?></td>
+        <?php endforeach; ?>
+      </tr>
+      <tr>
+        <td>Platinum</td>
+        <?php foreach ($data as $month=>$m_data): ?>
+        <td><?php print $m_data['monthly_renewal']['platinum']; ?></td>
+        <?php endforeach; ?>
+      </tr>
+      <tr>
+        <td>Other</td>
+        <?php foreach ($data as $month=>$m_data): ?>
+        <td><?php print $m_data['monthly_renewal']['other']; ?></td>
+        <?php endforeach; ?>
+      </tr>
+      
+      <tr class="group">
+        <td>Declined Monthly Renewal</td>
+        <td colspan="<?php print $length; ?>"></td>
+      </tr>
+      <tr>
+        <td></td>
+        <?php foreach ($data as $month=>$m_data):
+            ?>
+         <td><?php print $m_data['declined_monthly_renewal']; // $m_data['declined_monthly_renewal']; ?></td>
+        <?php endforeach; ?>
+      </tr>
+      
+      <tr class="group">
+        <td>Upgrades</td>
+        <td colspan="<?php print $length; ?>"></td>
+      </tr>
+      <tr>
+        <td></td>
+        <?php foreach ($data as $month=>$m_data): ?>
+        <td><?php print $m_data['upgrades']; ?></td>
+        <?php endforeach; ?>
+      </tr>
+      
+      <tr class="group">
+        <td>Downgrades</td>
+        <td colspan="<?php print $length; ?>"></td>
+      </tr>
+      <tr>
+        <td></td>
+        <?php foreach ($data as $month=>$m_data): ?>
+        <td><?php print $m_data['downgrades']; ?></td>
+        <?php endforeach; ?>
+      </tr>
+      
+      <tr class="group">
+        <td>Declined Recovery</td>
+        <td colspan="<?php print $length; ?>"></td>
+      </tr>
+      <tr>
+        <td></td>
+        <?php foreach ($data as $month=>$m_data): ?>
+        <td><?php print_r($m_data['declined_recovery']); // print $m_data['declined_recovery']; ?></td>
+        <?php endforeach; ?>
+      </tr>
+      
+      <tr class="group">
+        <td>Cancel</td>
+        <td colspan="<?php print $length; ?>"></td>
+      </tr>
+      <tr>
+        <td></td>
+        <?php foreach ($data as $month=>$m_data): ?>
+        <td><?php print $m_data['cancel']; ?></td>
+        <?php endforeach; ?>
+      </tr>
+      
+      <tr class="group">
+        <td>Pause Renewal</td>
+        <td colspan="<?php print $length; ?>"></td>
+      </tr>
+      <tr>
+        <td></td>
+        <?php foreach ($data as $month=>$m_data): ?>
+        <td><?php print $m_data['pause_renewal']; ?></td>
+        <?php endforeach; ?>
+      </tr>
+      
+      <tr class="group">
+        <td>Refund</td>
+        <td colspan="<?php print $length; ?>"></td>
+      </tr>
+      <tr>
+        <td></td>
+        <?php foreach ($data as $month=>$m_data): ?>
+        <td><?php print $m_data['refund']; ?></td>
+        <?php endforeach; ?>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<?php endif; ?>
 <?php 
   $output = ob_get_contents();
   ob_end_clean();
@@ -232,53 +404,73 @@ function ncn_report_month_get_month_report_data($t_month) {
 }
 
 function ncn_report_month_get_startup_count($t_month) {
+  $version = ncn_get_version_time($report_date);
+
   $total = 0;
   $data = array(
-    'gold' => 0, 
+    'gold'          => 0, //v2
     'coach_on_call' => 0, 
-    'gold_coach' => 0, 
-    'other' => 0, 
+    'gold_coach'    => 0, 
+    'other'         => 0, 
+
+    'silver'        => 0, //v2
+    'platinum'      => 0, //v2
   );
+
   
   $between = ncn_report_month_get_between_time($t_month);
   $ts_from = $between['from']; $ts_to = $between['to'];
   $result = db_query('SELECT * FROM {payment_log} WHERE timestamp>=:a AND timestamp<:b AND status=1 AND refund=0 AND ptype LIKE :c',
       array(':a'=>$ts_from,':b'=>$ts_to,':c'=>'%'.db_like('SUF-').'%'));
-//  while ($row = db_fetch_array($result))
+
   foreach($result as $row)
   {
     $row = (array)$row;
     $member_id = $row['member_id'];
     
-//    $query = "SELECT COUNT(*) FROM {payment_log} WHERE status=1 AND refund=0 AND ptype LIKE '%SUF-%' AND
-//              timestamp<".$row['timestamp']." AND (member_id=$member_id OR target_mid=$member_id)";
+
+    // Check if sign up transaction is first for member
     $res_check_first_startup = db_query('SELECT COUNT(*) FROM {payment_log} WHERE status=1 AND refund=0 AND ptype LIKE :a AND
     timestamp<:b AND (member_id=:c OR target_mid=:d)', array(':a'=>'%'.db_like('SUF-').'%',':b'=>$row['timestamp'],
     ':c'=>$member_id,':d'=>$member_id))->fetchField();
-
     if ($res_check_first_startup > 0) { continue; }
     
     if ($member_id == 0) { $member_id = $row['target_mid']; }
     if ($member_id != 0) {
       $member_type = ncn_report_month_get_member_type_time($member_id, $ts_from);
-      if ($row['ptype'] == 'SUF-GTGCSF') {
-        continue; 
-      } else {
+
+      if ($version == '1.0') {
+        if ($row['ptype'] == 'SUF-GTGCSF') {
+          continue; 
+        } else {
+          switch ($member_type) {
+            case 0: 
+              $data['gold'] += 1;
+              break;
+            case 3:
+              $data['coach_on_call'] += 1;
+              break;
+            case 4:
+              $data['gold_coach'] += 1;
+              break;
+            default:
+              $data['other'] += 1;
+              break;
+          }
+        }
+      } else { // Version 2.0
         switch ($member_type) {
-          case 0: 
+          case MT_GOLD: 
             $data['gold'] += 1;
             break;
-          case 1:
+          case MT_SILVER:
+            $data['silver'] += 1;
+            break;
+          case MT_PLATINUM:
+            $data['platinum'] += 1;
+            break;
+          default:
             $data['other'] += 1;
-            break;
-          case 2:
-            $data['other'] += 1;
-            break;
-          case 3:
-            $data['coach_on_call'] += 1;
-            break;
-          case 4:
-            $data['gold_coach'] += 1;
             break;
         }
       }
@@ -350,12 +542,19 @@ function ncn_report_month_get_between_time($t_month) {
 * @param mixed $t_month
 */
 function ncn_report_month_get_monthly_renewal_count($t_month) {
+  $version = ncn_get_version_time($report_date);
+
   $total = 0;
   $data = array(
-    'gold' => 0, 
+    'gold'          => 0, //v2
     'coach_on_call' => 0, 
-    'gold_coach' => 0, 
-    'gold_lite' => 0, 
+    'gold_coach'    => 0, 
+    'gold_lite'     => 0, 
+    'other'         => 0, 
+
+    'silver'        => 0, //v2
+    'platinum'      => 0, //v2
+
   );
   
   $between = ncn_report_month_get_between_time($t_month);
@@ -377,20 +576,41 @@ function ncn_report_month_get_monthly_renewal_count($t_month) {
             }
             else
             {
-                switch ($row['ptype'])
-                {
-                    case 'MMF':
-                        $data['gold'] += 1;
-                        break;
-                    case 'MMF-COC':
-                        $data['coach_on_call'] += 1;
-                        break;
-                    case 'MMF-GC':
-                        $data['gold_coach'] += 1;
-                        break;
-                    case 'MMF-GL':
-                        $data['gold_lite'] += 1;
-                        break;
+                if ($version == '1.0') {
+                  switch ($row['ptype'])
+                  {
+                      case 'MMF':
+                          $data['gold'] += 1;
+                          break;
+                      case 'MMF-COC':
+                          $data['coach_on_call'] += 1;
+                          break;
+                      case 'MMF-GC':
+                          $data['gold_coach'] += 1;
+                          break;
+                      case 'MMF-GL':
+                          $data['gold_lite'] += 1;
+                          break;
+                      default: 
+                          $data['other'] += 1;
+                          break;
+                  }
+                } else {  // Version 2.0
+                  switch ($row['ptype'])
+                  {
+                      case 'MMF':
+                          $data['gold'] += 1;
+                          break;
+                      case 'MMF-SILVER':
+                          $data['silver'] += 1;
+                          break;
+                      case 'MMF-PLATINUM':
+                          $data['platinum'] += 1;
+                          break;
+                      default: 
+                          $data['other'] += 1;
+                          break;
+                  }
                 }
             }
         }

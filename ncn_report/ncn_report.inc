@@ -215,305 +215,536 @@ function ncn_report_temp_make_payment_ncn() {
 /**
  * Get Grouping Data
  */
-function ncn_report_get_grouping_data() {
+function ncn_report_get_grouping_data($version='2.0') {
     $data = array();
     
-    // Start Up Fee
-    $data['GROUP_SUF'] = array(
-        'type'      => 'GROUP', 
-        'title'     => t('Start-Up Fees'), 
-        'child'     => array(
-            'SUF-F'     => array( 'type'=>'ITEM', 'title'=>t('Start-Up Fees (Full)') ),
-            'SUF-P'     => array( 'type'=>'ITEM', 'title'=>t('Start-Up Fees (Partial)') ), 
-            'SUF-DF'    => array( 'type'=>'ITEM', 'title'=>t('Start-Up Fees (Dist. Full)') ), 
-            'SUF-DP'    => array( 'type'=>'ITEM', 'title'=>t('Start-Up Fees (Dist. Partial)') ), 
-            'SUF-GMS'   => array( 'type'=>'ITEM', 'title'=>t('Start-Up Fees (Gold Member Special)') ), 
-            'SUF-GMSD'=> array( 'type'=>'ITEM', 'title'=>t('Start-Up Fees (Dist. Gold Member Special)') ), 
-            'SUF-GMS-1ST'   => array( 'type'=>'ITEM', 'title'=>t('Start-Up Fees (Gold Member 1st Special)') ), 
-            'SUF-G-DEMO'    => array( 'type'=>'ITEM', 'title'=>t('Start-Up Fees (Gold Member Demo)') ), 
-            'SUF-GMAS'      => array( 'type'=>'ITEM', 'title'=>t('Start-Up Fees (Gold Member Associate Special)') ), 
-            'SUF-GC'            => array( 'type'=>'ITEM', 'title'=>t('Start-Up Fees (Gold Coach Member)') ), 
-            'SUF-COC'           => array( 'type'=>'ITEM', 'title'=>t('Start-Up Fees (Coach on Call Member)') ), 
-            'SUF-GTGCSF'    => array( 'type'=>'ITEM', 'title'=>t('Gold to Gold Coach Setup Fee') ), 
-      'SUF-CPR'  => array( 'type'=>'ITEM', 'title'=>t('Cancel/Pause Renewal Fee') ), 
-        ), 
-    );
-    
-    // Monthly Membership Fee
-    $data['GROUP_MMF'] = array(
-        'type'      => 'GROUP', 
-        'title'     => t('Monthly Membership Fees'), 
-        'child'     => array(
-            'MMF'       => array( 'type'=>'ITEM', 'title'=>t('Monthly Membership Fees (Gold)') ),
-            'MMF-GL'    => array( 'type'=>'ITEM', 'title'=>t('Monthly Membership Fees (Gold Lite)') ), 
-            'MMF-COC'   => array( 'type'=>'ITEM', 'title'=>t('Monthly Membership Fees (Coach on Call)') ), 
-            'MMF-GC'    => array( 'type'=>'ITEM', 'title'=>t('Monthly Membership Fees (Gold Coach)') ), 
-        ), 
-    );
-    
-    $data['MFF'] = array(
-        'type' => 'ITEM',   'title' => t('Monthly Finance Fees'), 
-    );
-    
-    // Water Claim
-    $data['GROUP-RC-WATER'] = array(
-        'type'      => 'GROUP', 
-        'title'     => t('Residential Water Claims'), 
-        'child'     => array(
-            'RC-G-WATER'        => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims (Gold)') ),
-      'RC-G-WATER-EXPEDITE' => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims (Gold) - EXPEDITE') ),
-            'RC-G-WATER-WS' => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims With Sketch (Gold)') ), 
-      'RC-G-WATER-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims With Sketch (Gold) - EXPEDITE') ), 
-            'RC-S-WATER'        => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims (Silver)') ),
-      'RC-S-WATER-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims (Silver) - EXPEDITE') ),
-            'RC-S-WATER-WS' => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims With Sketch (Silver)') ), 
-      'RC-S-WATER-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims With Sketch (Silver) - EXPEDITE') ), 
-            'RC-GL-WATER'   => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims (Gold Lite)') ),
-      'RC-GL-WATER-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims (Gold Lite) - EXPEDITE') ),
-            'RC-GL-WATER-WS'=> array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims With Sketch (Gold Lite)') ), 
-      'RC-GL-WATER-WS-EXPEDITE'=> array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims With Sketch (Gold Lite) - EXPEDITE') ), 
-            'RC-COC-WATER'  => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims (Coach on Call)') ),
-      'RC-COC-WATER-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims (Coach on Call) - EXPEDITE') ),
-            'RC-COC-WATER-WS'=>array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims With Sketch (Coach on Call)') ), 
-      'RC-COC-WATER-WS-EXPEDITE'=>array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims With Sketch (Coach on Call) - EXPEDITE') ), 
-            'RC-GC-WATER'   => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims (Gold Coach)') ),
-      'RC-GC-WATER-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims (Gold Coach) - EXPEDITE') ),
-            'RC-GC-WATER-WS'=> array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims With Sketch (Gold Coach)') ), 
-      'RC-GC-WATER-WS-EXPEDITE'=> array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims With Sketch (Gold Coach) - EXPEDITE') ), 
-        ), 
-    );
-    
-    
-    $data['GROUP-CC-WATER'] = array(
-        'type'      => 'GROUP', 
-        'title'     => t('Commercial Water Claims'), 
-        'child'     => array(
-            'CC-G-WATER'        => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims (Gold)') ),
-      'CC-G-WATER-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims (Gold) - EXPEDITE') ),
-            'CC-G-WATER-WS' => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims With Sketch (Gold)') ), 
-      'CC-G-WATER-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims With Sketch (Gold) - EXPEDITE') ), 
-            'CC-S-WATER'        => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims (Silver)') ),
-      'CC-S-WATER-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims (Silver) - EXPEDITE') ),
-            'CC-S-WATER-WS' => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims With Sketch (Silver)') ), 
-      'CC-S-WATER-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims With Sketch (Silver) - EXPEDITE') ), 
-            'CC-GL-WATER'   => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims (Gold Lite)') ),
-      'CC-GL-WATER-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims (Gold Lite) - EXPEDITE') ),
-            'CC-GL-WATER-WS'=> array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims With Sketch (Gold Lite)') ), 
-      'CC-GL-WATER-WS-EXPEDITE'=> array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims With Sketch (Gold Lite) - EXPEDITE') ), 
-            'CC-COC-WATER'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims (Coach on Call)') ),
-      'CC-COC-WATER-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims (Coach on Call)-EXPEDITE') ),
-            'CC-COC-WATER-WS'=>array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims With Sketch (Coach on Call)') ), 
-      'CC-COC-WATER-WS-EXPEDITE'=>array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims With Sketch (Coach on Call) - EXPEDITE') ), 
-            'CC-GC-WATER'   => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims (Gold Coach)') ),
-      'CC-GC-WATER-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims (Gold Coach) - EXPEDITE') ),
-            'CC-GC-WATER-WS'=> array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims With Sketch (Gold Coach)') ), 
-      'CC-GC-WATER-WS-EXPEDITE'=> array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims With Sketch (Gold Coach) - EXPEDITE') ), 
-        ), 
-    );
-    
-    // Fire Claim
-    $data['GROUP-RC-FIRE'] = array(
-        'type'      => 'GROUP', 
-        'title'     => t('Residential Fire Claims'), 
-        'child'     => array(
-            'RC-G-FIRE'         => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims (Gold)') ),
-      'RC-G-FIRE-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims (Gold) - EXPEDITE') ),
-            'RC-G-FIRE-WS'  => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims With Sketch (Gold)') ), 
-      'RC-G-FIRE-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims With Sketch (Gold) - EXPEDITE') ), 
-            'RC-S-FIRE'         => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims (Silver)') ),
-      'RC-S-FIRE-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims (Silver) - EXPEDITE') ),
-            'RC-S-FIRE-WS'  => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims With Sketch (Silver)') ), 
-      'RC-S-FIRE-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims With Sketch (Silver) - EXPEDITE') ), 
-            'RC-GL-FIRE'        => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims (Gold Lite)') ),
-      'RC-GL-FIRE-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims (Gold Lite) - EXPEDITE') ),
-            'RC-GL-FIRE-WS' => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims With Sketch (Gold Lite)') ), 
-      'RC-GL-FIRE-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims With Sketch (Gold Lite) - EXPEDITE') ), 
-        ), 
-    );
-    
-    $data['GROUP-CC-FIRE'] = array(
-        'type'      => 'GROUP', 
-        'title'     => t('Commercial Fire Claims'), 
-        'child'     => array(
-            'CC-G-FIRE'         => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims (Gold)') ),
-      'CC-G-FIRE-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims (Gold) - EXPEDITE') ),
-            'CC-G-FIRE-WS'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims With Sketch (Gold)') ), 
-      'CC-G-FIRE-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims With Sketch (Gold) - EXPEDITE') ), 
-            'CC-S-FIRE'         => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims (Silver)') ),
-      'CC-S-FIRE-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims (Silver) - EXPEDITE') ),
-            'CC-S-FIRE-WS'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims With Sketch (Silver)') ), 
-      'CC-S-FIRE-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims With Sketch (Silver) - EXPEDITE') ), 
-            'CC-GL-FIRE'        => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims (Gold Lite)') ),
-      'CC-GL-FIRE-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims (Gold Lite) - EXPEDITE') ),
-            'CC-GL-FIRE-WS' => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims With Sketch (Gold Lite)') ), 
-      'CC-GL-FIRE-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims With Sketch (Gold Lite) - EXPEDITE') ), 
-        ), 
-    );
-    
-    // Mold Claim
-    $data['GROUP-RC-MOLD'] = array(
-        'type'      => 'GROUP', 
-        'title'     => t('Residential Mold Claims'), 
-        'child'     => array(
-            'RC-G-MOLD'         => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims (Gold)') ),
-      'RC-G-MOLD-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims (Gold) - EXPEDITE') ),
-            'RC-G-MOLD-WS'  => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims With Sketch (Gold)') ), 
-      'RC-G-MOLD-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims With Sketch (Gold) - EXPEDITE') ), 
-            'RC-S-MOLD'         => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims (Silver)') ),
-      'RC-S-MOLD-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims (Silver) - EXPEDITE') ),
-            'RC-S-MOLD-WS'  => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims With Sketch (Silver)') ), 
-      'RC-S-MOLD-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims With Sketch (Silver) - EXPEDITE') ), 
-            'RC-GL-MOLD'        => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims (Gold Lite)') ),
-      'RC-GL-MOLD-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims (Gold Lite) - EXPEDITE') ),
-            'RC-GL-MOLD-WS' => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims With Sketch (Gold Lite)') ), 
-      'RC-GL-MOLD-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims With Sketch (Gold Lite) - EXPEDITE') ), 
-            'RC-COC-MOLD'   => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims (Coach on Call)') ),
-      'RC-COC-MOLD-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims (Coach on Call) - EXPEDITE') ),
-            'RC-COC-MOLD-WS'=> array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims With Sketch (Coach on Call)') ), 
-      'RC-COC-MOLD-WS-EXPEDITE'=> array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims With Sketch (Coach on Call) - EXPEDITE') ), 
-            'RC-GC-MOLD'        => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims (Gold Coach)') ),
-      'RC-GC-MOLD-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims (Gold Coach) - EXPEDITE') ),
-            'RC-GC-MOLD-WS' => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims With Sketch (Gold Coach)') ), 
-      'RC-GC-MOLD-WS-EXPEDITE' => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims With Sketch (Gold Coach) - EXPEDITE') ), 
-        ), 
-    );
-    
-    $data['GROUP-CC-MOLD'] = array(
-        'type'      => 'GROUP', 
-        'title'     => t('Commercial Mold Claims'), 
-        'child'     => array(
-            'CC-G-MOLD'         => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims (Gold)') ),
-      'CC-G-MOLD-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims (Gold) - EXPEDITE') ),
-            'CC-G-MOLD-WS'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims With Sketch (Gold)') ), 
-      'CC-G-MOLD-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims With Sketch (Gold) - EXPEDITE') ), 
-            'CC-S-MOLD'         => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims (Silver)') ),
-      'CC-S-MOLD-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims (Silver) - EXPEDITE') ),
-            'CC-S-MOLD-WS'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims With Sketch (Silver)') ), 
-      'CC-S-MOLD-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims With Sketch (Silver) - EXPEDITE') ), 
-            'CC-GL-MOLD'        => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims (Gold Lite)') ),
-      'CC-GL-MOLD-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims (Gold Lite) - EXPEDITE') ),
-            'CC-GL-MOLD-WS' => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims With Sketch (Gold Lite)') ), 
-      'CC-GL-MOLD-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims With Sketch (Gold Lite) - EXPEDITE') ), 
-            'CC-COC-MOLD'   => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims (Coach on Call)') ),
-      'CC-COC-MOLD-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims (Coach on Call) - EXPEDITE') ),
-            'CC-COC-MOLD-WS'=> array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims With Sketch (Coach on Call)') ), 
-      'CC-COC-MOLD-WS-EXPEDITE'=> array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims With Sketch (Coach on Call) - EXPEDITE') ), 
-            'CC-GC-MOLD'        => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims (Gold Coach)') ),
-      'CC-GC-MOLD-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims (Gold Coach) - EXPEDITE') ),
-            'CC-GC-MOLD-WS' => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims With Sketch (Gold Coach)') ), 
-      'CC-GC-MOLD-WS-EXPEDITE' => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims With Sketch (Gold Coach) - EXPEDITE') ), 
-        ), 
-    );
-    
-    // Reconstruction Claim
-    $data['GROUP-RC-RECON'] = array(
-        'type'      => 'GROUP', 
-        'title'     => t('Residential Reconstruction Claims'), 
-        'child'     => array(
-            'RC-G-RECON'        => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims (Gold)') ),
-      'RC-G-RECON-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims (Gold) - EXPEDITE') ),
-            'RC-G-RECON-WS' => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims With Sketch (Gold)') ), 
-      'RC-G-RECON-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims With Sketch (Gold) - EXPEDITE') ), 
-            'RC-S-RECON'        => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims (Silver)') ),
-      'RC-S-RECON-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims (Silver) - EXPEDITE') ),
-            'RC-S-RECON-WS' => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims With Sketch (Silver)') ), 
-      'RC-S-RECON-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims With Sketch (Silver) - EXPEDITE') ), 
-            'RC-GL-RECON'   => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims (Gold Lite)') ),
-      'RC-GL-RECON-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims (Gold Lite) - EXPEDITE') ),
-            'RC-GL-RECON-WS'=> array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims With Sketch (Gold Lite)') ), 
-      'RC-GL-RECON-WS-EXPEDITE'=> array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims With Sketch (Gold Lite) - EXPEDITE') ), 
-            'RC-COC-RECON'  => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims (Coach on Call)') ),
-      'RC-COC-RECON-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims (Coach on Call) - EXPEDITE') ),
-            'RC-COC-RECON-WS'=>array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims With Sketch (Coach on Call)') ), 
-      'RC-COC-RECON-WS-EXPEDITE'=>array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims With Sketch (Coach on Call) - EXPEDITE') ), 
-            'RC-GC-RECON'   => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims (Gold Coach)') ),
-      'RC-GC-RECON-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims (Gold Coach) - EXPEDITE') ),
-            'RC-GC-RECON-WS'=> array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims With Sketch (Gold Coach)') ), 
-      'RC-GC-RECON-WS-EXPEDITE'=> array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims With Sketch (Gold Coach) - EXPEDITE') ), 
-        ), 
-    );
-    
-    $data['GROUP-CC-RECON'] = array(
-        'type'      => 'GROUP', 
-        'title'     => t('Commercial Reconstruction Claims'), 
-        'child'     => array(
-            'CC-G-RECON'        => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims (Gold)') ),
-      'CC-G-RECON-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims (Gold) - EXPEDITE') ),
-            'CC-G-RECON-WS' => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims With Sketch (Gold)') ), 
-      'CC-G-RECON-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims With Sketch (Gold) - EXPEDITE') ), 
-            'CC-S-RECON'        => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims (Silver)') ),
-      'CC-S-RECON-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims (Silver) - EXPEDITE') ),
-            'CC-S-RECON-WS' => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims With Sketch (Silver)') ), 
-      'CC-S-RECON-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims With Sketch (Silver) - EXPEDITE') ), 
-            'CC-GL-RECON'   => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims (Gold Lite)') ),
-      'CC-GL-RECON-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims (Gold Lite) - EXPEDITE') ),
-            'CC-GL-RECON-WS'=> array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims With Sketch (Gold Lite)') ), 
-      'CC-GL-RECON-WS-EXPEDITE'=> array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims With Sketch (Gold Lite) - EXPEDITE') ), 
-            'CC-COC-RECON'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims (Coach on Call)') ),
-      'CC-COC-RECON-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims (Coach on Call) - EXPEDITE') ),
-            'CC-COC-RECON-WS'=>array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims With Sketch (Coach on Call)') ), 
-      'CC-COC-RECON-WS-EXPEDITE'=>array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims With Sketch (Coach on Call) - EXPEDITE') ), 
-            'CC-GC-RECON'   => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims (Gold Coach)') ),
-      'CC-GC-RECON-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims (Gold Coach) - EXPEDITE') ),
-            'CC-GC-RECON-WS'=> array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims With Sketch (Gold Coach)') ), 
-      'CC-GC-RECON-WS-EXPEDITE'=> array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims With Sketch (Gold Coach) - EXPEDITE') ), 
-        ), 
-    );
-    
-    // Fire Claim (2nd)
-    $data['GROUP-RC-FIRE-SMOKE'] = array(
-        'type'      => 'GROUP', 
-        'title'     => t('Residential Fire/Smoke Claims'), 
-        'child'     => array(
-            'RC-G-FIRE-SCC' => array(   'type'=>'ITEM', 'title'=>t('Residential Contents Cleaning Claims (Gold)') ),
-      'RC-G-FIRE-SCC-EXPEDITE'  => array(   'type'=>'ITEM', 'title'=>t('Residential Contents Cleaning Claims (Gold) - EXPEDITE') ),
-            'RC-G-FIRE-SSC' => array(   'type'=>'ITEM', 'title'=>t('Residential Structure Cleaning Claims (Gold)') ), 
-      'RC-G-FIRE-SSC-EXPEDITE'  => array(   'type'=>'ITEM', 'title'=>t('Residential Structure Cleaning Claims (Gold) - EXPEDITE') ), 
-            'RC-S-FIRE-SCC' => array(   'type'=>'ITEM', 'title'=>t('Residential Contents Cleaning Claims (Silver)') ),
-      'RC-S-FIRE-SCC-EXPEDITE'  => array(   'type'=>'ITEM', 'title'=>t('Residential Contents Cleaning Claims (Silver) - EXPEDITE') ),
-            'RC-S-FIRE-SSC' => array(   'type'=>'ITEM', 'title'=>t('Residential Structure Cleaning Claims (Silver)') ), 
-      'RC-S-FIRE-SSC-EXPEDITE'  => array(   'type'=>'ITEM', 'title'=>t('Residential Structure Cleaning Claims (Silver) - EXPEDITE') ), 
-            'RC-GL-FIRE-SCC'    => array( 'type'=>'ITEM', 'title'=>t('Residential Contents Cleaning Claims (Gold Lite)') ),
-      'RC-GL-FIRE-SCC-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Residential Contents Cleaning Claims (Gold Lite) - EXPEDITE') ),
-            'RC-GL-FIRE-SSC'    => array( 'type'=>'ITEM', 'title'=>t('Residential Structure Cleaning Claims (Gold Lite)') ), 
-      'RC-GL-FIRE-SSC-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Residential Structure Cleaning Claims (Gold Lite) - EXPEDITE') ), 
-            'RC-COC-FIRE-SCC'   => array( 'type'=>'ITEM', 'title'=>t('Residential Contents Cleaning Claims (Coach on Call)') ),
-      'RC-COC-FIRE-SCC-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Residential Contents Cleaning Claims (Coach on Call) - EXPEDITE') ),
-            'RC-COC-FIRE-SSC'   => array( 'type'=>'ITEM', 'title'=>t('Residential Structure Cleaning Claims (Coach on Call)') ), 
-      'RC-COC-FIRE-SSC-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Residential Structure Cleaning Claims (Coach on Call) - EXPEDITE') ), 
-            'RC-GC-FIRE-SCC'    => array( 'type'=>'ITEM', 'title'=>t('Residential Contents Cleaning Claims (Gold Coach)') ),
-      'RC-GC-FIRE-SCC-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Residential Contents Cleaning Claims (Gold Coach) - EXPEDITE') ),
-            'RC-GC-FIRE-SSC'    => array( 'type'=>'ITEM', 'title'=>t('Residential Structure Cleaning Claims (Gold Coach)') ), 
-      'RC-GC-FIRE-SSC-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Residential Structure Cleaning Claims (Gold Coach) - EXPEDITE') ), 
-        ), 
-    );
+    if ($version == '1.0') {
+        // Start Up Fee
+        $data['GROUP_SUF'] = array(
+            'type'      => 'GROUP', 
+            'title'     => t('Start-Up Fees'), 
+            'child'     => array(
+                'SUF-F'     => array( 'type'=>'ITEM', 'title'=>t('Start-Up Fees (Full)') ),
+                'SUF-P'     => array( 'type'=>'ITEM', 'title'=>t('Start-Up Fees (Partial)') ), 
+                'SUF-DF'    => array( 'type'=>'ITEM', 'title'=>t('Start-Up Fees (Dist. Full)') ), 
+                'SUF-DP'    => array( 'type'=>'ITEM', 'title'=>t('Start-Up Fees (Dist. Partial)') ), 
+                'SUF-GMS'   => array( 'type'=>'ITEM', 'title'=>t('Start-Up Fees (Gold Member Special)') ), 
+                'SUF-GMSD'  => array( 'type'=>'ITEM', 'title'=>t('Start-Up Fees (Dist. Gold Member Special)') ), 
+                'SUF-GMS-1ST'   => array( 'type'=>'ITEM', 'title'=>t('Start-Up Fees (Gold Member 1st Special)') ), 
+                'SUF-G-DEMO'    => array( 'type'=>'ITEM', 'title'=>t('Start-Up Fees (Gold Member Demo)') ), 
+                'SUF-GMAS'      => array( 'type'=>'ITEM', 'title'=>t('Start-Up Fees (Gold Member Associate Special)') ), 
+                'SUF-GC'            => array( 'type'=>'ITEM', 'title'=>t('Start-Up Fees (Gold Coach Member)') ), 
+                'SUF-COC'           => array( 'type'=>'ITEM', 'title'=>t('Start-Up Fees (Coach on Call Member)') ), 
+                'SUF-GTGCSF'    => array( 'type'=>'ITEM', 'title'=>t('Gold to Gold Coach Setup Fee') ), 
+          'SUF-CPR'  => array( 'type'=>'ITEM', 'title'=>t('Cancel/Pause Renewal Fee') ), 
+            ), 
+        );
+        
+        // Monthly Membership Fee
+        $data['GROUP_MMF'] = array(
+            'type'      => 'GROUP', 
+            'title'     => t('Monthly Membership Fees'), 
+            'child'     => array(
+                'MMF'       => array( 'type'=>'ITEM', 'title'=>t('Monthly Membership Fees (Gold)') ),
+                'MMF-GL'    => array( 'type'=>'ITEM', 'title'=>t('Monthly Membership Fees (Gold Lite)') ), 
+                'MMF-COC'   => array( 'type'=>'ITEM', 'title'=>t('Monthly Membership Fees (Coach on Call)') ), 
+                'MMF-GC'    => array( 'type'=>'ITEM', 'title'=>t('Monthly Membership Fees (Gold Coach)') ), 
+            ), 
+        );
+        
+        $data['MFF'] = array(
+            'type' => 'ITEM',   'title' => t('Monthly Finance Fees'), 
+        );
+        
+        // Water Claim
+        $data['GROUP-RC-WATER'] = array(
+            'type'      => 'GROUP', 
+            'title'     => t('Residential Water Claims'), 
+            'child'     => array(
+                'RC-G-WATER'        => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims (Gold)') ),
+          'RC-G-WATER-EXPEDITE' => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims (Gold) - EXPEDITE') ),
+                'RC-G-WATER-WS' => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims With Sketch (Gold)') ), 
+          'RC-G-WATER-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims With Sketch (Gold) - EXPEDITE') ), 
+                'RC-S-WATER'        => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims (Silver)') ),
+          'RC-S-WATER-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims (Silver) - EXPEDITE') ),
+                'RC-S-WATER-WS' => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims With Sketch (Silver)') ), 
+          'RC-S-WATER-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims With Sketch (Silver) - EXPEDITE') ), 
+                'RC-GL-WATER'   => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims (Gold Lite)') ),
+          'RC-GL-WATER-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims (Gold Lite) - EXPEDITE') ),
+                'RC-GL-WATER-WS'=> array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims With Sketch (Gold Lite)') ), 
+          'RC-GL-WATER-WS-EXPEDITE'=> array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims With Sketch (Gold Lite) - EXPEDITE') ), 
+                'RC-COC-WATER'  => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims (Coach on Call)') ),
+          'RC-COC-WATER-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims (Coach on Call) - EXPEDITE') ),
+                'RC-COC-WATER-WS'=>array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims With Sketch (Coach on Call)') ), 
+          'RC-COC-WATER-WS-EXPEDITE'=>array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims With Sketch (Coach on Call) - EXPEDITE') ), 
+                'RC-GC-WATER'   => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims (Gold Coach)') ),
+          'RC-GC-WATER-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims (Gold Coach) - EXPEDITE') ),
+                'RC-GC-WATER-WS'=> array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims With Sketch (Gold Coach)') ), 
+          'RC-GC-WATER-WS-EXPEDITE'=> array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims With Sketch (Gold Coach) - EXPEDITE') ), 
+            ), 
+        );
+        
+        
+        $data['GROUP-CC-WATER'] = array(
+            'type'      => 'GROUP', 
+            'title'     => t('Commercial Water Claims'), 
+            'child'     => array(
+                'CC-G-WATER'        => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims (Gold)') ),
+          'CC-G-WATER-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims (Gold) - EXPEDITE') ),
+                'CC-G-WATER-WS' => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims With Sketch (Gold)') ), 
+          'CC-G-WATER-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims With Sketch (Gold) - EXPEDITE') ), 
+                'CC-S-WATER'        => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims (Silver)') ),
+          'CC-S-WATER-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims (Silver) - EXPEDITE') ),
+                'CC-S-WATER-WS' => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims With Sketch (Silver)') ), 
+          'CC-S-WATER-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims With Sketch (Silver) - EXPEDITE') ), 
+                'CC-GL-WATER'   => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims (Gold Lite)') ),
+          'CC-GL-WATER-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims (Gold Lite) - EXPEDITE') ),
+                'CC-GL-WATER-WS'=> array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims With Sketch (Gold Lite)') ), 
+          'CC-GL-WATER-WS-EXPEDITE'=> array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims With Sketch (Gold Lite) - EXPEDITE') ), 
+                'CC-COC-WATER'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims (Coach on Call)') ),
+          'CC-COC-WATER-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims (Coach on Call)-EXPEDITE') ),
+                'CC-COC-WATER-WS'=>array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims With Sketch (Coach on Call)') ), 
+          'CC-COC-WATER-WS-EXPEDITE'=>array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims With Sketch (Coach on Call) - EXPEDITE') ), 
+                'CC-GC-WATER'   => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims (Gold Coach)') ),
+          'CC-GC-WATER-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims (Gold Coach) - EXPEDITE') ),
+                'CC-GC-WATER-WS'=> array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims With Sketch (Gold Coach)') ), 
+          'CC-GC-WATER-WS-EXPEDITE'=> array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims With Sketch (Gold Coach) - EXPEDITE') ), 
+            ), 
+        );
+        
+        // Fire Claim
+        $data['GROUP-RC-FIRE'] = array(
+            'type'      => 'GROUP', 
+            'title'     => t('Residential Fire Claims'), 
+            'child'     => array(
+                'RC-G-FIRE'         => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims (Gold)') ),
+          'RC-G-FIRE-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims (Gold) - EXPEDITE') ),
+                'RC-G-FIRE-WS'  => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims With Sketch (Gold)') ), 
+          'RC-G-FIRE-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims With Sketch (Gold) - EXPEDITE') ), 
+                'RC-S-FIRE'         => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims (Silver)') ),
+          'RC-S-FIRE-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims (Silver) - EXPEDITE') ),
+                'RC-S-FIRE-WS'  => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims With Sketch (Silver)') ), 
+          'RC-S-FIRE-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims With Sketch (Silver) - EXPEDITE') ), 
+                'RC-GL-FIRE'        => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims (Gold Lite)') ),
+          'RC-GL-FIRE-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims (Gold Lite) - EXPEDITE') ),
+                'RC-GL-FIRE-WS' => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims With Sketch (Gold Lite)') ), 
+          'RC-GL-FIRE-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims With Sketch (Gold Lite) - EXPEDITE') ), 
+            ), 
+        );
+        
+        $data['GROUP-CC-FIRE'] = array(
+            'type'      => 'GROUP', 
+            'title'     => t('Commercial Fire Claims'), 
+            'child'     => array(
+                'CC-G-FIRE'         => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims (Gold)') ),
+          'CC-G-FIRE-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims (Gold) - EXPEDITE') ),
+                'CC-G-FIRE-WS'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims With Sketch (Gold)') ), 
+          'CC-G-FIRE-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims With Sketch (Gold) - EXPEDITE') ), 
+                'CC-S-FIRE'         => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims (Silver)') ),
+          'CC-S-FIRE-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims (Silver) - EXPEDITE') ),
+                'CC-S-FIRE-WS'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims With Sketch (Silver)') ), 
+          'CC-S-FIRE-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims With Sketch (Silver) - EXPEDITE') ), 
+                'CC-GL-FIRE'        => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims (Gold Lite)') ),
+          'CC-GL-FIRE-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims (Gold Lite) - EXPEDITE') ),
+                'CC-GL-FIRE-WS' => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims With Sketch (Gold Lite)') ), 
+          'CC-GL-FIRE-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims With Sketch (Gold Lite) - EXPEDITE') ), 
+            ), 
+        );
+        
+        // Mold Claim
+        $data['GROUP-RC-MOLD'] = array(
+            'type'      => 'GROUP', 
+            'title'     => t('Residential Mold Claims'), 
+            'child'     => array(
+                'RC-G-MOLD'         => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims (Gold)') ),
+          'RC-G-MOLD-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims (Gold) - EXPEDITE') ),
+                'RC-G-MOLD-WS'  => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims With Sketch (Gold)') ), 
+          'RC-G-MOLD-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims With Sketch (Gold) - EXPEDITE') ), 
+                'RC-S-MOLD'         => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims (Silver)') ),
+          'RC-S-MOLD-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims (Silver) - EXPEDITE') ),
+                'RC-S-MOLD-WS'  => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims With Sketch (Silver)') ), 
+          'RC-S-MOLD-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims With Sketch (Silver) - EXPEDITE') ), 
+                'RC-GL-MOLD'        => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims (Gold Lite)') ),
+          'RC-GL-MOLD-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims (Gold Lite) - EXPEDITE') ),
+                'RC-GL-MOLD-WS' => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims With Sketch (Gold Lite)') ), 
+          'RC-GL-MOLD-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims With Sketch (Gold Lite) - EXPEDITE') ), 
+                'RC-COC-MOLD'   => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims (Coach on Call)') ),
+          'RC-COC-MOLD-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims (Coach on Call) - EXPEDITE') ),
+                'RC-COC-MOLD-WS'=> array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims With Sketch (Coach on Call)') ), 
+          'RC-COC-MOLD-WS-EXPEDITE'=> array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims With Sketch (Coach on Call) - EXPEDITE') ), 
+                'RC-GC-MOLD'        => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims (Gold Coach)') ),
+          'RC-GC-MOLD-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims (Gold Coach) - EXPEDITE') ),
+                'RC-GC-MOLD-WS' => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims With Sketch (Gold Coach)') ), 
+          'RC-GC-MOLD-WS-EXPEDITE' => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims With Sketch (Gold Coach) - EXPEDITE') ), 
+            ), 
+        );
+        
+        $data['GROUP-CC-MOLD'] = array(
+            'type'      => 'GROUP', 
+            'title'     => t('Commercial Mold Claims'), 
+            'child'     => array(
+                'CC-G-MOLD'         => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims (Gold)') ),
+          'CC-G-MOLD-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims (Gold) - EXPEDITE') ),
+                'CC-G-MOLD-WS'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims With Sketch (Gold)') ), 
+          'CC-G-MOLD-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims With Sketch (Gold) - EXPEDITE') ), 
+                'CC-S-MOLD'         => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims (Silver)') ),
+          'CC-S-MOLD-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims (Silver) - EXPEDITE') ),
+                'CC-S-MOLD-WS'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims With Sketch (Silver)') ), 
+          'CC-S-MOLD-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims With Sketch (Silver) - EXPEDITE') ), 
+                'CC-GL-MOLD'        => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims (Gold Lite)') ),
+          'CC-GL-MOLD-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims (Gold Lite) - EXPEDITE') ),
+                'CC-GL-MOLD-WS' => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims With Sketch (Gold Lite)') ), 
+          'CC-GL-MOLD-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims With Sketch (Gold Lite) - EXPEDITE') ), 
+                'CC-COC-MOLD'   => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims (Coach on Call)') ),
+          'CC-COC-MOLD-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims (Coach on Call) - EXPEDITE') ),
+                'CC-COC-MOLD-WS'=> array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims With Sketch (Coach on Call)') ), 
+          'CC-COC-MOLD-WS-EXPEDITE'=> array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims With Sketch (Coach on Call) - EXPEDITE') ), 
+                'CC-GC-MOLD'        => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims (Gold Coach)') ),
+          'CC-GC-MOLD-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims (Gold Coach) - EXPEDITE') ),
+                'CC-GC-MOLD-WS' => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims With Sketch (Gold Coach)') ), 
+          'CC-GC-MOLD-WS-EXPEDITE' => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims With Sketch (Gold Coach) - EXPEDITE') ), 
+            ), 
+        );
+        
+        // Reconstruction Claim
+        $data['GROUP-RC-RECON'] = array(
+            'type'      => 'GROUP', 
+            'title'     => t('Residential Reconstruction Claims'), 
+            'child'     => array(
+                'RC-G-RECON'        => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims (Gold)') ),
+          'RC-G-RECON-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims (Gold) - EXPEDITE') ),
+                'RC-G-RECON-WS' => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims With Sketch (Gold)') ), 
+          'RC-G-RECON-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims With Sketch (Gold) - EXPEDITE') ), 
+                'RC-S-RECON'        => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims (Silver)') ),
+          'RC-S-RECON-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims (Silver) - EXPEDITE') ),
+                'RC-S-RECON-WS' => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims With Sketch (Silver)') ), 
+          'RC-S-RECON-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims With Sketch (Silver) - EXPEDITE') ), 
+                'RC-GL-RECON'   => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims (Gold Lite)') ),
+          'RC-GL-RECON-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims (Gold Lite) - EXPEDITE') ),
+                'RC-GL-RECON-WS'=> array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims With Sketch (Gold Lite)') ), 
+          'RC-GL-RECON-WS-EXPEDITE'=> array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims With Sketch (Gold Lite) - EXPEDITE') ), 
+                'RC-COC-RECON'  => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims (Coach on Call)') ),
+          'RC-COC-RECON-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims (Coach on Call) - EXPEDITE') ),
+                'RC-COC-RECON-WS'=>array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims With Sketch (Coach on Call)') ), 
+          'RC-COC-RECON-WS-EXPEDITE'=>array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims With Sketch (Coach on Call) - EXPEDITE') ), 
+                'RC-GC-RECON'   => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims (Gold Coach)') ),
+          'RC-GC-RECON-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims (Gold Coach) - EXPEDITE') ),
+                'RC-GC-RECON-WS'=> array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims With Sketch (Gold Coach)') ), 
+          'RC-GC-RECON-WS-EXPEDITE'=> array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims With Sketch (Gold Coach) - EXPEDITE') ), 
+            ), 
+        );
+        
+        $data['GROUP-CC-RECON'] = array(
+            'type'      => 'GROUP', 
+            'title'     => t('Commercial Reconstruction Claims'), 
+            'child'     => array(
+                'CC-G-RECON'        => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims (Gold)') ),
+          'CC-G-RECON-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims (Gold) - EXPEDITE') ),
+                'CC-G-RECON-WS' => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims With Sketch (Gold)') ), 
+          'CC-G-RECON-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims With Sketch (Gold) - EXPEDITE') ), 
+                'CC-S-RECON'        => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims (Silver)') ),
+          'CC-S-RECON-EXPEDITE'     => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims (Silver) - EXPEDITE') ),
+                'CC-S-RECON-WS' => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims With Sketch (Silver)') ), 
+          'CC-S-RECON-WS-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims With Sketch (Silver) - EXPEDITE') ), 
+                'CC-GL-RECON'   => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims (Gold Lite)') ),
+          'CC-GL-RECON-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims (Gold Lite) - EXPEDITE') ),
+                'CC-GL-RECON-WS'=> array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims With Sketch (Gold Lite)') ), 
+          'CC-GL-RECON-WS-EXPEDITE'=> array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims With Sketch (Gold Lite) - EXPEDITE') ), 
+                'CC-COC-RECON'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims (Coach on Call)') ),
+          'CC-COC-RECON-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims (Coach on Call) - EXPEDITE') ),
+                'CC-COC-RECON-WS'=>array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims With Sketch (Coach on Call)') ), 
+          'CC-COC-RECON-WS-EXPEDITE'=>array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims With Sketch (Coach on Call) - EXPEDITE') ), 
+                'CC-GC-RECON'   => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims (Gold Coach)') ),
+          'CC-GC-RECON-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims (Gold Coach) - EXPEDITE') ),
+                'CC-GC-RECON-WS'=> array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims With Sketch (Gold Coach)') ), 
+          'CC-GC-RECON-WS-EXPEDITE'=> array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims With Sketch (Gold Coach) - EXPEDITE') ), 
+            ), 
+        );
+        
+        // Fire Claim (2nd)
+        $data['GROUP-RC-FIRE-SMOKE'] = array(
+            'type'      => 'GROUP', 
+            'title'     => t('Residential Fire/Smoke Claims'), 
+            'child'     => array(
+                'RC-G-FIRE-SCC' => array(   'type'=>'ITEM', 'title'=>t('Residential Contents Cleaning Claims (Gold)') ),
+          'RC-G-FIRE-SCC-EXPEDITE'  => array(   'type'=>'ITEM', 'title'=>t('Residential Contents Cleaning Claims (Gold) - EXPEDITE') ),
+                'RC-G-FIRE-SSC' => array(   'type'=>'ITEM', 'title'=>t('Residential Structure Cleaning Claims (Gold)') ), 
+          'RC-G-FIRE-SSC-EXPEDITE'  => array(   'type'=>'ITEM', 'title'=>t('Residential Structure Cleaning Claims (Gold) - EXPEDITE') ), 
+                'RC-S-FIRE-SCC' => array(   'type'=>'ITEM', 'title'=>t('Residential Contents Cleaning Claims (Silver)') ),
+          'RC-S-FIRE-SCC-EXPEDITE'  => array(   'type'=>'ITEM', 'title'=>t('Residential Contents Cleaning Claims (Silver) - EXPEDITE') ),
+                'RC-S-FIRE-SSC' => array(   'type'=>'ITEM', 'title'=>t('Residential Structure Cleaning Claims (Silver)') ), 
+          'RC-S-FIRE-SSC-EXPEDITE'  => array(   'type'=>'ITEM', 'title'=>t('Residential Structure Cleaning Claims (Silver) - EXPEDITE') ), 
+                'RC-GL-FIRE-SCC'    => array( 'type'=>'ITEM', 'title'=>t('Residential Contents Cleaning Claims (Gold Lite)') ),
+          'RC-GL-FIRE-SCC-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Residential Contents Cleaning Claims (Gold Lite) - EXPEDITE') ),
+                'RC-GL-FIRE-SSC'    => array( 'type'=>'ITEM', 'title'=>t('Residential Structure Cleaning Claims (Gold Lite)') ), 
+          'RC-GL-FIRE-SSC-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Residential Structure Cleaning Claims (Gold Lite) - EXPEDITE') ), 
+                'RC-COC-FIRE-SCC'   => array( 'type'=>'ITEM', 'title'=>t('Residential Contents Cleaning Claims (Coach on Call)') ),
+          'RC-COC-FIRE-SCC-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Residential Contents Cleaning Claims (Coach on Call) - EXPEDITE') ),
+                'RC-COC-FIRE-SSC'   => array( 'type'=>'ITEM', 'title'=>t('Residential Structure Cleaning Claims (Coach on Call)') ), 
+          'RC-COC-FIRE-SSC-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Residential Structure Cleaning Claims (Coach on Call) - EXPEDITE') ), 
+                'RC-GC-FIRE-SCC'    => array( 'type'=>'ITEM', 'title'=>t('Residential Contents Cleaning Claims (Gold Coach)') ),
+          'RC-GC-FIRE-SCC-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Residential Contents Cleaning Claims (Gold Coach) - EXPEDITE') ),
+                'RC-GC-FIRE-SSC'    => array( 'type'=>'ITEM', 'title'=>t('Residential Structure Cleaning Claims (Gold Coach)') ), 
+          'RC-GC-FIRE-SSC-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Residential Structure Cleaning Claims (Gold Coach) - EXPEDITE') ), 
+            ), 
+        );
 
-    $data['GROUP-CC-FIRE-SMOKE'] = array(
-        'type'      => 'GROUP', 
-        'title'     => t('Commercial Fire/Smoke Claims'), 
-        'child'     => array(
-            'CC-G-FIRE-SCC' => array(   'type'=>'ITEM', 'title'=>t('Commercial Contents Cleaning Claims (Gold)') ),
-      'CC-G-FIRE-SCC-EXPEDITE'  => array(   'type'=>'ITEM', 'title'=>t('Commercial Contents Cleaning Claims (Gold) - EXPEDITE') ),
-            'CC-G-FIRE-SSC' => array(   'type'=>'ITEM', 'title'=>t('Commercial Structure Cleaning Claims (Gold)') ), 
-      'CC-G-FIRE-SSC-EXPEDITE'  => array(   'type'=>'ITEM', 'title'=>t('Commercial Structure Cleaning Claims (Gold) - EXPEDITE') ), 
-            'CC-S-FIRE-SCC' => array(   'type'=>'ITEM', 'title'=>t('Commercial Contents Cleaning Claims (Silver)') ),
-      'CC-S-FIRE-SCC-EXPEDITE'  => array(   'type'=>'ITEM', 'title'=>t('Commercial Contents Cleaning Claims (Silver) - EXPEDITE') ),
-            'CC-S-FIRE-SSC' => array(   'type'=>'ITEM', 'title'=>t('Commercial Structure Cleaning Claims (Silver)') ), 
-      'CC-S-FIRE-SSC-EXPEDITE'  => array(   'type'=>'ITEM', 'title'=>t('Commercial Structure Cleaning Claims (Silver) - EXPEDITE') ), 
-            'CC-GL-FIRE-SCC'    => array( 'type'=>'ITEM', 'title'=>t('Commercial Contents Cleaning Claims (Gold Lite)') ),
-      'CC-GL-FIRE-SCC-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Contents Cleaning Claims (Gold Lite) - EXPEDITE') ),
-            'CC-GL-FIRE-SSC'    => array( 'type'=>'ITEM', 'title'=>t('Commercial Structure Cleaning Claims (Gold Lite)') ), 
-      'CC-GL-FIRE-SSC-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Structure Cleaning Claims (Gold Lite) - EXPEDITE') ), 
-            'CC-COC-FIRE-SCC'   => array( 'type'=>'ITEM', 'title'=>t('Commercial Contents Cleaning Claims (Coach on Call)') ),
-      'CC-COC-FIRE-SCC-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Contents Cleaning Claims (Coach on Call) - EXPEDITE') ),
-            'CC-COC-FIRE-SSC'   => array( 'type'=>'ITEM', 'title'=>t('Commercial Structure Cleaning Claims (Coach on Call)') ), 
-      'CC-COC-FIRE-SSC-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Structure Cleaning Claims (Coach on Call) - EXPEDITE') ), 
-            'CC-GC-FIRE-SCC'    => array( 'type'=>'ITEM', 'title'=>t('Commercial Contents Cleaning Claims (Gold Coach)') ),
-      'CC-GC-FIRE-SCC-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Contents Cleaning Claims (Gold Coach) - EXPEDITE') ),
-            'CC-GC-FIRE-SSC'    => array( 'type'=>'ITEM', 'title'=>t('Commercial Structure Cleaning Claims (Gold Coach)') ), 
-      'CC-GC-FIRE-SSC-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Structure Cleaning Claims (Gold Coach) - EXPEDITE') ), 
-        ), 
-    );
+        $data['GROUP-CC-FIRE-SMOKE'] = array(
+            'type'      => 'GROUP', 
+            'title'     => t('Commercial Fire/Smoke Claims'), 
+            'child'     => array(
+                'CC-G-FIRE-SCC' => array(   'type'=>'ITEM', 'title'=>t('Commercial Contents Cleaning Claims (Gold)') ),
+          'CC-G-FIRE-SCC-EXPEDITE'  => array(   'type'=>'ITEM', 'title'=>t('Commercial Contents Cleaning Claims (Gold) - EXPEDITE') ),
+                'CC-G-FIRE-SSC' => array(   'type'=>'ITEM', 'title'=>t('Commercial Structure Cleaning Claims (Gold)') ), 
+          'CC-G-FIRE-SSC-EXPEDITE'  => array(   'type'=>'ITEM', 'title'=>t('Commercial Structure Cleaning Claims (Gold) - EXPEDITE') ), 
+                'CC-S-FIRE-SCC' => array(   'type'=>'ITEM', 'title'=>t('Commercial Contents Cleaning Claims (Silver)') ),
+          'CC-S-FIRE-SCC-EXPEDITE'  => array(   'type'=>'ITEM', 'title'=>t('Commercial Contents Cleaning Claims (Silver) - EXPEDITE') ),
+                'CC-S-FIRE-SSC' => array(   'type'=>'ITEM', 'title'=>t('Commercial Structure Cleaning Claims (Silver)') ), 
+          'CC-S-FIRE-SSC-EXPEDITE'  => array(   'type'=>'ITEM', 'title'=>t('Commercial Structure Cleaning Claims (Silver) - EXPEDITE') ), 
+                'CC-GL-FIRE-SCC'    => array( 'type'=>'ITEM', 'title'=>t('Commercial Contents Cleaning Claims (Gold Lite)') ),
+          'CC-GL-FIRE-SCC-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Contents Cleaning Claims (Gold Lite) - EXPEDITE') ),
+                'CC-GL-FIRE-SSC'    => array( 'type'=>'ITEM', 'title'=>t('Commercial Structure Cleaning Claims (Gold Lite)') ), 
+          'CC-GL-FIRE-SSC-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Structure Cleaning Claims (Gold Lite) - EXPEDITE') ), 
+                'CC-COC-FIRE-SCC'   => array( 'type'=>'ITEM', 'title'=>t('Commercial Contents Cleaning Claims (Coach on Call)') ),
+          'CC-COC-FIRE-SCC-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Contents Cleaning Claims (Coach on Call) - EXPEDITE') ),
+                'CC-COC-FIRE-SSC'   => array( 'type'=>'ITEM', 'title'=>t('Commercial Structure Cleaning Claims (Coach on Call)') ), 
+          'CC-COC-FIRE-SSC-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Structure Cleaning Claims (Coach on Call) - EXPEDITE') ), 
+                'CC-GC-FIRE-SCC'    => array( 'type'=>'ITEM', 'title'=>t('Commercial Contents Cleaning Claims (Gold Coach)') ),
+          'CC-GC-FIRE-SCC-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Contents Cleaning Claims (Gold Coach) - EXPEDITE') ),
+                'CC-GC-FIRE-SSC'    => array( 'type'=>'ITEM', 'title'=>t('Commercial Structure Cleaning Claims (Gold Coach)') ), 
+          'CC-GC-FIRE-SSC-EXPEDITE'  => array( 'type'=>'ITEM', 'title'=>t('Commercial Structure Cleaning Claims (Gold Coach) - EXPEDITE') ), 
+            ), 
+        );
+    } else { // Version 2.0
+        // Start Up Fee
+        $data['GROUP_SUF'] = array(
+            'type'      => 'GROUP', 
+            'title'     => t('Start-Up Fees'), 
+            'child'     => array(
+                'SUF-F'     => array( 'type'=>'ITEM', 'title'=>t('Start-Up Fees (Full)') ),
+                'SUF-P'     => array( 'type'=>'ITEM', 'title'=>t('Start-Up Fees (Partial)') ), 
+                'SUF-DF'    => array( 'type'=>'ITEM', 'title'=>t('Start-Up Fees (Dist. Full)') ), 
+                'SUF-DP'    => array( 'type'=>'ITEM', 'title'=>t('Start-Up Fees (Dist. Partial)') ), 
+
+                'SUF-CPR'   => array( 'type'=>'ITEM', 'title'=>t('Cancel/Pause Renewal Fee') ), 
+            ), 
+        );
+        
+        // Monthly Membership Fee
+        $data['GROUP_MMF'] = array(
+            'type'      => 'GROUP', 
+            'title'     => t('Monthly Membership Fees'), 
+            'child'     => array(
+                'MMF'           => array( 'type'=>'ITEM', 'title'=>t('Monthly Membership Fees (Gold)') ),
+                'MMF-SILVER'    => array( 'type'=>'ITEM', 'title'=>t('Monthly Membership Fees (Silver)') ), 
+                'MMF-PLATINUM'  => array( 'type'=>'ITEM', 'title'=>t('Monthly Membership Fees (Platinum)') ), 
+            ), 
+        );
+        
+        $data['MFF'] = array(
+            'type' => 'ITEM',   'title' => t('Monthly Finance Fees'), 
+        );
+        
+        // Water Claim
+        $data['GROUP-RC-WATER'] = array(
+            'type'      => 'GROUP', 
+            'title'     => t('Residential Water Claims'), 
+            'child'     => array(
+                'RC-G-WATER'            => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims (Gold)') ),
+                'RC-G-WATER-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims (Gold) - EXPEDITE') ),
+                'RC-G-WATER-WS'         => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims With Sketch (Gold)') ), 
+                'RC-G-WATER-WS-EXPEDITE'=> array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims With Sketch (Gold) - EXPEDITE') ), 
+                'RC-S-WATER'            => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims (Silver)') ),
+                'RC-S-WATER-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims (Silver) - EXPEDITE') ),
+                'RC-S-WATER-WS'         => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims With Sketch (Silver)') ), 
+                'RC-S-WATER-WS-EXPEDITE'=> array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims With Sketch (Silver) - EXPEDITE') ), 
+                'RC-P-WATER'            => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims (Platinum)') ),
+                'RC-P-WATER-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims (Platinum) - EXPEDITE') ),
+                'RC-P-WATER-WS'         => array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims With Sketch (Platinum)') ), 
+                'RC-P-WATER-WS-EXPEDITE'=> array( 'type'=>'ITEM', 'title'=>t('Residential Water Claims With Sketch (Platinum) - EXPEDITE') ), 
+            ), 
+        );
+        
+        
+        $data['GROUP-CC-WATER'] = array(
+            'type'      => 'GROUP', 
+            'title'     => t('Commercial Water Claims'), 
+            'child'     => array(
+                'CC-G-WATER'            => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims (Gold)') ),
+                'CC-G-WATER-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims (Gold) - EXPEDITE') ),
+                'CC-G-WATER-WS'         => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims With Sketch (Gold)') ), 
+                'CC-G-WATER-WS-EXPEDITE'=> array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims With Sketch (Gold) - EXPEDITE') ), 
+                'CC-S-WATER'            => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims (Silver)') ),
+                'CC-S-WATER-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims (Silver) - EXPEDITE') ),
+                'CC-S-WATER-WS'         => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims With Sketch (Silver)') ), 
+                'CC-S-WATER-WS-EXPEDITE'=> array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims With Sketch (Silver) - EXPEDITE') ), 
+                'CC-P-WATER'            => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims (Platinum)') ),
+                'CC-P-WATER-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims (Platinum) - EXPEDITE') ),
+                'CC-P-WATER-WS'         => array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims With Sketch (Platinum)') ), 
+                'CC-P-WATER-WS-EXPEDITE'=> array( 'type'=>'ITEM', 'title'=>t('Commercial Water Claims With Sketch (Platinum) - EXPEDITE') ), 
+            ), 
+        );
+        
+        // Fire Claim
+        $data['GROUP-RC-FIRE'] = array(
+            'type'      => 'GROUP', 
+            'title'     => t('Residential Fire Claims'), 
+            'child'     => array(
+                'RC-G-FIRE'             => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims (Gold)') ),
+                'RC-G-FIRE-EXPEDITE'    => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims (Gold) - EXPEDITE') ),
+                'RC-G-FIRE-WS'          => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims With Sketch (Gold)') ), 
+                'RC-G-FIRE-WS-EXPEDITE' => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims With Sketch (Gold) - EXPEDITE') ), 
+                'RC-S-FIRE'             => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims (Silver)') ),
+                'RC-S-FIRE-EXPEDITE'    => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims (Silver) - EXPEDITE') ),
+                'RC-S-FIRE-WS'          => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims With Sketch (Silver)') ), 
+                'RC-S-FIRE-WS-EXPEDITE' => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims With Sketch (Silver) - EXPEDITE') ),
+                'RC-P-FIRE'             => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims (Platinum)') ),
+                'RC-P-FIRE-EXPEDITE'    => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims (Platinum) - EXPEDITE') ),
+                'RC-P-FIRE-WS'          => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims With Sketch (Platinum)') ), 
+                'RC-P-FIRE-WS-EXPEDITE' => array( 'type'=>'ITEM', 'title'=>t('Residential Fire Claims With Sketch (Platinum) - EXPEDITE') ),
+            ), 
+        );
+        
+        $data['GROUP-CC-FIRE'] = array(
+            'type'      => 'GROUP', 
+            'title'     => t('Commercial Fire Claims'), 
+            'child'     => array(
+                'CC-G-FIRE'             => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims (Gold)') ),
+                'CC-G-FIRE-EXPEDITE'    => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims (Gold) - EXPEDITE') ),
+                'CC-G-FIRE-WS'          => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims With Sketch (Gold)') ), 
+                'CC-G-FIRE-WS-EXPEDITE' => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims With Sketch (Gold) - EXPEDITE') ), 
+                'CC-S-FIRE'             => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims (Silver)') ),
+                'CC-S-FIRE-EXPEDITE'    => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims (Silver) - EXPEDITE') ),
+                'CC-S-FIRE-WS'          => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims With Sketch (Silver)') ), 
+                'CC-S-FIRE-WS-EXPEDITE' => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims With Sketch (Silver) - EXPEDITE') ), 
+                'CC-P-FIRE'             => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims (Platinum)') ),
+                'CC-P-FIRE-EXPEDITE'    => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims (Platinum) - EXPEDITE') ),
+                'CC-P-FIRE-WS'          => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims With Sketch (Platinum)') ), 
+                'CC-P-FIRE-WS-EXPEDITE' => array( 'type'=>'ITEM', 'title'=>t('Commercial Fire Claims With Sketch (Platinum) - EXPEDITE') ), 
+            ), 
+        );
+        
+        // Mold Claim
+        $data['GROUP-RC-MOLD'] = array(
+            'type'      => 'GROUP', 
+            'title'     => t('Residential Mold Claims'), 
+            'child'     => array(
+                'RC-G-MOLD'             => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims (Gold)') ),
+                'RC-G-MOLD-EXPEDITE'    => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims (Gold) - EXPEDITE') ),
+                'RC-G-MOLD-WS'          => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims With Sketch (Gold)') ), 
+                'RC-G-MOLD-WS-EXPEDITE' => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims With Sketch (Gold) - EXPEDITE') ), 
+                'RC-S-MOLD'             => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims (Silver)') ),
+                'RC-S-MOLD-EXPEDITE'    => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims (Silver) - EXPEDITE') ),
+                'RC-S-MOLD-WS'          => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims With Sketch (Silver)') ), 
+                'RC-S-MOLD-WS-EXPEDITE' => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims With Sketch (Silver) - EXPEDITE') ), 
+                'RC-P-MOLD'             => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims (Platinum)') ),
+                'RC-P-MOLD-EXPEDITE'    => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims (Platinum) - EXPEDITE') ),
+                'RC-P-MOLD-WS'          => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims With Sketch (Platinum)') ), 
+                'RC-P-MOLD-WS-EXPEDITE' => array( 'type'=>'ITEM', 'title'=>t('Residential Mold Claims With Sketch (Platinum) - EXPEDITE') ), 
+                
+            ), 
+        );
+        
+        $data['GROUP-CC-MOLD'] = array(
+            'type'      => 'GROUP', 
+            'title'     => t('Commercial Mold Claims'), 
+            'child'     => array(
+                'CC-G-MOLD'             => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims (Gold)') ),
+                'CC-G-MOLD-EXPEDITE'    => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims (Gold) - EXPEDITE') ),
+                'CC-G-MOLD-WS'          => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims With Sketch (Gold)') ), 
+                'CC-G-MOLD-WS-EXPEDITE' => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims With Sketch (Gold) - EXPEDITE') ), 
+                'CC-S-MOLD'             => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims (Silver)') ),
+                'CC-S-MOLD-EXPEDITE'    => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims (Silver) - EXPEDITE') ),
+                'CC-S-MOLD-WS'          => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims With Sketch (Silver)') ), 
+                'CC-S-MOLD-WS-EXPEDITE' => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims With Sketch (Silver) - EXPEDITE') ), 
+                'CC-P-MOLD'             => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims (Platinum)') ),
+                'CC-P-MOLD-EXPEDITE'    => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims (Platinum) - EXPEDITE') ),
+                'CC-P-MOLD-WS'          => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims With Sketch (Platinum)') ), 
+                'CC-P-MOLD-WS-EXPEDITE' => array( 'type'=>'ITEM', 'title'=>t('Commercial Mold Claims With Sketch (Platinum) - EXPEDITE') ), 
+                
+            ), 
+        );
+        
+        // Reconstruction Claim
+        $data['GROUP-RC-RECON'] = array(
+            'type'      => 'GROUP', 
+            'title'     => t('Residential Reconstruction Claims'), 
+            'child'     => array(
+                'RC-G-RECON'            => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims (Gold)') ),
+                'RC-G-RECON-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims (Gold) - EXPEDITE') ),
+                'RC-G-RECON-WS'         => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims With Sketch (Gold)') ), 
+                'RC-G-RECON-WS-EXPEDITE'=> array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims With Sketch (Gold) - EXPEDITE') ), 
+                'RC-S-RECON'            => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims (Silver)') ),
+                'RC-S-RECON-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims (Silver) - EXPEDITE') ),
+                'RC-S-RECON-WS'         => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims With Sketch (Silver)') ), 
+                'RC-S-RECON-WS-EXPEDITE'=> array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims With Sketch (Silver) - EXPEDITE') ), 
+                'RC-P-RECON'            => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims (Platinum)') ),
+                'RC-P-RECON-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims (Platinum) - EXPEDITE') ),
+                'RC-P-RECON-WS'         => array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims With Sketch (Platinum)') ), 
+                'RC-P-RECON-WS-EXPEDITE'=> array( 'type'=>'ITEM', 'title'=>t('Residential Reconstruction Claims With Sketch (Platinum) - EXPEDITE') ), 
+            ), 
+        );
+        
+        $data['GROUP-CC-RECON'] = array(
+            'type'      => 'GROUP', 
+            'title'     => t('Commercial Reconstruction Claims'), 
+            'child'     => array(
+                'CC-G-RECON'            => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims (Gold)') ),
+                'CC-G-RECON-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims (Gold) - EXPEDITE') ),
+                'CC-G-RECON-WS'         => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims With Sketch (Gold)') ), 
+                'CC-G-RECON-WS-EXPEDITE'=> array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims With Sketch (Gold) - EXPEDITE') ), 
+                'CC-S-RECON'            => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims (Silver)') ),
+                'CC-S-RECON-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims (Silver) - EXPEDITE') ),
+                'CC-S-RECON-WS'         => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims With Sketch (Silver)') ), 
+                'CC-S-RECON-WS-EXPEDITE'=> array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims With Sketch (Silver) - EXPEDITE') ), 
+                'CC-P-RECON'            => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims (Platinum)') ),
+                'CC-P-RECON-EXPEDITE'   => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims (Platinum) - EXPEDITE') ),
+                'CC-P-RECON-WS'         => array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims With Sketch (Platinum)') ), 
+                'CC-P-RECON-WS-EXPEDITE'=> array( 'type'=>'ITEM', 'title'=>t('Commercial Reconstruction Claims With Sketch (Platinum) - EXPEDITE') ), 
+                
+            ), 
+        );
+        
+        // Fire Claim (2nd)
+        $data['GROUP-RC-FIRE-SMOKE'] = array(
+            'type'      => 'GROUP', 
+            'title'     => t('Residential Fire/Smoke Claims'), 
+            'child'     => array(
+                'RC-G-FIRE-SCC'         => array(   'type'=>'ITEM', 'title'=>t('Residential Contents Cleaning Claims (Gold)') ),
+                'RC-G-FIRE-SCC-EXPEDITE'=> array(   'type'=>'ITEM', 'title'=>t('Residential Contents Cleaning Claims (Gold) - EXPEDITE') ),
+                'RC-G-FIRE-SSC'         => array(   'type'=>'ITEM', 'title'=>t('Residential Structure Cleaning Claims (Gold)') ), 
+                'RC-G-FIRE-SSC-EXPEDITE'=> array(   'type'=>'ITEM', 'title'=>t('Residential Structure Cleaning Claims (Gold) - EXPEDITE') ), 
+                'RC-S-FIRE-SCC'         => array(   'type'=>'ITEM', 'title'=>t('Residential Contents Cleaning Claims (Silver)') ),
+                'RC-S-FIRE-SCC-EXPEDITE'=> array(   'type'=>'ITEM', 'title'=>t('Residential Contents Cleaning Claims (Silver) - EXPEDITE') ),
+                'RC-S-FIRE-SSC'         => array(   'type'=>'ITEM', 'title'=>t('Residential Structure Cleaning Claims (Silver)') ), 
+                'RC-S-FIRE-SSC-EXPEDITE'=> array(   'type'=>'ITEM', 'title'=>t('Residential Structure Cleaning Claims (Silver) - EXPEDITE') ), 
+                'RC-P-FIRE-SCC'         => array(   'type'=>'ITEM', 'title'=>t('Residential Contents Cleaning Claims (Platinum)') ),
+                'RC-P-FIRE-SCC-EXPEDITE'=> array(   'type'=>'ITEM', 'title'=>t('Residential Contents Cleaning Claims (Platinum) - EXPEDITE') ),
+                'RC-P-FIRE-SSC'         => array(   'type'=>'ITEM', 'title'=>t('Residential Structure Cleaning Claims (Platinum)') ), 
+                'RC-P-FIRE-SSC-EXPEDITE'=> array(   'type'=>'ITEM', 'title'=>t('Residential Structure Cleaning Claims (Platinum) - EXPEDITE') ), 
+
+            ), 
+        );
+
+        $data['GROUP-CC-FIRE-SMOKE'] = array(
+            'type'      => 'GROUP', 
+            'title'     => t('Commercial Fire/Smoke Claims'), 
+            'child'     => array(
+                'CC-G-FIRE-SCC'         => array(   'type'=>'ITEM', 'title'=>t('Commercial Contents Cleaning Claims (Gold)') ),
+                'CC-G-FIRE-SCC-EXPEDITE'=> array(   'type'=>'ITEM', 'title'=>t('Commercial Contents Cleaning Claims (Gold) - EXPEDITE') ),
+                'CC-G-FIRE-SSC'         => array(   'type'=>'ITEM', 'title'=>t('Commercial Structure Cleaning Claims (Gold)') ), 
+                'CC-G-FIRE-SSC-EXPEDITE'=> array(   'type'=>'ITEM', 'title'=>t('Commercial Structure Cleaning Claims (Gold) - EXPEDITE') ), 
+                'CC-S-FIRE-SCC'         => array(   'type'=>'ITEM', 'title'=>t('Commercial Contents Cleaning Claims (Silver)') ),
+                'CC-S-FIRE-SCC-EXPEDITE'=> array(   'type'=>'ITEM', 'title'=>t('Commercial Contents Cleaning Claims (Silver) - EXPEDITE') ),
+                'CC-S-FIRE-SSC'         => array(   'type'=>'ITEM', 'title'=>t('Commercial Structure Cleaning Claims (Silver)') ), 
+                'CC-S-FIRE-SSC-EXPEDITE'=> array(   'type'=>'ITEM', 'title'=>t('Commercial Structure Cleaning Claims (Silver) - EXPEDITE') ), 
+                'CC-P-FIRE-SCC'         => array(   'type'=>'ITEM', 'title'=>t('Commercial Contents Cleaning Claims (Platinum)') ),
+                'CC-P-FIRE-SCC-EXPEDITE'=> array(   'type'=>'ITEM', 'title'=>t('Commercial Contents Cleaning Claims (Platinum) - EXPEDITE') ),
+                'CC-P-FIRE-SSC'         => array(   'type'=>'ITEM', 'title'=>t('Commercial Structure Cleaning Claims (Platinum)') ), 
+                'CC-P-FIRE-SSC-EXPEDITE'=> array(   'type'=>'ITEM', 'title'=>t('Commercial Structure Cleaning Claims (Platinum) - EXPEDITE') ), 
+            ), 
+        );
+    }
     
     $data['COF'] = array(
         'type' => 'ITEM',   'title' => t('Change Order Fee'), 
@@ -523,32 +754,33 @@ function ncn_report_get_grouping_data() {
         'type' => 'ITEM',   'title' => t('Additional'), 
     );
   
-  $data['SUF-AR-SERVICES'] = array(
+    $data['SUF-AR-SERVICES'] = array(
     'type' => 'ITEM',   'title' => t('AR Services Start-Up Fee'), 
-  );
-  $data['AR-SERVICES'] = array(
+    );
+    $data['AR-SERVICES'] = array(
     'type' => 'ITEM',   'title' => t('AR Services'), 
-  );
-  $data['PEER-REVIEWS'] = array(
+    );
+    $data['PEER-REVIEWS'] = array(
     'type' => 'ITEM',   'title' => t('Peer Reviews'), 
-  );
+    );
   
     $data['REFUND'] = array(
         'type' => 'ITEM',   'title' => t('Refund'), 
     );
-    $data['CSI'] = array(
-        'type' => 'ITEM',   'title' => t('CSI Member'), 
-    );
-    
+
+    if ($version == '1.0') {
+        $data['CSI'] = array(
+            'type' => 'ITEM',   'title' => t('CSI Member'), 
+        );
+    }
     
     return $data;
 }
 
 
-function build_table_grouping($data, $total) {
-    //echo "<pre>";print_r($data);exit;
-    $group_data = ncn_report_get_grouping_data();
-    //echo "<pre>";print_r($group_data);exit;
+function build_table_grouping($data, $total, $version) {
+    $group_data = ncn_report_get_grouping_data($version);
+
     $output = '
     <table>
     <thead>
@@ -618,8 +850,8 @@ function ncn_report_render_group_item($key, $g_item, $tr_class, $data) {
     return $output;
 }
 
-function build_table_mail($data, $total) {
-    $group_data = ncn_report_get_grouping_data();
+function build_table_mail($data, $total, $version) {
+    $group_data = ncn_report_get_grouping_data($version);
     $output = '
     <table>
     <thead>
