@@ -695,6 +695,7 @@ function ncn_report_month_get_cancel_member_count($t_month) {
     3=>'coc', 
     4=>'gc', 
     5=>'csi', 
+    6=>'platinum'
   );
   
   $str_data = array();
@@ -724,7 +725,7 @@ function ncn_report_month_get_pause_renewal_member_count($t_month) {
   {
     $bt_row = (array)$bt_row;
      $_user = user_load($bt_row['uid']);
-      if ($_user && $_user->profile_memberid && is_member($_user->profile_memberid)) {
+      if ($_user && isset($_user->profile_memberid) && is_member($_user->profile_memberid)) {
           $renewal_day = ncn_user_get_member_renewal_day($_user->profile_memberid, $bt_row['blocked']);
           if ($renewal_day && $renewal_day<=date("d", $bt_row['blocked'])) {
               $member_type = ncn_report_month_get_member_type_time($_user->profile_memberid, $bt_row['blocked']);
@@ -764,7 +765,7 @@ function ncn_report_month_get_pause_renewal_member_count($t_month) {
   {
       $bt_row = (array)$bt_row;
       $_user = user_load($bt_row['uid']);
-      if ($_user && $_user->profile_memberid && is_member($_user->profile_memberid)) {
+      if ($_user && isset($_user->profile_memberid) && is_member($_user->profile_memberid)) {
           $renewal_day = ncn_user_get_member_renewal_day($_user->profile_memberid, $bt_row['blocked']);
           if ($renewal_day && $renewal_day>date("d", $bt_row['blocked'])) {
               $member_type = ncn_report_month_get_member_type_time($_user->profile_memberid, $bt_row['blocked']);

@@ -38,74 +38,30 @@
         )
     );
 
-    // var_dump($base_url);
-    // exit;
-    //    $query = "SELECT * FROM member_id_pool WHERE used=0 ORDER BY id DESC";
-    //   $result = pager_query($query, 50);
-
     $result = db_select('member_id_pool', 'n')->fields('n')->condition('used', 0, '=')->orderBy('id', 'DESC')->execute();
 
-    //        ->extend('TableSort');
-    // $result = $select->extend('PagerDefault')->limit(50);
-    //    echo $result;
-    //    exit;
-    //   while ($row = db_fetch_array($result))
+    $type_arr = get_member_type_array();
 
     foreach($result as $row)
     {
         $row = (array)$row;
-        $member_type = "Gold";
-        if ($row['member_type'] == 0)
-        {
-            $member_type = "Gold";
-        }
-        else
-            if ($row['member_type'] == 1)
-            {
-                $member_type = "Silver";
-            }
-            else
-                if ($row['member_type'] == 2)
-                {
-                    $member_type = "Gold Lite";
-                }
-                else
-                    if ($row['member_type'] == 3)
-                    {
-                        $member_type = "Coach on Call";
-                    }
-                    else
-                        if ($row['member_type'] == 4)
-                        {
-                            $member_type = "Gold Coach";
-                        }
-                        else
-                            if ($row['member_type'] == 5)
-                            {
-                                $member_type = "CSI Member";
-                            }
-
+        $member_type = isset($type_arr[$row['member_type']])? $type_arr[$row['member_type']]:'';
         if (ncn_admin_is_gold_member_demo($row['member_id']))
         {
             $member_type.= " (Demo)";
+        } 
+        else if (ncn_admin_is_member_first_free($row['member_id']))
+        {
+            $member_type.= " (First Free)";
         }
-        else
-            if (ncn_admin_is_member_first_free($row['member_id']))
-            {
-                $member_type.= " (First Free)";
-            }
 
         // is account free?
-
         $free_extra = '';
         if (is_member($row['member_id']))
         {
             $result = db_query("SELECT customerProfileId FROM {member_cim} WHERE member_id=:s", array(
                 ":s" => $row['member_id']
             ))->fetchField();
-
-            //    var_dump($result);
-            //    exit;
 
             if (intval($result) == 0)
             {

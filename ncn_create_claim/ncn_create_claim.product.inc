@@ -472,7 +472,88 @@ function ncn_create_claim_get_product_id($member_type, $claim_type, $claim_produ
                 $product_id = 76;
             } // CC-S-RECON-WS
         }
-    } 
+    } // Platinum - v2
+    else if ($member_type == MT_PLATINUM) {
+        if ($claim_type == 'residential') {
+            if ($claim_product == 'water') {
+                $product_id = 183;
+            } // RC-P-WATER
+            else if ($claim_product == 'water with sketch') {
+                $product_id = 184;
+            } // RC-P-WATER-WS
+            else if ($claim_product == 'fire') {
+                $product_id = 185;
+            } // RC-P-FIRE
+            else if ($claim_product == 'fire with sketch') {
+                $product_id = 186;
+            } // RC-P-FIRE-WS
+
+            else if ($claim_product == 'fire/smoke contents cleaning') {
+                $product_id = 187;
+            } // RC-P-FIRE-SCC
+            else if ($claim_product == 'fire/smoke structure cleaning') {
+                $product_id = 188;
+            } // RC-P-FIRE-SSC
+            else if ($claim_product == 'contents cleaning') {
+                $product_id = 187;
+            } // RC-P-FIRE-SCC
+            else if ($claim_product == 'structure cleaning') {
+                $product_id = 188;
+            } // RC-P-FIRE-SSC
+
+            else if ($claim_product == 'mold') {
+                $product_id = 189;
+            } // RC-P-MOLD
+            else if ($claim_product == 'mold with sketch') {
+                $product_id = 190;
+            } // RC-P-MOLD-WS
+            else if ($claim_product == 'reconstruction') {
+                $product_id = 191;
+            } // RC-P-RECON
+            else if ($claim_product == 'reconstruction with sketch') {
+                $product_id = 192;
+            } // RC-P-RECON-WS
+        } else if ($claim_type == 'commercial') {
+            if ($claim_product == 'water') {
+                $product_id = 193;
+            } // CC-P-WATER
+            else if ($claim_product == 'water with sketch') {
+                $product_id = 194;
+            } // CC-P-WATER-WS
+            else if ($claim_product == 'fire') {
+                $product_id = 195;
+            } // CC-P-FIRE
+            else if ($claim_product == 'fire with sketch') {
+                $product_id = 196;
+            } // CC-P-FIRE-WS
+
+            else if ($claim_product == 'fire/smoke contents cleaning') {
+                $product_id = 197;
+            } // CC-P-FIRE-SCC
+            else if ($claim_product == 'fire/smoke structure cleaning') {
+                $product_id = 198;
+            } // CC-P-FIRE-SSC
+            else if ($claim_product == 'contents cleaning') {
+                $product_id = 197;
+            } // CC-P-FIRE-SCC
+            else if ($claim_product == 'structure cleaning') {
+                $product_id = 198;
+            } // CC-P-FIRE-SSC
+
+            else if ($claim_product == 'mold') {
+                $product_id = 199;
+            } // CC-P-MOLD
+            else if ($claim_product == 'mold with sketch') {
+                $product_id = 200;
+            } // CC-P-MOLD-WS
+            else if ($claim_product == 'reconstruction') {
+                $product_id = 201;
+            } // CC-P-RECON
+            else if ($claim_product == 'reconstruction with sketch') {
+                $product_id = 202;
+            } // CC-P-RECON-WS
+        }
+    }
 
     return $product_id;
 }

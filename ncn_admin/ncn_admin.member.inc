@@ -475,65 +475,14 @@ function ncn_admin_render_member_type($member_type) {
     <select id="member_type" name="member_type">
         <option value="0" <?php if($member_type==MT_GOLD)       {echo "selected";} ?> >NCN Gold Member</option>
         <option value="1" <?php if($member_type==MT_SILVER)     {echo "selected";} ?> >NCN Silver Member</option>
-        <option value="2" <?php if($member_type==MT_GOLD_LITE)  {echo "selected";} ?> >NCN Gold Lite Member</option>
+        <option value="6" <?php if($member_type==MT_PLATINUM)   {echo "selected";} ?> >NCN Platinum Member</option>
+
+        <!-- <option value="2" <?php if($member_type==MT_GOLD_LITE)  {echo "selected";} ?> >NCN Gold Lite Member</option>
         <option value="3" <?php if($member_type==MT_COACH_ON_CALL){echo "selected";} ?> >NCN Coach on Call Member</option>
         <option value="4" <?php if($member_type==MT_GOLD_COACH) {echo "selected";} ?> >NCN Gold Coach Member</option>
-        <option value="5" <?php if($member_type==MT_CSI)        {echo "selected";} ?> >CSI Member</option>
+        <option value="5" <?php if($member_type==MT_CSI)        {echo "selected";} ?> >CSI Member</option> -->
     </select>
     <?php
-}
-
-/**
-*/
-
-function ncn_admin_draw_signup_fee_select_NEW($name, $default, $mode='') {
-    // #options
-
-    $payments = array();
-    $pnode = node_load(56); $pnode->data = unserialize($pnode->data);
-    $payments['56'] = $pnode;   // NCN Retail Kit ($329)
-    $pnode = node_load(57); $pnode->data = unserialize($pnode->data);
-    $payments['57'] = $pnode;   // CSI Sign Up ($0)
-    $pnode = node_load(58); $pnode->data = unserialize($pnode->data);
-    $payments['58'] = $pnode;   // NCN Retail Kit Options($149)
-    $pnode = node_load(59); $pnode->data = unserialize($pnode->data);
-    $payments['59'] = $pnode;   // NCN Premium Kit Options($249)
-    /* NCN GOLD MEMBER SPECIAL  */
-    $pnode = node_load(64); $pnode->data = unserialize($pnode->data);
-    $payments['64'] = $pnode;   // NCN Premium Kit Options($99)
-
-    // only for admin panel
-    if ($mode=='') {
-        $pnode = node_load(68); $pnode->data = unserialize($pnode->data);
-        $payments['68'] = $pnode;   // NCN Gold First Special($0)
-
-        $pnode = node_load(79); $pnode->data = unserialize($pnode->data);
-        $payments['79'] = $pnode;   // NCN Gold Member Demo($0)
-    }
-
-    $pnode = node_load(168);    $pnode->data = unserialize($pnode->data);
-    $payments['168'] = $pnode;  // NCN Gold Member Assoicate Special($49)
-
-    /* NCN Gold Coach Member*/
-    $pnode = node_load(157);    $pnode->data = unserialize($pnode->data);
-    $payments['157'] = $pnode;  // NCN Gold Coach ($153.90)
-
-    /* NCN Coach on Call  */
-    $pnode = node_load(158);    $pnode->data = unserialize($pnode->data);
-    $payments['158'] = $pnode;  // NCN Gold Coach ($54.90)
-
-    /* <!-- <input type="checkbox" name="retail_kit_329"> <?= $pnode->title; ?> ($<?= number_format($pnode->sell_price, 2); ?>) --> */
-    //ob_start();
-    $select_field = "<select id=\"$name\" name=\"$name\"> \r\n";
-    foreach ($payments as $key => $product) {
-        $selected = ($key==$default)? "selected" : "";
-        $select_field .= "<option value=\"$key\" $selected >".$product->title." ($".number_format($product->sell_price, 2).")</option>";
-    }
-    $select_field .= "</select> \r\n";
-    //$select_field = ob_get_contents();
-    //ob_end_clean();
-
-    return $select_field;
 }
 
 function ncn_admin_draw_signup_fee_select($name, $default, $mode='') {
@@ -543,37 +492,40 @@ function ncn_admin_draw_signup_fee_select($name, $default, $mode='') {
     $pnode = node_load(SKU_RETAIL_KIT);
     $pnode->data = unserialize($pnode->data);
     $payments[SKU_RETAIL_KIT] = $pnode;   // NCN Retail Kit ($329)
-    $pnode = node_load(SKU_CSI_SIGN_UP); $pnode->data = unserialize($pnode->data);
-    $payments[SKU_CSI_SIGN_UP] = $pnode;   // CSI Sign Up ($0)
-    $pnode = node_load(SKU_NCN_RETAIL_KIT_OPT); $pnode->data = unserialize($pnode->data);
-    $payments[SKU_NCN_RETAIL_KIT_OPT] = $pnode;   // NCN Retail Kit Options($149)
-    $pnode = node_load(SKU_NCN_PREMIUM_KIT_OPT); $pnode->data = unserialize($pnode->data);
-    $payments[SKU_NCN_PREMIUM_KIT_OPT] = $pnode;   // NCN Premium Kit Options($249)
+
+    // $pnode = node_load(SKU_CSI_SIGN_UP); $pnode->data = unserialize($pnode->data);
+    // $payments[SKU_CSI_SIGN_UP] = $pnode;   // CSI Sign Up ($0)
+    // $pnode = node_load(SKU_NCN_RETAIL_KIT_OPT); $pnode->data = unserialize($pnode->data);
+    // $payments[SKU_NCN_RETAIL_KIT_OPT] = $pnode;   // NCN Retail Kit Options($149)
+    // $pnode = node_load(SKU_NCN_PREMIUM_KIT_OPT); $pnode->data = unserialize($pnode->data);
+    // $payments[SKU_NCN_PREMIUM_KIT_OPT] = $pnode;   // NCN Premium Kit Options($249)
+
     /* NCN GOLD MEMBER SPECIAL  */
-    $pnode = node_load(SKU_SUF_GMS); $pnode->data = unserialize($pnode->data);
-    $payments[SKU_SUF_GMS] = $pnode;   // NCN Premium Kit Options($99)
+    // $pnode = node_load(SKU_SUF_GMS); $pnode->data = unserialize($pnode->data);
+    // $payments[SKU_SUF_GMS] = $pnode;   // NCN Premium Kit Options($99)
     
     // only for admin panel
-    if ($mode=='') {
-        $pnode = node_load(SKU_SUF_GMS_1ST); $pnode->data = unserialize($pnode->data);
-        $payments[SKU_SUF_GMS_1ST] = $pnode;   // NCN Gold First Special($0)
+    // if ($mode=='') {
+    //     $pnode = node_load(SKU_SUF_GMS_1ST); $pnode->data = unserialize($pnode->data);
+    //     $payments[SKU_SUF_GMS_1ST] = $pnode;   // NCN Gold First Special($0)
         
-        $pnode = node_load(SKU_SUF_G_DEMO); $pnode->data = unserialize($pnode->data);
-        $payments[SKU_SUF_G_DEMO] = $pnode;   // NCN Gold Member Demo($0)
-    }
+    //     $pnode = node_load(SKU_SUF_G_DEMO); $pnode->data = unserialize($pnode->data);
+    //     $payments[SKU_SUF_G_DEMO] = $pnode;   // NCN Gold Member Demo($0)
+    // }
     
-    $pnode = node_load(SKU_SUF_GMAS); $pnode->data = unserialize($pnode->data);
-    $payments[SKU_SUF_GMAS] = $pnode;   // NCN Gold Member Assoicate Special($49)
+    // $pnode = node_load(SKU_SUF_GMAS); $pnode->data = unserialize($pnode->data);
+    // $payments[SKU_SUF_GMAS] = $pnode;   // NCN Gold Member Assoicate Special($49)
     
     /* NCN Gold Coach Member*/
-    $pnode = node_load(SKU_SUF_GC);    $pnode->data = unserialize($pnode->data);
-    $payments[SKU_SUF_GC] = $pnode;  // NCN Gold Coach ($153.90)
+    // $pnode = node_load(SKU_SUF_GC);    $pnode->data = unserialize($pnode->data);
+    // $payments[SKU_SUF_GC] = $pnode;  // NCN Gold Coach ($153.90)
     
     /* NCN Coach on Call  */
-    $pnode = node_load(SKU_SUF_COC);    $pnode->data = unserialize($pnode->data);
-    $payments[SKU_SUF_COC] = $pnode;  // NCN Gold Coach ($54.90)
+    // $pnode = node_load(SKU_SUF_COC);    $pnode->data = unserialize($pnode->data);
+    // $payments[SKU_SUF_COC] = $pnode;  // NCN Gold Coach ($54.90)
 
     /* <!-- <input type="checkbox" name="retail_kit_329"> <?= $pnode->title; ?> ($<?= number_format($pnode->sell_price, 2); ?>) --> */
+
     $select_field = "<select id=\"$name\" name=\"$name\"> \r\n";
     foreach ($payments as $key => $product) {
         $selected = ($key==$default)? "selected" : "";
@@ -582,19 +534,6 @@ function ncn_admin_draw_signup_fee_select($name, $default, $mode='') {
     $select_field .= "</select> \r\n";
     
     return $select_field;
-}
-
-/**
-*/
-function get_signup_fee_type_NEW($product_nid) {
-    $fee_type = 0; // charged All.
-    if ( ($product_nid == 58) ||        //NCN Retail Kit Options - $149
-        ($product_nid == 59) ||         //NCN Premium Kit Options - $249
-        ($product_nid == 60) )          //NCN Membership Kit Options - $99
-    {
-        $fee_type = 3; // charged Partially. for 3 months ($77)
-    }
-    return $fee_type;
 }
 
 function get_signup_fee_type($product_nid) {

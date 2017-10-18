@@ -2017,18 +2017,19 @@ function get_member_type_name($user_id)
     }
 
     $type_arr = get_member_type_array();
-    return $type_arr[$member_type];
+    return isset($type_arr[$member_type])? $type_arr[$member_type]:'';
 }
 
 function get_member_type_array()
 {
     return array(
-        0 => "Gold",
-        1 => "Silver",
-        2 => "Gold Lite",
-        3 => "Coach on Call",
-        4 => "Gold Coach",
-        5 => "CSI",
+        MT_GOLD         => "Gold",
+        MT_SILVER       => "Silver",
+        MT_GOLD_LITE    => "Gold Lite",
+        MT_COACH_ON_CALL=> "Coach on Call",
+        MT_GOLD_COACH   => "Gold Coach",
+        MT_CSI          => "CSI",
+        MT_PLATINUM     => "Platinum",
     );
 }
 

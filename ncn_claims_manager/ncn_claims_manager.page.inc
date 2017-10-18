@@ -1194,14 +1194,15 @@ function ncn_claims_manager_draw_signup_fee_select($name, $default)
     $pnode = node_load(SKU_SUF_DF);
     $pnode->data = unserialize($pnode->data);
     $payments[SKU_SUF_DF] = $pnode; // NCN Membership Kit ($279)
-    $pnode = node_load(SKU_SUF_DP);
-    $pnode->data = unserialize($pnode->data);
-    $payments[SKU_SUF_DP] = $pnode; // NCN Membership Kit Options ($99)
+    
+    // $pnode = node_load(SKU_SUF_DP);
+    // $pnode->data = unserialize($pnode->data);
+    // $payments[SKU_SUF_DP] = $pnode; // NCN Membership Kit Options ($99)
 
     /* NCN GOLD MEMBER SPECIAL  */
-    $pnode = node_load(SKU_SUF_GMSD);
-    $pnode->data = unserialize($pnode->data);
-    $payments[SKU_SUF_GMSD] = $pnode; // NCN Membership Kit Options ($49)
+    // $pnode = node_load(SKU_SUF_GMSD);
+    // $pnode->data = unserialize($pnode->data);
+    // $payments[SKU_SUF_GMSD] = $pnode; // NCN Membership Kit Options ($49)
 
     /*$pnode = node_load(57);   $pnode->data = unserialize($pnode->data);
     $payments['57'] = $pnode;   // NCN Gold First Special($0)*/

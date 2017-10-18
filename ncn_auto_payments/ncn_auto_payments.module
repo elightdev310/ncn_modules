@@ -236,8 +236,17 @@ function ncn_auto_payments_cron()
                         continue;
                     }
                     
-                    // For Gold Member ,Gold Lite Member, Coach on Call Member, Gold Coach
-                    if ($member_type == 0 || $member_type == 2 || $member_type == 3 || $member_type == 4) {
+                    // For Gold Member ,Gold Lite Member, Coach on Call Member, Gold Coach - v1
+                    // if ($member_type == MT_GOLD || 
+                    //     $member_type == MT_GOLD_LITE || 
+                    //     $member_type == MT_COACH_ON_CALL || 
+                    //     $member_type == MT_GOLD_COACH ) 
+                    
+                    // For Gold, Silver, Platinum - v2
+                    if ($member_type == MT_GOLD || 
+                        $member_type == MT_SILVER || 
+                        $member_type == MT_PLATINUM ) 
+                    {
                         // standard monthly fee
                         
                         // Prevent from charging user for monthly recurring fee.
@@ -255,18 +264,11 @@ function ncn_auto_payments_cron()
                             
                         }
                         
-                        $mmf_product_nid = SKU_MMF;
-                        if ( $member_type == MT_GOLD ) {
-                            $mmf_product_nid = SKU_MMF;      // $99      (MMF)
-                        } else if ( $member_type == MT_GOLD_LITE ) {
-                            $mmf_product_nid = SKU_MMF_GL;     // $24.95   (MMF-GL)
-                        } else if ( $member_type == MT_COACH_ON_CALL ) {
-                            $mmf_product_nid = SKU_MMF_COC;     // $39.95   (MMF-COC)
-                        } else if ( $member_type == MT_GOLD_COACH ) {
-                            $mmf_product_nid = SKU_MMF_GC;     // $138.95  (MMF-GC)
+                        $mmf_product_nid = ncn_auto_payments_get_mmf_product($member_type);
+                        if ($mmf_product_nid) {
+                            $pid = 0;   // Payment Transaction ID
+                            make_monthly_payment($user, $mmf_product_nid, $pid);
                         }
-                        $pid = 0;   // Payment Transaction ID
-                        make_monthly_payment($user, $mmf_product_nid, $pid);    
                     }
                 }
             }
@@ -330,8 +332,14 @@ function ncn_auto_payments_cron()
                 continue;
             }
             
-            // For Gold Member
-            if ($member['member_type'] == 0 || $member['member_type'] == 2 || $member['member_type'] == 3 || $member['member_type'] == 4) {
+            // v1
+            // if ($member['member_type'] == 0 || $member['member_type'] == 2 || $member['member_type'] == 3 || $member['member_type'] == 4)
+            // 
+            // For Gold, Silver, Platinum - v2
+            if ($member['member_type'] == MT_GOLD || 
+                $member['member_type'] == MT_SILVER || 
+                $member['member_type'] == MT_PLATINUM ) 
+            {
                 // standard monthly fee
                 
                 // Prevent from charging user for monthly recurring fee.
@@ -348,19 +356,11 @@ function ncn_auto_payments_cron()
                     
                 }
                 
-                $mmf_product_nid = SKU_MMF;
-                if ( $member['member_type'] == MT_GOLD ) {
-                    $mmf_product_nid = SKU_MMF;      // $99      (MMF)
-                } else if ( $member['member_type'] == MT_GOLD_LITE ) {
-                    $mmf_product_nid = SKU_MMF_GL;     // $24.95   (MMF-GL)
-                } else if ( $member['member_type'] == MT_COACH_ON_CALL ) {
-                    $mmf_product_nid = SKU_MMF_COC;     // $39.95   (MMF-COC)
-                } else if ( $member['member_type'] == MT_GOLD_COACH ) {
-                    $mmf_product_nid = SKU_MMF_GC;     // $138.95  (MMF-GC)
+                $mmf_product_nid = ncn_auto_payments_get_mmf_product($member['member_type']);
+                if ($mmf_product_nid) {
+                    $pid = 0;   // Payment Transaction ID
+                    make_monthly_payment_from_memberid($member['member_id'], $mmf_product_nid, $pid);
                 }
-                
-                $pid = 0;   // Payment Transaction ID
-                make_monthly_payment_from_memberid($member['member_id'], $mmf_product_nid, $pid);
             }
         }
     }
@@ -379,6 +379,33 @@ function ncn_auto_payments_cron()
 
 }
 
+/**
+ * Get Production NID based on Member Type
+ */
+function ncn_auto_payments_get_mmf_product($member_type) {
+    $mmf_product_nid = 0;
+    switch ($member_type) {
+        case MT_GOLD:
+            $mmf_product_nid = SKU_MMF;
+            break;
+        case MT_SILVER: //v2
+            $mmf_product_nid = SKU_MMF_SILVER;
+            break;
+        case MT_GOLD_LITE:
+            $mmf_product_nid = SKU_MMF_GL;
+            break;
+        case MT_COACH_ON_CALL:
+            $mmf_product_nid = SKU_MMF_COC;
+            break;
+        case MT_GOLD_COACH:
+            $mmf_product_nid = SKU_MMF_GC;
+            break;
+        case MT_PLATINUM: //v2
+            $mmf_product_nid = SKU_MMF_PLATINUM;
+            break;
+    }
+    return $mmf_product_nid;
+}
 
 // using expiration date , but it is impossible to get expirationDate via API, because this is masked.
 

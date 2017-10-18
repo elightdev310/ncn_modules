@@ -241,23 +241,13 @@ switch ($tfunction)
             ncn_user_insert_log_old_member_type($user->profile_memberid, $member['member_type'], $p_member_type, date('U'));
         }
 
+        // Get Member Type Name
+        $type_arr = get_member_type_array();
+        $member_type_name = isset($type_arr[$p_member_type])? $type_arr[$p_member_type]:'';
+
         $query = "UPDATE member_id_pool SET member_type = $p_member_type WHERE member_id='".$user->profile_memberid."'";
-
-        if ($p_member_type==5) {
-            $member_type_name = 'CSI Member';
-        } else if ($p_member_type==4) {
-            $member_type_name = 'NCN Gold Coach Member';
-        } else if ($p_member_type==3) {
-            $member_type_name = 'NCN Coach on Call Member';
-        } else if ($p_member_type==2) {
-            $member_type_name = 'NCN Gold Lite Member';
-        } else if ($p_member_type==1) {
-            $member_type_name = 'NCN Silver Member';
-        } else {
-            $member_type_name = 'NCN Gold Member';
-        }
-
         $result = db_query($query);
+
         if ($result) {
             drupal_set_message(t('Member Type updated to !member_type_name successfully', array('!member_type_name'=>$member_type_name)) );
         } else {
@@ -674,12 +664,13 @@ switch ($tfunction)
                 <tr>
                     <td class="td-label">Member Type:</td>
                     <td><select id="member_type" name="member_type">
-                            <option value="0" <?php if($member_type == 0){ echo "selected"; } ?> >NCN Gold Member</option>
-                            <option value="1" <?php if($member_type == 1){ echo "selected"; } ?> >NCN Silver Member</option>
-                            <option value="2" <?php if($member_type == 2){ echo "selected"; } ?> >NCN Gold Lite Member</option>
-                            <option value="3" <?php if($member_type == 3){ echo "selected"; } ?> >NCN Coach on Call Member</option>
-                            <option value="4" <?php if($member_type == 4){ echo "selected"; } ?> >NCN Gold Coach Member</option>
-                            <option value="5" <?php if($member_type == 5){ echo "selected"; } ?> >CSI Member</option>
+                            <option value="0" <?php if($member_type == MT_GOLD)         { echo "selected"; } ?> >Gold</option>
+                            <option value="1" <?php if($member_type == MT_SILVER)       { echo "selected"; } ?> >Silver</option>
+                            <option value="2" <?php if($member_type == MT_GOLD_LITE)    { echo "selected"; } ?> >NCN Gold Lite Member</option>
+                            <option value="3" <?php if($member_type == MT_COACH_ON_CALL){ echo "selected"; } ?> >NCN Coach on Call Member</option>
+                            <option value="4" <?php if($member_type == MT_GOLD_COACH)   { echo "selected"; } ?> >NCN Gold Coach Member</option>
+                            <option value="5" <?php if($member_type == MT_CSI)          { echo "selected"; } ?> >CSI Member</option>
+                            <option value="6" <?php if($member_type == MT_PLATINUM)     { echo "selected"; } ?> >Platinum</option>
                         </select>
                     </td>
                 </tr>
