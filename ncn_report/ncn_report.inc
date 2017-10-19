@@ -20,9 +20,10 @@ function ncn_report_insert_payment_ncn($ref_pid, $owner=0) {
         //watchdog( "payment_ncn", t("Failed to insert payment_ncn (!ref_pid)", array('!ref_pid'=>$ref_pid)) );
         return FALSE;
     }
-    foreach($result as $payment)
+    $payment = null;
+    foreach($result as $row)
     {
-        $payment = (array)$payment;
+        $payment = (array)$row;
         if(!$payment)
         {
             return FALSE;
@@ -33,7 +34,9 @@ function ncn_report_insert_payment_ncn($ref_pid, $owner=0) {
         }
     }
 
-    
+    if (!$payment) {
+        return FALSE;
+    }
     // filter 
 
     $type = _ncn_report_get_payment_ncn_type($payment['ptype']);
@@ -116,6 +119,8 @@ function _ncn_report_get_payment_ncn_type($ptype) {
 //  case 'MMF-GL':
 //  case 'MMF-COC':
     case 'MMF-GC': 
+    case 'MMF-SILVER':
+    case 'MMF-PLATINUM':
         $type = 'MMF';
         break;
     case 'MMF-FREE':    // Ignore

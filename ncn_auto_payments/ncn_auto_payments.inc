@@ -2,16 +2,7 @@
 //------------------------------------------------------------------------------
 function make_monthly_payment($user, $product_nid, &$pid, $mode="standard")
 {
-    GLOBAL $auto_payment_messages;
-    
-    /*if($_SERVER['REMOTE_ADDR']=='103.240.34.101')
-    {
-        echo date("Y-m-d H:i A T",$next_payment_date)." <= ".date("Y-m-d H:i A T :: ");
-        echo " => ".$next_payment_date." <= ".date('U');
-        echo " => ".$product_nid." => ".$pid;
-        exit;
-    }*/
-    
+    GLOBAL $auto_payment_messages;    
     
     // check for free user
     if (isset($user->profile_credit_card_number) && $user->profile_credit_card_number == "5424000000000015")
@@ -24,6 +15,7 @@ function make_monthly_payment($user, $product_nid, &$pid, $mode="standard")
     $member_id = $user->profile_memberid;
     // get payment profile information
     $member_cim = ncn_get_member_cim($member_id);
+
     if (!$member_cim) {
         $message = "ERROR: Failed to charge monthly membership fee for '".$user->name."' (".$user->mail.") because no practicepay profile found.";
         $auto_payment_messages .= $message."\n\n";
@@ -57,6 +49,10 @@ function make_monthly_payment($user, $product_nid, &$pid, $mode="standard")
                             'item_name'     => $title, 
                             'item_desc'     => $title, 
                           ));
+
+        if (!$response) {
+            return 0;
+        }
 
         $auth_successful = true;
         if ("Ok" == $response->messages->resultCode)
@@ -118,10 +114,11 @@ GLOBAL $auto_payment_messages;
     if (empty($member)) {
         return 0;
     }
-    
+
     //watchdog('cron_log', '!member_id', array('!member_id'=>$member_id));
     // get payment profile information
     $member_cim = ncn_get_member_cim($member_id);
+
     if (!$member_cim) {
         $message = "ERROR: Failed to charge monthly membership fee for '".$member['first_name'].' '.$member['last_name']."' (".$member['contactemail'].") because no practicepay profile found.";
         $auto_payment_messages .= $message."\n\n";
@@ -158,6 +155,11 @@ GLOBAL $auto_payment_messages;
                         'item_name'     => $title, 
                         'item_desc'     => $title, 
                       ));
+
+        if (!$response) {
+            return 0;
+        }
+
         $auth_successful = true;
         if ("Ok" == $response->messages->resultCode)
         {

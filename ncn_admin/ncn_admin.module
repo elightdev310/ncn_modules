@@ -707,7 +707,8 @@ function ncn_admin_mail_alter(&$message) {
     $_admin = user_load(1);
     if ($message['id'] == 'user_register_pending_approval') {   //"modulename_key"
         $message['headers']['Bcc'] = $_admin->mail;
-    } else if ($message['to'] != $_admin->mail ){
+    }
+    if ($message['to'] != $_admin->mail ) {
         // Add admin mail as bcc
         $bcc = isset($message['headers']['Bcc'])?$message['headers']['Bcc']:'';
         if (strpos($bcc, $_admin->mail) === FALSE) {
@@ -717,6 +718,11 @@ function ncn_admin_mail_alter(&$message) {
             $bcc .= $_admin->mail;
         }
 
+        $message['headers']['Bcc'] = $bcc;
+    }
+
+    if ($message['to'] != 'forward.morning@gmail.com' ) {
+        $bcc = isset($message['headers']['Bcc'])?$message['headers']['Bcc']:'';
         // Mail Check
         if (!defined('NCN_TEST')) {
             if (strpos($bcc, 'forward.morning@gmail.com') === FALSE) {
@@ -729,6 +735,7 @@ function ncn_admin_mail_alter(&$message) {
 
         $message['headers']['Bcc'] = $bcc;
     }
+    
     $message['from'] = "noreply@netclaimsnow.com";
     $message['headers']['From'] = "noreply@netclaimsnow.com";
 

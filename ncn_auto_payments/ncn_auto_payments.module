@@ -159,13 +159,14 @@ function ncn_auto_payments_cron()
     GLOBAL $auto_payment_messages;
     
     // Get All member-role Users
-    $query = "SELECT * FROM {users} as u 
+    $query = "SELECT u.* FROM {users} as u 
                 LEFT JOIN {users_roles} AS ur ON (ur.uid = u.uid) 
-                WHERE ur.rid=:rid AND u.status=1";
+                WHERE ur.rid=:rid";
     $result = db_query($query, array(':rid'=>USER_ROLE_MEMBER));
     $row_count = $result->rowCount();
     $res_users = $result->fetchAll();
     //for ($i=0; $i<$row_count; $i++)
+    
     foreach($res_users as $row)
     {
         //$row = $result->fetchAssoc();
@@ -181,16 +182,16 @@ function ncn_auto_payments_cron()
         // only for normal users (not distributors or account managers/admin/etc)
         if ( (isset($user->profile_memberid)) && ($user->profile_memberid != '') )
         {
-            $member = get_member_from_id($user->profile_memberid);
-            $member_type = $member['member_type'];
             // check member id is good and get last date
             // $query2 = db_query("SELECT * FROM member_id_pool WHERE member_id=:a AND used=:b",array(":a"=>$user->profile_memberid,":b"=>1));
             // $result2 = $query2;
             // $row_count2 = $result2->rowCount();
             
             // if ($row_count2 > 0)
+            $member = get_member_from_id($user->profile_memberid);
             if (!empty($member) && $member['used'] == 1)
             {
+                $member_type = $member['member_type'];
                 $next_payment_date = $member['next_payment_date'];
                 
                 $create_time = $member['create'];
@@ -282,6 +283,7 @@ function ncn_auto_payments_cron()
     $member_count = $result->rowCount();
     //for ($i=0; $i<$member_count; $i++)
     $result_rows = $result->fetchAll();
+
     foreach($result_rows as $member)
     {
         //$member = $result->fetchAssoc();
@@ -357,6 +359,7 @@ function ncn_auto_payments_cron()
                 }
                 
                 $mmf_product_nid = ncn_auto_payments_get_mmf_product($member['member_type']);
+
                 if ($mmf_product_nid) {
                     $pid = 0;   // Payment Transaction ID
                     make_monthly_payment_from_memberid($member['member_id'], $mmf_product_nid, $pid);

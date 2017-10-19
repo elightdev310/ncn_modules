@@ -412,7 +412,7 @@ function send_daily_mail() {
     $msg = compose_daily_mail($report_date);
     
     $to = 'reports@netclaimsnow.com';
-    drupal_mail('ncn_report', 'daily_report', $to, language_default(), array('subject'=>$subject, 'body'=>$msg));
+    return drupal_mail('ncn_report', 'daily_report', $to, language_default(), array('subject'=>$subject, 'body'=>$msg));
 }
 
 function compose_daily_mail($report_date){
@@ -424,7 +424,7 @@ function compose_daily_mail($report_date){
     ob_start();
     
     mail_css();
-    build_table($data, $total);
+    build_table($report_date, $data, $total);
     $msg = ob_get_contents();
     ob_end_clean();
     return $msg;
@@ -454,7 +454,7 @@ function compose_weekly_mail($report_date){
     ob_start();
     
     mail_css();
-    build_table($data, $total);
+    build_table($report_date, $data, $total);
     $msg = ob_get_contents();
     ob_end_clean();
     return $msg;
@@ -479,7 +479,7 @@ function compose_monthly_mail($report_date){
     ob_start();
     
     mail_css();
-    build_table($data, $total);
+    build_table($report_date, $data, $total);
     $msg = ob_get_contents();
     ob_end_clean();
     return $msg;
