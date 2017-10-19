@@ -1134,7 +1134,7 @@ function _get_scope_pdf($claim_id, $dir_url, &$pdf_count) {
                         
                         $pdf_count += 1;
                     }
-                    $pdf=new PDF();
+                    $pdf=new NCNPDF();
                     $page_count = 0;
                 }
             
@@ -1172,7 +1172,7 @@ function _get_scope_pdf($claim_id, $dir_url, &$pdf_count) {
                         
                         $pdf_count += 1;
                     }
-                    $pdf=new PDF();
+                    $pdf=new NCNPDF();
                     $page_count = 0;
                 }
             
