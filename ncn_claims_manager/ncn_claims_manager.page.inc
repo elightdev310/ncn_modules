@@ -592,6 +592,14 @@ function ncn_claim_manager_homepage_innerpage()
             <?php _ncn_claim_manager_homepage_sponsor() ?>
         </div>
     </div>
+
+    <?php if (module_exists('ncn_chatter')): ?>
+    <div class="chatter-section">
+        <div class="chatter-section-content">
+            <?php print ncn_chatter_user_news_feed_block() ?>
+        </div>
+    </div>
+    <?php endif; ?>
 <?php
 }
 

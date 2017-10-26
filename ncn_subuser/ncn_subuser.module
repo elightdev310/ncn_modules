@@ -62,15 +62,20 @@ function ncn_subuser_grant_creating_subuser($member_id, $grant=1) {
 
 function ncn_subuser_get_parent_member_info($member_id){
     global $user;
-    $sql = " SELECT uid from {profile_value} as pv
-             LEFT JOIN {profile_field} AS pf ON (pf.fid = pv.fid)
-             WHERE pf.name = :s and pv.value = :d ";
-    $res = db_query($sql,array(':s'=>'profile_memberid',':d'=>$member_id))->fetchAssoc();
-    if($res['uid']){
-        return $res['uid'];
-    } else {
-        return $user->uid;
+
+    $field = db_query("SELECT fid FROM {profile_field} WHERE name=:field_name ", 
+                    array('field_name'=>'profile_memberid'))
+            ->fetchAssoc();
+    if ($field && $field['fid']) {
+        $sql = " SELECT uid from {profile_value} as pv
+                 WHERE pv.fid = :field_id and pv.value = :d ";
+        $res = db_query($sql,array(':field_id'=>$field['fid'],':d'=>$member_id))->fetchAssoc();
+        if($res['uid']){
+            return $res['uid'];
+        } 
     }
+    
+    return $user->uid;
 }
 
 function ncn_subuser_mail($key, &$message, $data)

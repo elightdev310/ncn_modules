@@ -1,0 +1,131 @@
+<?php
+
+require_once('ncn_chatter.define.inc');
+require_once('ncn_chatter.feed.inc');
+require_once('ncn_chatter.post.inc');
+require_once('ncn_chatter.follow.inc');
+
+require_once('ncn_chatter.feed.ui.inc');
+
+require_once('ncn_chatter.sync.inc');
+
+
+/**
+ * hook_menu
+ */
+function ncn_chatter_menu() {
+    $items = array();
+    // ajax call back to add post
+    $items['chatter/add/post/%'] = array(
+        'page callback' => 'ncn_chatter_add_post_action',
+        'page arguments'=> array(3), 
+        'type' => MENU_CALLBACK,
+        'access arguments' => array('add chatter post'),
+    );
+    // ajax call back to add comment
+    $items['chatter/post/%/add/comment'] = array(
+        'page callback' => 'ncn_chatter_add_comment_action',
+        'page arguments'=> array(2), 
+        'type' => MENU_CALLBACK,
+        'access arguments' => array('add chatter comment'),
+    );
+    // ajax call back to add comment
+    $items['chatter/feed-loading-post/%/%'] = array(
+        'page callback' => 'ncn_chatter_get_feed_next_posts',
+        'page arguments'=> array(2, 3), 
+        'type' => MENU_CALLBACK,
+        'access arguments' => array('view chatter feed'),
+    );
+
+    // NCN Feed Page
+    $items['ncn-chatter/ncn-feed'] = array(
+        'title' => 'NCN Feed',
+        'page callback' => 'ncn_chatter_news_feed_page',
+        'access arguments' => array('view chatter feed'),
+        'type' => MENU_CALLBACK,
+    );
+    // User Profile Feed Page
+    $items['ncn-chatter/user-profile-feed/%'] = array(
+        'title' => 'User Profile Feed',
+        'page callback' => 'ncn_chatter_user_profile_feed_page',
+        'page arguments'=> array(2), 
+        'access arguments' => array('view chatter feed'),
+        'type' => MENU_CALLBACK,
+    );
+    // Feed Page
+    $items['ncn-chatter/feed/%'] = array(
+        'title' => 'User Profile Feed',
+        'page callback' => 'ncn_chatter_feed_page',
+        'page arguments'=> array(2), 
+        'access arguments' => array('view chatter feed'),
+        'type' => MENU_CALLBACK,
+    );
+    return $items;
+}
+
+/**
+ * hook_permission
+ */
+function ncn_chatter_permission() {
+    return array(
+        'add chatter post' => array(
+          'title' => t('Add Chatter Post'),
+        ), 
+        'add chatter comment' => array(
+          'title' => t('Add Chatter Comment'),
+        ), 
+        'view chatter feed' => array(
+          'title' => t('View Chatter Feed'),
+        ), 
+    );
+}
+
+
+/**
+ * hook_theme
+ */
+function ncn_chatter_theme($existing, $type, $theme, $path) {
+    $theme_hooks = array(
+        'ncn_chatter_form_post' => array(
+            'template' => 'ncn_chatter_form_post',
+            'path' => $path . '/templates',
+            'variables' => array(
+                'feed_id' => 0,
+            )
+        ), 
+        'ncn_chatter_feed_post' => array(
+            'template' => 'ncn_chatter_feed_post',
+            'path' => $path . '/templates',
+            'variables' => array(
+                'post' => array(),
+            )
+        ), 
+        'ncn_chatter_post_comment' => array(
+            'template' => 'ncn_chatter_post_comment',
+            'path' => $path . '/templates',
+            'variables' => array(
+                'comment' => array(),
+            )
+        ), 
+    );
+    return $theme_hooks;
+}
+
+/**
+ * Implements hook_user_insert().
+ */
+function ncn_chatter_user_insert(&$edit, $account, $category) {
+    // User Feed
+    $user_fid = ncn_chatter_create_feed(array(
+        'type'      => FEED_TYPE_USER, 
+        'entity_id' => $account->uid
+    ));
+
+    if (is_member_user($account)) {
+        // Company Feed
+        $company_fid = ncn_chatter_create_feed(array(
+            'type'      => FEED_TYPE_COMPANY, 
+            'entity_id' => $account->uid
+        ));
+    }
+}

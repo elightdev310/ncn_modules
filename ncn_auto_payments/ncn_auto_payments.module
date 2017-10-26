@@ -233,7 +233,7 @@ function ncn_auto_payments_cron()
                         array(":a"=>$user->profile_memberid));
                     $result2 = $query2;
                     
-                    if ($user->status==0 && $user->profile_fblocked != 'first') {
+                    if ($user->status==0 && (!isset($user->profile_fblocked) || $user->profile_fblocked != 'first')) {
                         continue;
                     }
                     
