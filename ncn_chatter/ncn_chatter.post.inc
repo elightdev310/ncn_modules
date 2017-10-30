@@ -121,6 +121,45 @@ function ncn_chatter_get_comments_under_post($pid, $count=false) {
 }
 
 
+/**
+ * Like Post
+ * @param  $entity_type 0: Post, 1: Comment
+ *         $action 1: LIKE, 0: UNLIKE
+ */
+function ncn_chatter_like_entity($uid, $entity_id, $entity_type, $action) {
+    if ($action == 1) {
+        // Like
+        if (!ncn_chatter_check_user_like_entity($uid, $entity_id, $entity_type)) {
+            $result = db_insert('chatter_post_like')
+            ->fields(array(
+                'uid'           => $uid, 
+                'entity_id'     => $entity_id, 
+                'entity_type'   => $entity_type,
+                'like_at'       => date('U')
+            ))
+            ->execute();
+        }
+        return true;
+    } else {
+        // Unlike
+        $num_deleted = db_delete('chatter_post_like')
+            ->condition('uid',          $uid)
+            ->condition('entity_id',    $entity_id)
+            ->condition('entity_type',  $entity_type)
+            ->execute();
+        return true;
+    }
+}
+function ncn_chatter_check_user_like_entity($uid, $entity_id, $entity_type) {
+    $count = db_query("SELECT COUNT(*) FROM {chatter_post_like}
+                        WHERE uid=:uid AND entity_id=:entity_id AND entity_type=:entity_type", 
+                        array('uid'=>$uid, 'entity_id'=>$entity_id, 'entity_type'=>$entity_type))
+            ->fetchField();
+    return $count;
+}
+
+
+
 
 
 
@@ -183,5 +222,36 @@ global $user;
     } else {
         $result['status'] = 'warning';
     }
+    echo json_encode($result);
+}
+
+/**
+ * chatter/lik-post-comment/%/%
+ */
+function ncn_chatter_like_post_comment($entity_id, $entity_type) {
+global $user;
+    $result = array(
+        'status' => 'success', 
+        'msg' => '', 
+    );
+
+    if (isset($_REQUEST['like_action'])) {
+        $_action = $_REQUEST['like_action'];
+        $action = 0;
+        if ($_action == 'like') {
+            $action = 1;
+        }
+        
+        ncn_chatter_like_entity($user->uid, $entity_id, $entity_type, $action);
+
+        if ($action) {
+            $result['next_action'] = 'unlike';
+        } else {
+            $result['next_action'] = 'like';
+        }
+    } else {
+        $result['status'] = 'error';
+    }
+
     echo json_encode($result);
 }

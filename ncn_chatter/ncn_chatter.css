@@ -106,3 +106,8 @@
 .chatter-section .ncn_chatter_comment_form .comment-box{
     border-bottom: solid 1px #e0e0e0;
 }
+.chatter-section .post-action-link, 
+.chatter-section .comment-action-link {
+    text-transform:capitalize;
+    margin-right: 10px;
+}

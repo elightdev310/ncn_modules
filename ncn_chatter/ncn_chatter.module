@@ -11,7 +11,7 @@ require_once('ncn_chatter.sync.inc');
 
 
 /**
- * hook_menu
+ * Implements hook_menu()
  */
 function ncn_chatter_menu() {
     $items = array();
@@ -29,9 +29,16 @@ function ncn_chatter_menu() {
         'type' => MENU_CALLBACK,
         'access arguments' => array('add chatter comment'),
     );
-    // ajax call back to add comment
+    // ajax call back to get post listing
     $items['chatter/feed-loading-post/%/%'] = array(
         'page callback' => 'ncn_chatter_get_feed_next_posts',
+        'page arguments'=> array(2, 3), 
+        'type' => MENU_CALLBACK,
+        'access arguments' => array('view chatter feed'),
+    );
+    // ajax call back to like
+    $items['chatter/like-post-comment/%/%'] = array(
+        'page callback' => 'ncn_chatter_like_post_comment',
         'page arguments'=> array(2, 3), 
         'type' => MENU_CALLBACK,
         'access arguments' => array('view chatter feed'),
@@ -64,7 +71,7 @@ function ncn_chatter_menu() {
 }
 
 /**
- * hook_permission
+ * Implements hook_permission()
  */
 function ncn_chatter_permission() {
     return array(
@@ -82,7 +89,7 @@ function ncn_chatter_permission() {
 
 
 /**
- * hook_theme
+ * Implements hook_theme()
  */
 function ncn_chatter_theme($existing, $type, $theme, $path) {
     $theme_hooks = array(

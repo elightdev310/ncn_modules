@@ -18,7 +18,9 @@ jQuery(function($) {
 
         // Infinite Scroll
         $(window).scroll(function() {
-            if ($(window).scrollTop() == $(document).height() - $(window).height()) {
+            // console.log($(window).scrollTop());
+            // console.log($(document).height() - $(window).height());
+            if (Math.ceil($(window).scrollTop()) >= $(document).height() - $(window).height()) {
                 var _page = $('.ncn-feed-post-list').attr('data-page');
                 ncn_feed_post_next_page(_page);
             }
@@ -40,6 +42,36 @@ jQuery(function($) {
             });
 
             $(this).closest('.comment-box').remove();
+            return false;
+        });
+
+        // Like Link
+        $('.ncn-feed-post-list').on('click', '.post-like-link, .comment-like-link', function() {
+            var $this = $(this);
+            var action = 'like';
+            if ($this.hasClass('unlike')) {
+                action = 'unlike';
+            }
+
+            var _url  = $this.attr('href');
+            jQuery.ajax({
+                url:    _url,
+                type:   'POST',
+                data:   {like_action: action}, 
+                beforeSend: function(jqXHR, settings) {},
+                error: function() {},
+                success: function(response) {
+                    eval("var json=" + response + ";");
+                    if (json.status == "success") {
+                        $this.removeClass('like').removeClass('unlike');
+                        $this.addClass(json.next_action);
+                        $this.html(json.next_action);
+                    } else {
+                        if (json.msg != "") { alert(json.msg); }
+                    }
+                }, 
+                complete: function(jqXHR, textStatus) {}
+            });
             return false;
         });
     });

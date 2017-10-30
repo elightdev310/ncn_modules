@@ -6,8 +6,14 @@
  *
  * @var $post
  */
-
-
+global $user;
+$post_like_class = '';
+if (ncn_chatter_check_user_like_entity($user->uid, $post['id'], 0)) {
+    $post_like_class = 'unlike';
+} else {
+    $post_like_class = 'like';
+}
+$post_like_url = url('chatter/like-post-comment/'.$post['id'].'/0');
 $action_url = url('chatter/post/'.$post['id'].'/add/comment');
 ?>
 
@@ -30,7 +36,10 @@ $action_url = url('chatter/post/'.$post['id'].'/add/comment');
                     <?php echo $post['content'] ?>
                 </div>
                 <div class="post-action-links">
-                    <a href="#" class="post-like-link post-action-link">Like</a>
+                    <a href ="<?php echo $post_like_url ?>" 
+                       class="post-like-link post-action-link <?php echo $post_like_class ?>">
+                        <?php echo ucwords($post_like_class) ?> 
+                    </a>
                     <a href="#" class="post-comment-link post-action-link">Comment</a>
                 </div>
                 <div class="comment-section">
