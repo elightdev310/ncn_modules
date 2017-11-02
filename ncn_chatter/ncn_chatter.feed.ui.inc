@@ -96,6 +96,33 @@ global $user;
 }
 
 /**
+ * Render Claim Feed Block in Claim View Page
+ */
+function ncn_chatter_claim_feed_block($claim_id) {
+    $claim = get_claim_data($claim_id);
+    if ($claim) {
+        $type = FEED_TYPE_CLAIM;
+        if ($claim['claim_status'] == 'receivables') {
+            $type = FEED_TYPE_AR;
+        }
+        $feed = ncn_chatter_get_feed_by_entity($type, $claim_id);
+        if (!$feed) {
+            // Create Claim Feed
+            $feed = ncn_chatter_create_feed(array('type'=>$type, 'entity_id'=>$claim_id));
+            if (!$feed) { return ''; }
+        }
+
+        $feed_block = ncn_chatter_feed_block($feed['fid']);
+        $output = '<div class="chatter-section">';
+        $output.=   '<div class="chatter-section-content">';
+        $output.=   $feed_block;
+        $output.= '</div></div>';
+        return $output;
+    }
+    return '';
+}
+
+/**
  * Check if user could access to this feed
  */
 function ncn_chatter_check_feed_available($user, $fid) {

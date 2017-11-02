@@ -234,7 +234,7 @@ function ncn_admin_view_claim($claim_id)
         }
         
         // update claim status
-    //  $query = "UPDATE claims SET claim_status='".$_POST['claim_status']."',claim_status_message=\"".AddSlashes($_POST['claim_status_message'])."\",last_modified=".date('U')." WHERE claim_id=".$claim_id;
+        // $query = "UPDATE claims SET claim_status='".$_POST['claim_status']."',claim_status_message=\"".AddSlashes($_POST['claim_status_message'])."\",last_modified=".date('U')." WHERE claim_id=".$claim_id;
         $result = db_query('UPDATE {claims} SET claim_status=:a, claim_status_message=:b,
         last_modified=:c  WHERE claim_id=:d',array(':a'=>$_POST['claim_status'],
         ':b'=>$_POST['claim_status_message'],':c'=>date('U'),':d'=>$claim_id));
@@ -1026,6 +1026,7 @@ function ncn_admin_view_claim($claim_id)
     <?php endif;//Create Invoice; ?>
     
     <?php
+    echo ncn_chatter_claim_feed_block($claim_id);
 }
 
 //------------------------------------------------------------------------------

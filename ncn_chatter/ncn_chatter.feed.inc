@@ -198,19 +198,27 @@ function ncn_chatter_get_user_follow_feed_posts($user_fid, $params) {
 }
 
 /**
- * Get All Posts in Following Feeds - [Base Function]
+ * Get All Posts in Following Feeds - [Basic Function]
  * @param $params: array(page, perPage)
  */
 function ncn_chatter_get_posts_in_feeds($follow_fids, $params) {
+global $user;
+    $is_ncn_user = is_ncn_user($user);
     $perPage = $params['perPage'];
     $offset = $params['page'] * $perPage;
 
     $str_follow_fids = implode(', ', $follow_fids);
+
+    $where_query='';
+    if (!$is_ncn_user) {
+        $where_query = "WHERE p.ncn_only = 0 ";
+    }
     $query = "SELECT p.* 
                 FROM (  SELECT DISTINCT(fp.pid) AS fpid 
                         FROM {chatter_feed_post} AS fp 
                         WHERE fp.fid IN ( $str_follow_fids ) ) AS ffp 
                 LEFT JOIN {chatter_post} AS p ON (ffp.fpid = p.id) 
+                $where_query 
                 ORDER BY p.updated_at DESC 
                 LIMIT $offset, $perPage";
 

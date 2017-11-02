@@ -36,10 +36,13 @@ $action_url = url('chatter/post/'.$post['id'].'/add/comment');
                     <?php echo $post['content'] ?>
                 </div>
                 <div class="post-action-links">
+                    <?php if ($user->uid != $post['uid']): ?>
                     <a href ="<?php echo $post_like_url ?>" 
                        class="post-like-link post-action-link <?php echo $post_like_class ?>">
                         <?php echo ucwords($post_like_class) ?> 
                     </a>
+                    <?php endif; ?>
+                    
                     <a href="#" class="post-comment-link post-action-link">Comment</a>
                 </div>
                 <div class="comment-section">

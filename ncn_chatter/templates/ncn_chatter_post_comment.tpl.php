@@ -34,10 +34,12 @@ $comment_like_url = url('chatter/like-post-comment/'.$comment['id'].'/1');
             <?php echo $comment['content'] ?>
         </div>
         <div class="comment-action-links">
+            <?php if ($user->uid != $comment['uid']): ?>
             <a href ="<?php echo $comment_like_url ?>" 
                class="comment-like-link comment-action-link <?php echo $comment_like_class ?>">
                 <?php echo ucwords($comment_like_class) ?> 
             </a>
+            <?php endif; ?>
         </div>
     </div>
 </div>

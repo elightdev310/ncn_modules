@@ -6,8 +6,8 @@
  *
  * @var $feed_id
  */
-
-
+global $user;
+$is_ncn_user = is_ncn_user($user);
 $action_url = url('chatter/add/post/'.$feed_id);
 ?>
 
@@ -20,9 +20,17 @@ $action_url = url('chatter/add/post/'.$feed_id);
             <div class="author-photo text-label"><span>POST</span></div>
             <div class="mentions-container">
                 <div class="mentions-input">
-                    <textarea class="status-input-text" name="content" row="1" placeholder="Share and update..."></textarea>                    
+                    <textarea class="status-input-text" name="content" row="1" placeholder="Share and update..."></textarea>
                 </div>
                 <div class="clearfix">
+                    <div class="post-option-container">
+                        <?php if ($is_ncn_user): ?>
+                        <select class="post-filter" name="post_filter">
+                            <option value="1">Netclaimsnow Only</option>
+                            <option value="0">Public</option>
+                        </select>
+                        <?php endif; ?>
+                    </div>
                     <div class="button-container">
                         <button type="button" class="btn btn-flat add-post-btn">Share</button>
                     </div>

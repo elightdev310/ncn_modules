@@ -62,6 +62,9 @@
 .chatter-section .mentions-container .button-container {
     float: right;
 }
+.chatter-section .mentions-container .post-option-container {
+    float: left;
+}
 
 .chatter-section .post-panel-box .post-meta-info, 
 .chatter-section .post-panel-box .comment-meta-info {

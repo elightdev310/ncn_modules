@@ -53,7 +53,7 @@ function ncn_chatter_create_post($uid, $fid, $data=array()) {
     if (!$uid || !$fid) {
         return false;
     }
-
+    
     $data['uid'] = $uid;
     $pid = ncn_chatter_insert_post_record($data);   // Insert record to table
     if (!$pid) {
@@ -180,9 +180,12 @@ global $user;
     );
 
     $content = trim($_REQUEST['content']);
+    $ncn_only= (isset($_REQUEST['post_filter']))? $_REQUEST['post_filter']:0;
+
     if ($content) {
         $pid = ncn_chatter_create_post($user->uid, $fid, array(
-            'content' => $_REQUEST['content']
+            'content' => $_REQUEST['content'], 
+            'ncn_only'=> $ncn_only,
         ));
 
         if (!$pid) {

@@ -110,3 +110,13 @@ function get_qa_list($mode="active"){
     }
     return $qa_list;
 }
+
+function is_ncn_user($user) {
+    if (is_member_user($user) || 
+        is_subuser($user))
+    {
+        return false;
+    }
+    
+    return true;
+}
