@@ -87,7 +87,9 @@ jQuery(function($) {
                 url:    _url,
                 type:   'POST',
                 data:   $_form.serialize(), 
-                beforeSend: function(jqXHR, settings) {},
+                beforeSend: function(jqXHR, settings) {
+                    $_form.loadingOverlay();
+                },
                 error: function() {},
                 success: function(response) {
                     eval("var json=" + response + ";");
@@ -101,7 +103,9 @@ jQuery(function($) {
                         if (json.msg != "") { alert(json.msg); }
                     }
                 }, 
-                complete: function(jqXHR, textStatus) {}
+                complete: function(jqXHR, textStatus) {
+                    $_form.loadingOverlay('remove');
+                }
             }); 
         });
         // Add Comment
@@ -117,7 +121,9 @@ jQuery(function($) {
                 url:    _url,
                 type:   'POST',
                 data:   $_form.serialize(), 
-                beforeSend: function(jqXHR, settings) {},
+                beforeSend: function(jqXHR, settings) {
+                    $_form.loadingOverlay();
+                },
                 error: function() {},
                 success: function(response) {
                     eval("var json=" + response + ";");
@@ -133,7 +139,9 @@ jQuery(function($) {
                         if (json.msg != "") { alert(json.msg); }
                     }
                 }, 
-                complete: function(jqXHR, textStatus) {}
+                complete: function(jqXHR, textStatus) {
+                    $_form.loadingOverlay('remove');
+                }
             }); 
         });
 
