@@ -34,6 +34,9 @@ $action_url = url('chatter/post/'.$post['id'].'/add/comment');
                 </div>
                 <div class="post-content">
                     <?php echo $post['content'] ?>
+                    <div class="chatter-file-preview">
+                        <?php echo ncn_chatter_render_attached_file($post['fid']); ?>
+                    </div>
                 </div>
                 <div class="post-action-links">
                     <?php if ($user->uid != $post['uid']): ?>
@@ -62,6 +65,19 @@ $action_url = url('chatter/post/'.$post['id'].'/add/comment');
                                     <textarea class="status-input-text" name="content" row="1" placeholder="Write a comment..."></textarea>                    
                                 </div>
                                 <div class="clearfix">
+                                    <div class="post-option-container">
+                                        <div class="ncn-chatter-attach-file-section">
+                                            <a href="#" class="upload-chatter-file-link">Attach file</a>
+                                            <input type="file" class="chatter-attached-file hidden">
+                                            <input type="hidden" name="chatter_file" class="chatter-attached-fid" value="0" />
+                                            <div class="chatter-attached-file-preview">
+                                                <span class="attached-filename">
+
+                                                </span>&nbsp;
+                                                <a href="#" class="remove-attached-file">Remove</a>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="button-container">
                                         <button type="button" class="btn btn-flat add-comment-btn">Write</button>
                                     </div>

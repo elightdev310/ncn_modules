@@ -43,6 +43,19 @@ function ncn_chatter_menu() {
         'type' => MENU_CALLBACK,
         'access arguments' => array('view chatter feed'),
     );
+    // ajax call back to follow feed
+    $items['chatter/follow-feed/%'] = array(
+        'page callback' => 'ncn_chatter_follow_feed_action',
+        'page arguments'=> array(2, 3), 
+        'type' => MENU_CALLBACK,
+        'access arguments' => array('view chatter feed'),
+    );
+    // ajax call back to follow feed
+    $items['chatter/attach-file'] = array(
+        'page callback' => 'ncn_chatter_attach_file',
+        'access arguments' => array('view chatter feed'),
+        'type' => MENU_CALLBACK,
+    );
 
     // NCN Feed Page
     $items['ncn-chatter/ncn-feed'] = array(

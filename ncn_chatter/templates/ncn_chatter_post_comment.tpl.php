@@ -32,6 +32,9 @@ $comment_like_url = url('chatter/like-post-comment/'.$comment['id'].'/1');
         </div>
         <div class="comment-content">
             <?php echo $comment['content'] ?>
+            <div class="chatter-file-preview">
+                <?php echo ncn_chatter_render_attached_file($comment['fid']); ?>
+            </div>
         </div>
         <div class="comment-action-links">
             <?php if ($user->uid != $comment['uid']): ?>

@@ -119,6 +119,15 @@ function ncn_feed_post_next_page(page, start='next') {
                     } else {
                         $section.attr('data-page', json.nextPage);
                     }
+
+                    // Next Posts until Scroll
+                    var hContent = jQuery(document).height(); // get the height of your content
+                    var hWindow = jQuery(window).height();  // get the height of the visitor's browser window
+
+                    if(hContent<=hWindow) { 
+                      var _page = $section.attr('data-page');
+                      ncn_feed_post_next_page(_page);
+                    }
                 } else {
                     if (json.msg != "") { alert(json.msg); }
                 }

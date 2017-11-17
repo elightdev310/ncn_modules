@@ -156,3 +156,69 @@ function ncn_chatter_get_user_follow_fid($uid) {
     }
     return $data;
 }
+
+
+/**
+ * Callback: chatter/follow-feed/%fid
+ */
+function ncn_chatter_follow_feed_action($fid) {
+global $user;
+    $result = array(
+        'status' => 'success', 
+        'msg'    => '', 
+        'posts'  => ''
+    );
+
+    $_action = isset($_REQUEST['follow_action'])? $_REQUEST['follow_action']:'follow';
+
+    if (!is_member_user($user)) {
+        if ($_action == "follow") {
+            $msg = ncn_chatter_follow_feed($user->uid, $fid);
+            if ($msg === true) {
+            
+            } else {
+                $result['status'] = 'error';
+                if ($msg) {
+                    $result['msg'] = $msg;
+                }
+            }
+        } else if ($_action == "unfollow") {
+            ncn_chatter_unfollow_feed($user->uid, $fid);
+        }
+    }
+
+    if ($result['status'] == 'success') {
+        if ($_action == 'follow') {
+            $result['next_action'] = 'unfollow';
+        } else {
+            $result['next_action'] = 'follow';
+        }
+    }
+
+    echo json_encode($result);
+}
+
+/**
+ * Follow Feed (Action)
+ * Ignore for feed user followed automatically.
+ */
+function ncn_chatter_follow_feed($uid, $fid) {
+    $feed = ncn_chatter_get_feed($fid);
+    if ($feed) {
+        if (!ncn_chatter_check_user_follow_feed($uid, $fid)) {
+            $result = ncn_chatter_insert_follow_feed_record(array(
+                'uid' => $uid,
+                'fid' => $fid
+            ));
+        }
+    } else {
+        return "There isn't feed. Please refresh page.";
+    }
+    return true;
+}
+function ncn_chatter_unfollow_feed($uid, $fid) {
+    $result = db_delete('chatter_follow_feed')
+        ->condition('uid', $uid)
+        ->condition('fid', $fid)
+        ->execute();
+}

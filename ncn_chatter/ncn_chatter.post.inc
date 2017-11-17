@@ -8,6 +8,7 @@ function ncn_chatter_insert_post_record($data=array()) {
             ->fields(array(
                 'content'   => $data['content'], 
                 'ncn_only'  => (isset($data['ncn_only'])? $data['ncn_only'] : 0), 
+                'fid'       => $data['file_id'], 
                 'uid'       => $data['uid'], 
                 'created_at'=> (isset($data['created_at'])? $data['created_at'] : date('U')), 
                 'updated_at'=> (isset($data['updated_at'])? $data['updated_at'] : date('U')), 
@@ -24,6 +25,7 @@ function ncn_chatter_insert_comment_record($data=array()) {
             ->fields(array(
                 'content'   => $data['content'], 
                 'uid'       => $data['uid'], 
+                'fid'       => $data['file_id'], 
                 'pid'       => $data['pid'], 
                 'created_at'=> (isset($data['created_at'])? $data['created_at'] : date('U')), 
             ))
@@ -47,7 +49,7 @@ function ncn_chatter_post_update_time($pid, $timestamp) {
 
 /**
  * Create Post
- * @param   $data:array( content, ncn_only: optional )
+ * @param   $data:array( content, file_id, ncn_only: optional )
  */
 function ncn_chatter_create_post($uid, $fid, $data=array()) {
     if (!$uid || !$fid) {
@@ -75,7 +77,7 @@ function ncn_chatter_create_post($uid, $fid, $data=array()) {
 
 /**
  * Create Comment
- * @param   $data:array( content, pid )
+ * @param   $data:array( content, pid, file_id )
  */
 function ncn_chatter_create_comment($uid, $data=array()) {
     $data['uid'] = $uid;
@@ -180,11 +182,25 @@ global $user;
     );
 
     $content = trim($_REQUEST['content']);
+    $file_id = $_REQUEST['chatter_file'];
     $ncn_only= (isset($_REQUEST['post_filter']))? $_REQUEST['post_filter']:0;
 
-    if ($content) {
+    if ($content || $file_id) {
+        if ($file_id) {
+            $file = file_load($file_id);
+            $dest = "public://chatter/".$user->uid;
+            file_prepare_directory($dest, FILE_CREATE_DIRECTORY);
+            $dest .= "/".$file->filename;
+            if ($moved_file = file_move($file, $dest)) {
+                $file_id = $moved_file->fid;
+            } else {
+                $file_id = 0;
+            }
+        }
+        
         $pid = ncn_chatter_create_post($user->uid, $fid, array(
-            'content' => $_REQUEST['content'], 
+            'content' => $content, 
+            'file_id' => $file_id,
             'ncn_only'=> $ncn_only,
         ));
 
@@ -209,10 +225,25 @@ global $user;
     );
 
     $content = trim($_REQUEST['content']);
-    if ($content) {
+    $file_id = $_REQUEST['chatter_file'];
+
+    if ($content || $file_id) {
+        if ($file_id) {
+            $file = file_load($file_id);
+            $dest = "public://chatter/".$user->uid;
+            file_prepare_directory($dest, FILE_CREATE_DIRECTORY);
+            $dest .= "/".$file->filename;
+            if ($moved_file = file_move($file, $dest)) {
+                $file_id = $moved_file->fid;
+            } else {
+                $file_id = 0;
+            }
+        }
+
         $cid = ncn_chatter_create_comment($user->uid, array(
             'pid'     => $pid, 
-            'content' => $_REQUEST['content']
+            'content' => $_REQUEST['content'], 
+            'file_id' => $file_id,
         ));
 
         if (!$cid) {
@@ -257,4 +288,40 @@ global $user;
     }
 
     echo json_encode($result);
+}
+
+/*
+ * URL: chatter/attach-file
+ * 
+ * Attach File
+ */
+function ncn_chatter_attach_file() {
+    $result = array(
+        'status' => 'success', 
+        'msg' => '', 
+    );
+
+    $validators['file_validate_extensions'] = array();  // allow all extension
+    $file = file_save_upload('chatter_file', $validators);
+    if ($file) {
+        $result['file'] = array(
+            'fid'      => $file->fid, 
+            'filename' => $file->filename, 
+        );
+    } else {
+        $result['status'] = 'error';
+        $result['msg'] = 'Failed to attach file. Please report this to administrator.';
+    }
+
+    echo json_encode($result);
+}
+
+function ncn_chatter_render_attached_file($fid) {
+    if ($fid) {
+        $file = file_load($fid);
+        if ($file) {
+            return $file->filename;
+        }
+    }
+    return '';
 }

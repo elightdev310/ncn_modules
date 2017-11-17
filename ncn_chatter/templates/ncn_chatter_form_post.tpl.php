@@ -9,8 +9,24 @@
 global $user;
 $is_ncn_user = is_ncn_user($user);
 $action_url = url('chatter/add/post/'.$feed_id);
+$follow_feed_url = url('chatter/follow-feed/'.$feed_id);
+if (ncn_chatter_check_user_follow_feed($user->uid, $feed_id)) {
+    $follow_class = 'unfollow';
+} else {
+    $follow_class = 'follow';
+}
+
+$user_feed = ncn_chatter_get_feed_by_entity(FEED_TYPE_USER, $user->uid);
 ?>
 
+<?php if (!is_member_user($user) && $user_feed['fid']!=$feed_id): ?>
+<div class="follow-feed-section">
+    <a href="<?php echo $follow_feed_url ?>" 
+       class="follow-feed-link <?php echo $follow_class ?>">
+        <?php echo ucwords($follow_class) ?> this feed
+    </a>
+</div>
+<?php endif; ?>
 
 <form id="ncn_chatter_post_form" action="<?php echo $action_url ?>" class="" enctype="multipart/form-data" method="POST">
     <input type="hidden" name="tfunction" value="chatter_create_post" />
@@ -24,6 +40,17 @@ $action_url = url('chatter/add/post/'.$feed_id);
                 </div>
                 <div class="clearfix">
                     <div class="post-option-container">
+                        <div class="ncn-chatter-attach-file-section">
+                            <a href="#" class="upload-chatter-file-link">Attach file</a>
+                            <input type="file" class="chatter-attached-file hidden">
+                            <input type="hidden" name="chatter_file" class="chatter-attached-fid" value="0" />
+                            <div class="chatter-attached-file-preview">
+                                <span class="attached-filename">
+
+                                </span>&nbsp;
+                                <a href="#" class="remove-attached-file">Remove</a>
+                            </div>
+                        </div>
                         <?php if ($is_ncn_user): ?>
                         <select class="post-filter" name="post_filter">
                             <option value="1">Netclaimsnow Only</option>
@@ -52,7 +79,7 @@ jQuery(function($) {
         // Add Post
         $('.chatter-section .add-post-btn').on('click', function() {
             var $_form = $('#ncn_chatter_post_form');
-            if (!$_form.find('textarea.status-input-text').val()) {
+            if (!$_form.find('textarea.status-input-text').val() && $_form.find('.chatter-attached-fid').val()==0) {
                 return false;
             }
             var _url  = $_form.attr('action');
@@ -65,7 +92,10 @@ jQuery(function($) {
                 success: function(response) {
                     eval("var json=" + response + ";");
                     if (json.status == "success") {
-                        $('#ncn_chatter_post_form textarea.status-input-text').val('');
+                        $_form.find('textarea.status-input-text').val('');
+                        $_form.find('.chatter-attached-fid').val(0);
+                        $_form.find('.attached-filename').html('');
+                        $_form.find('.ncn-chatter-attach-file-section').removeClass('file-attached');
                         ncn_feed_post_next_page(0, 'start');
                     } else {
                         if (json.msg != "") { alert(json.msg); }
@@ -93,6 +123,10 @@ jQuery(function($) {
                     eval("var json=" + response + ";");
                     if (json.status == "success") {
                         $_form.find('textarea.status-input-text').val('');
+                        $_form.find('.chatter-attached-fid').val(0);
+                        $_form.find('.attached-filename').html('');
+                        $_form.find('.ncn-chatter-attach-file-section').removeClass('file-attached');
+
                         // Render Comments
                         $_comment_section.find('.comment-list').html(json.comments);
                     } else {
@@ -103,6 +137,93 @@ jQuery(function($) {
             }); 
         });
 
+        // Follow Link
+        $('.chatter-section .follow-feed-link').on('click', function() {
+            var $this = $(this);
+            var action = 'follow';
+            if ($this.hasClass('unfollow')) {
+                action = 'unfollow';
+            }
+
+            var _url  = $this.attr('href');
+            jQuery.ajax({
+                url:    _url,
+                type:   'POST',
+                data:   {follow_action: action}, 
+                beforeSend: function(jqXHR, settings) {},
+                error: function() {},
+                success: function(response) {
+                    eval("var json=" + response + ";");
+                    if (json.status == "success") {
+                        $this.removeClass('follow').removeClass('unfollow');
+                        $this.addClass(json.next_action);
+                        if (json.next_action == 'follow') {
+                            $this.html('Follow this feed');
+                        } else {
+                            $this.html('Unfollow this feed');
+                        }
+                    } else {
+                        if (json.msg != "") { alert(json.msg); }
+                    }
+                }, 
+                complete: function(jqXHR, textStatus) {}
+            });
+            return false;
+        });
+
+        // Attach File
+        $('.chatter-section').on('click', '.ncn-chatter-attach-file-section .upload-chatter-file-link', function() {
+            var $section = $(this).closest('.ncn-chatter-attach-file-section');
+            $section.find('.chatter-attached-file').trigger('click');
+            return false;
+        });
+
+        $('.chatter-section').on('change', '.ncn-chatter-attach-file-section .chatter-attached-file', function() {
+            var $section = $(this).closest('.ncn-chatter-attach-file-section');
+
+            var input = $(this);
+            var inputLength = input[0].files.length; //No of files selected
+            if (inputLength > 0) {
+                var file;
+                var formData = new FormData();
+                file = input[0].files[0];
+                formData.append('files[chatter_file]', file);
+                //send POST request to upload.php
+                var _url = '<?php echo url('chatter/attach-file'); ?>';
+                $.ajax({
+                    url: _url,
+                    type: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function(jqXHR, settings) {
+                        $section.loadingOverlay('init', {loadingText:'Uploading'});
+                    },
+                    error: function() {},
+                    success: function(response) {
+                        eval("var json=" + response + ";");
+                        if (json.status == "success") {
+                            $section.find('.chatter-attached-fid').val(json.file.fid);
+                            $section.find('.chatter-attached-file-preview .attached-filename').html(json.file.filename);
+                            $section.addClass('file-attached');
+                        } else {
+                            if (json.msg != "") { alert(json.msg); }
+                        }
+                    }, 
+                    complete: function(jqXHR, textStatus) {
+                        $section.loadingOverlay('remove');
+                    }
+                });
+            }
+        });
+
+        $('.chatter-section').on('click', '.ncn-chatter-attach-file-section .remove-attached-file', function() {
+            var $section = $(this).closest('.ncn-chatter-attach-file-section');
+            $section.find('.chatter-attached-fid').val(0);
+            $section.find('.chatter-attached-file-preview .attached-filename').html('');
+            $section.removeClass('file-attached');
+            return false;
+        });
     });
 });
 </script>

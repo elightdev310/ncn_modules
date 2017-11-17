@@ -96,12 +96,19 @@
 }
 .chatter-section .comment-list .comment-box {
     border-top: solid 1px #e0e0e0;
+    transition: opacity 1s linear;
+    display: block;
+    height: auto;
+    opacity: 1;
 }
 .chatter-section .comment-list .comment-box:last-child {
     border-bottom: solid 1px #e0e0e0;
 }
 .chatter-section .comment-list .comment-box.hidden-comment {
-    display: none;
+    height: 0px;
+    padding: 0px;
+    opacity: 0;
+    overflow: hidden;
 }
 .chatter-section .ncn_chatter_comment_form.hidden-form {
     display:none;
@@ -113,4 +120,23 @@
 .chatter-section .comment-action-link {
     text-transform:capitalize;
     margin-right: 10px;
+}
+
+.chatter-section .follow-feed-section {
+    padding: 10px;
+    text-align: right;
+}
+
+.ncn-chatter-attach-file-section{
+    min-width: 100px;
+}
+.chatter-section .chatter-attached-file-preview {
+    display: none;
+    position: relative;
+}
+.chatter-section .file-attached .upload-chatter-file-link {
+    display: none;
+}
+.chatter-section .file-attached .chatter-attached-file-preview {
+    display: inline-block;
 }

@@ -84,3 +84,7 @@
   content: "\e000";
   font-family: "loadingOverlay";
 }
+
+.hidden {
+  display: none;
+}
