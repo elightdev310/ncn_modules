@@ -1026,7 +1026,9 @@ function ncn_admin_view_claim($claim_id)
     <?php endif;//Create Invoice; ?>
     
     <?php
-    echo ncn_chatter_claim_feed_block($claim_id);
+    if (module_exists('ncn_chatter')) {
+        echo ncn_chatter_claim_feed_block($claim_id);
+    }
 }
 
 //------------------------------------------------------------------------------
