@@ -140,3 +140,13 @@
 .chatter-section .file-attached .chatter-attached-file-preview {
     display: inline-block;
 }
+
+.chatter-file-preview-section {
+    margin: 10px 0px;
+    line-height: 16px;
+}
+
+.chatter-file-preview-section .file img {
+    float: left;
+    margin-right: 5px;
+}

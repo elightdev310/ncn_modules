@@ -113,7 +113,7 @@ jQuery(function($) {
             var $_this = $(this);
             var $_comment_section = $_this.closest('.comment-section');
             var $_form = $_this.closest('form.ncn_chatter_comment_form');
-            if (!$_form.find('textarea.status-input-text').val()) {
+            if (!$_form.find('textarea.status-input-text').val() && $_form.find('.chatter-attached-fid').val()==0) {
                 return false;
             }
             var _url  = $_form.attr('action');

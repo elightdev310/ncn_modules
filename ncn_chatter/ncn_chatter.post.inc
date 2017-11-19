@@ -316,12 +316,126 @@ function ncn_chatter_attach_file() {
     echo json_encode($result);
 }
 
+function ncn_chatter_file_download_page($file) {
+  // If the file does not exist it can cause problems with file_transfer().
+  if (!is_file($file->uri)) {
+    return MENU_NOT_FOUND;
+  }
+  // @todo Remove this once drupal_basename is fixed for PHP versions greater
+  //  than '5.3.29'.
+  $basename_function = version_compare(PHP_VERSION,'5.3.29','>') ? 'basename' : 'drupal_basename';
+  $headers = array(
+    'Content-Type' => mime_header_encode($file->filemime),
+    'Content-Disposition' => 'attachment; filename="' . mime_header_encode($basename_function($file->uri)) . '"',
+    'Content-Length' => $file->filesize,
+    'Content-Transfer-Encoding' => 'binary',
+    'Pragma' => 'no-cache',
+    'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+    'Expires' => '0',
+  );
+
+  // Let other modules alter the download headers.
+  drupal_alter('file_download_headers', $headers, $file);
+
+  if (ncn_chatter_file_is_local($file)) {
+    // For local files, transfer the file and do not reveal the actual URL.
+    file_transfer($file->uri, $headers);
+  }
+  else {
+    // For remote files, just redirect the user to that file's actual URL.
+    $headers['Location'] = file_create_url($file->uri);
+    foreach ($headers as $name => $value) {
+      drupal_add_http_header($name, $value);
+    }
+    drupal_send_headers();
+    drupal_exit();
+  }
+}
+
+function ncn_chatter_file_is_local($file) {
+  $scheme = file_uri_scheme($file->uri);
+  $wrappers = file_get_stream_wrappers(STREAM_WRAPPERS_LOCAL);
+  return !empty($wrappers[$scheme]) && empty($wrappers[$scheme]['remote']);
+}
+
 function ncn_chatter_render_attached_file($fid) {
     if ($fid) {
         $file = file_load($fid);
         if ($file) {
-            return $file->filename;
+            $output = '<div class="chatter-file-preview-section">';
+            if (strpos($file->filemime, 'image')!==FALSE) {
+                // Image 
+                $file_url = $file->uri;
+                
+                $output.= '<a href="'.file_create_url($file_url).'" data-lity>';
+                    $output.= theme('image_style', 
+                                    array('style_name' => 'image_tab_upload', 
+                                          'path' => $file_url));
+                $output.= '</a>';
+            } else {
+                // Others
+                $output.= ncn_chatter_file_entity_download_link(
+                            array('file'=>$file,
+                                  'text'=>$file->filename ));
+            }
+            $output.= '</div>';
+            return $output;
         }
     }
     return '';
 }
+
+function ncn_chatter_file_entity_download_uri($file) {
+    $uri = array('path' => "chatter/file/{$file->fid}/download", 'options' => array());
+    return $uri;
+}
+function ncn_chatter_file_entity_download_link($variables) {
+  $file = $variables['file'];
+  $uri = ncn_chatter_file_entity_download_uri($file);
+
+  // Human-readable names, for use as text-alternatives to icons.
+  $mime_name = array(
+    'application/msword' => t('Microsoft Office document icon'),
+    'application/vnd.ms-excel' => t('Office spreadsheet icon'),
+    'application/vnd.ms-powerpoint' => t('Office presentation icon'),
+    'application/pdf' => t('PDF icon'),
+    'video/quicktime' => t('Movie icon'),
+    'audio/mpeg' => t('Audio icon'),
+    'audio/wav' => t('Audio icon'),
+    'image/jpeg' => t('Image icon'),
+    'image/png' => t('Image icon'),
+    'image/gif' => t('Image icon'),
+    'application/zip' => t('Package icon'),
+    'text/html' => t('HTML icon'),
+    'text/plain' => t('Plain text icon'),
+    'application/octet-stream' => t('Binary Data'),
+  );
+
+  $mimetype = file_get_mimetype($file->uri);
+
+  $icon = theme('file_icon', array(
+    'file' => $file,
+    'icon_directory' => $variables['icon_directory'],
+    'alt' => !empty($mime_name[$mimetype]) ? $mime_name[$mimetype] : t('File'),
+  ));
+
+  // Set options as per anchor format described at
+  // http://microformats.org/wiki/file-format-examples
+  $uri['options']['attributes']['type'] = $file->filemime . '; length=' . $file->filesize;
+
+  // Provide the default link text.
+  if (!isset($variables['text'])) {
+    $variables['text'] = t('Download [file:name]');
+  }
+
+  // Perform unsanitized token replacement if $uri['options']['html'] is empty
+  // since then l() will escape the link text.
+  $variables['text'] = token_replace($variables['text'], array('file' => $file), array('clear' => TRUE, 'sanitize' => !empty($uri['options']['html'])));
+
+  $output = '<span class="file">' . $icon . ' ' . l($variables['text'], $uri['path'], $uri['options']);
+  $output .= ' ' . '<span class="file-size">(' . format_size($file->filesize) . ')</span>';
+  $output .= '</span>';
+
+  return $output;
+}
+

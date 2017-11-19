@@ -43,6 +43,15 @@ function ncn_chatter_menu() {
         'type' => MENU_CALLBACK,
         'access arguments' => array('view chatter feed'),
     );
+
+    $items['chatter/file/%file/download'] = array(
+        'title' => 'Download',
+        'page callback' => 'ncn_chatter_file_download_page',
+        'page arguments' => array(2),
+        'access arguments' => array('view chatter feed'),
+        'type' => MENU_CALLBACK,
+    );
+
     // ajax call back to follow feed
     $items['chatter/follow-feed/%'] = array(
         'page callback' => 'ncn_chatter_follow_feed_action',
