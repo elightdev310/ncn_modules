@@ -75,6 +75,9 @@ jQuery(function($) {
             textAreaAdjust(this);
         });
         
+        $('.chatter-section').on('focus', 'textarea.status-input-text', function() {
+            tribute.attach(document.querySelectorAll('.status-input-text'));
+        });
 
         // Add Post
         $('.chatter-section .add-post-btn').on('click', function() {
@@ -232,6 +235,25 @@ jQuery(function($) {
             $section.removeClass('file-attached');
             return false;
         });
+    });
+    
+    // @mention
+    var tribute = new Tribute({
+        values: [
+            <?php $t_data = ncn_chatter_get_mention_user_data(); ?>
+            <?php foreach($t_data as $uid=>$td): ?>
+                { key:      "<?php echo $td['key']; ?>", 
+                  value:    "<?php echo $td['value']; ?>", 
+                  avatar:   "<?php echo $td['avatar']; ?>" },
+            <?php endforeach; ?>
+        ],
+        menuItemTemplate: function(item) {
+            return '<div class="ti-mention"><img src="'+item.original.avatar + '" width="24" height="24">' + item.string + '</div>';
+        }, 
+        selectTemplate: function(item) {
+            return '@[' + item.original.value +']';
+        },
+        allowSpaces: true, 
     });
 });
 </script>

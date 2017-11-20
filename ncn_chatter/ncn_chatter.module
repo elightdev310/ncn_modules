@@ -158,3 +158,33 @@ function ncn_chatter_user_insert(&$edit, $account, $category) {
         ));
     }
 }
+
+/**
+ * Get Mention User Data
+ */
+function ncn_chatter_get_mention_user_data() {
+    $query = "SELECT u.*, 
+                     pv_f.value AS first_name, 
+                     pv_l.value AS last_name 
+              FROM users as u 
+              LEFT JOIN profile_value AS pv_f ON (pv_f.uid=u.uid AND pv_f.fid=25) 
+              LEFT JOIN profile_value AS pv_l ON (pv_l.uid=u.uid AND pv_l.fid=26) 
+              WHERE status = 1 
+              ORDER BY first_name, last_name ASC";
+    $result = db_query($query);
+    $data = array();
+    foreach ($result as $record) {
+        //$_user = user_load($record->uid);
+        $full_name = $record->name;
+        if (!empty(trim($record->first_name))) {
+            $full_name = $record->first_name.' '.$record->last_name;
+        }
+        $u = array(
+            'key'   => $full_name, //user_fullname($_user),
+            'value' => $record->name,
+            'avatar'=> file_create_url('public://default-user.png')
+        );
+        $data[$record->uid] = $u;
+    }
+    return $data;
+}

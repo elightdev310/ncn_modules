@@ -120,3 +120,15 @@ function is_ncn_user($user) {
     
     return true;
 }
+
+
+function user_fullname($user) {
+    $fullname = '';
+    if (!isset($user->profile_firstname) || $user->profile_firstname == '')
+    {
+        $fullname = $user->name;
+    } else {
+        $fullname = $user->profile_firstname.' '.$user->profile_lastname;
+    }
+    return $fullname;
+}

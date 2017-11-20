@@ -21,7 +21,9 @@ $action_url = url('chatter/post/'.$post['id'].'/add/comment');
     <div class="post-field">
         <div class="post-box">
             <div class="author-photo">
-                <div style="width:32px; height: 32px; background: blue;">&nbsp;</div>
+                <div style="width:32px; height: 32px;">
+                    <img src="<?php echo file_create_url('public://default-user.png'); ?>" width="32" height="32" />
+                </div>
             </div>
             <div class="mentions-container">
                 <div class="post-meta-info">
@@ -58,7 +60,9 @@ $action_url = url('chatter/post/'.$post['id'].'/add/comment');
                         <input type="hidden" name="tfunction" value="chatter_create_comment" />
                         <div class="comment-box">
                             <div class="author-photo">
-                                <div style="width:32px; height: 32px; background: blue;">&nbsp;</div>
+                                <div style="width:32px; height: 32px;">
+                                    <img src="<?php echo file_create_url('public://default-user.png'); ?>" width="32" height="32" />
+                                </div>
                             </div>
                             <div class="mentions-container">
                                 <div class="mentions-input">

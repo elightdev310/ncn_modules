@@ -174,6 +174,10 @@ function ncn_chatter_check_feed_available($user, $fid) {
  * Render Post List
  */
 function ncn_chatter_render_post_list_section($fid, $type="feed") {
+    // Tribute
+    drupal_add_js (drupal_get_path('module', 'ncn_admin').'/js_plugins/tribute/tribute.min.js');
+    drupal_add_css(drupal_get_path('module', 'ncn_admin').'/js_plugins/tribute/tribute.css', 'module', 'all', FALSE);
+
     ob_start();
     @include('ui/ncn_chatter_post_list_section.inc');    // Render Post List
     $output = ob_get_contents();

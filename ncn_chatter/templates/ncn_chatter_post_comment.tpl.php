@@ -19,7 +19,9 @@ $comment_like_url = url('chatter/like-post-comment/'.$comment['id'].'/1');
 
 <div class="comment-box <?php echo $hidden_style ?>">
     <div class="author-photo">
-        <div style="width:32px; height: 32px; background: blue;">&nbsp;</div>
+        <div style="width:32px; height: 32px;">
+            <img src="<?php echo file_create_url('public://default-user.png'); ?>" width="32" height="32" />
+        </div>
     </div>
     <div class="mentions-container">
         <div class="comment-meta-info">
