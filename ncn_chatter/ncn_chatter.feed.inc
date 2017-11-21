@@ -28,6 +28,7 @@ function ncn_chatter_insert_feed_post_record($data=array()) {
             ->fields(array(
                 'fid'   => $data['fid'], 
                 'pid'   => $data['pid'], 
+                'created_at' => date('U'), 
             ))
             ->execute();
         return true;
@@ -216,14 +217,16 @@ global $user;
         $where_query = "WHERE p.ncn_only = 0 ";
     }
     $query = "SELECT p.* 
-                FROM (  SELECT DISTINCT(fp.pid) AS fpid 
+                FROM (  SELECT DISTINCT(fp.pid) AS fpid, fp.created_at AS created_at 
                         FROM {chatter_feed_post} AS fp 
-                        WHERE fp.fid IN ( $str_follow_fids ) ) AS ffp 
+                        WHERE fp.fid IN ( $str_follow_fids ) 
+                        ORDER BY fp.created_at DESC ) AS ffp 
                 LEFT JOIN {chatter_post} AS p ON (ffp.fpid = p.id) 
                 $where_query 
-                ORDER BY p.updated_at DESC 
+                ORDER BY ffp.created_at DESC, p.updated_at DESC 
                 LIMIT $offset, $perPage";
 
+    //ncn_print_r($query);
     $result = db_query($query);
     $posts = array();
     if ($result) {

@@ -10,6 +10,7 @@ function ncn_chatter_insert_post_record($data=array()) {
                 'ncn_only'  => (isset($data['ncn_only'])? $data['ncn_only'] : 0), 
                 'fid'       => $data['file_id'], 
                 'uid'       => $data['uid'], 
+                'feed_id'   => $data['feed_id'], 
                 'created_at'=> (isset($data['created_at'])? $data['created_at'] : date('U')), 
                 'updated_at'=> (isset($data['updated_at'])? $data['updated_at'] : date('U')), 
             ))
@@ -49,7 +50,7 @@ function ncn_chatter_post_update_time($pid, $timestamp) {
 
 /**
  * Create Post
- * @param   $data:array( content, file_id, ncn_only: optional )
+ * @param   $data:array( content, file_id, feed_id, ncn_only: optional )
  */
 function ncn_chatter_create_post($uid, $fid, $data=array()) {
     if (!$uid || !$fid) {
@@ -203,6 +204,7 @@ global $user;
             'content' => $content, 
             'file_id' => $file_id,
             'ncn_only'=> $ncn_only,
+            'feed_id' => $fid,
         ));
 
         if ($pid) {
@@ -487,7 +489,7 @@ function ncn_chatter_file_entity_download_link($variables) {
 
   $icon = theme('file_icon', array(
     'file' => $file,
-    'icon_directory' => $variables['icon_directory'],
+    //'icon_directory' => $variables['icon_directory'],
     'alt' => !empty($mime_name[$mimetype]) ? $mime_name[$mimetype] : t('File'),
   ));
 
