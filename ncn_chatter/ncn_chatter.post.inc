@@ -281,6 +281,7 @@ global $user;
             if ($_user) {
                 $user_feed = ncn_chatter_get_feed_by_entity(FEED_TYPE_USER, $_user->uid);
                 $user_fullname = "@".user_fullname($_user);
+                $replaced = $user_fullname;
                 if (ncn_chatter_check_feed_available($user, $user_feed['fid'])) {
                     $replaced = l($user_fullname, 'ncn-chatter/user-profile-feed/'.$_user->uid);
                 } else {

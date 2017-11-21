@@ -1,5 +1,7 @@
 <?php
 
+$GLOBALS['ncn_debug'] = true;
+
 // LIVE
 if (!isset($GLOBALS['ncn_debug']) || $GLOBALS['ncn_debug'] == false)
 {
