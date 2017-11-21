@@ -158,3 +158,6 @@
     margin-right: 3px;
     float: left;
 }
+.chatter-section .feed-tagging{
+    background: rgba(22,99,200, 0.2);
+}

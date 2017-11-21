@@ -160,6 +160,24 @@ function ncn_chatter_user_insert(&$edit, $account, $category) {
 }
 
 /**
+ * Implements hook_mail()
+ */
+function ncn_chatter_mail($key, &$message, $params)
+{
+    $language = $message['language'];
+    //$variables = user_mail_tokens($params['account'], $language);
+    $options = array('langcode' => $message['language']->language); 
+    
+    switch ($key)
+    {
+        case "mention_user":
+          $message['subject'] = "Post has been shared with you";
+          $message['body'][] = $params['author']." shared the post with you.";
+          break;
+    }
+}
+
+/**
  * Get Mention User Data
  */
 function ncn_chatter_get_mention_user_data() {
@@ -176,7 +194,7 @@ function ncn_chatter_get_mention_user_data() {
     foreach ($result as $record) {
         //$_user = user_load($record->uid);
         $full_name = $record->name;
-        if (!empty(trim($record->first_name))) {
+        if (!empty($record->first_name)) {
             $full_name = $record->first_name.' '.$record->last_name;
         }
         $u = array(
@@ -188,3 +206,4 @@ function ncn_chatter_get_mention_user_data() {
     }
     return $data;
 }
+

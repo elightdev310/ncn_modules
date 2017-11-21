@@ -58,6 +58,7 @@ global $user;
 function ncn_chatter_user_profile_feed_page($uid) {
     $user_feed = ncn_chatter_get_feed_by_entity(FEED_TYPE_USER, $uid);
     if ($user_feed) {
+
         return ncn_chatter_feed_page($user_feed['fid']);
     }
     return '';

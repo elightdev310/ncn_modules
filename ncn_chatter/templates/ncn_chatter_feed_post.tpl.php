@@ -35,7 +35,7 @@ $action_url = url('chatter/post/'.$post['id'].'/add/comment');
                     </div>
                 </div>
                 <div class="post-content">
-                    <?php echo $post['content'] ?>
+                    <?php echo ncn_chatter_change_tagging_content($post['content']) ?>
                     <div class="chatter-file-preview">
                         <?php echo ncn_chatter_render_attached_file($post['fid']); ?>
                     </div>

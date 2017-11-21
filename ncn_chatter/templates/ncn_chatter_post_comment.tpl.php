@@ -33,7 +33,7 @@ $comment_like_url = url('chatter/like-post-comment/'.$comment['id'].'/1');
             </div>
         </div>
         <div class="comment-content">
-            <?php echo $comment['content'] ?>
+            <?php echo ncn_chatter_change_tagging_content($comment['content']) ?>
             <div class="chatter-file-preview">
                 <?php echo ncn_chatter_render_attached_file($comment['fid']); ?>
             </div>

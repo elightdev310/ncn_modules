@@ -253,7 +253,7 @@ jQuery(function($) {
         selectTemplate: function(item) {
             return '@[' + item.original.value +']';
         },
-        allowSpaces: true, 
+        allowSpaces: false, 
     });
 });
 </script>

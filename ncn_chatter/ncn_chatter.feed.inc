@@ -30,7 +30,9 @@ function ncn_chatter_insert_feed_post_record($data=array()) {
                 'pid'   => $data['pid'], 
             ))
             ->execute();
-        return $result;
+        return true;
+    } else {
+        return 'exist';
     }
     return true;
 }

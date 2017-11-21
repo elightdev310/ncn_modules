@@ -186,6 +186,7 @@ global $user;
     $ncn_only= (isset($_REQUEST['post_filter']))? $_REQUEST['post_filter']:0;
 
     if ($content || $file_id) {
+        // Attach File
         if ($file_id) {
             $file = file_load($file_id);
             $dest = "public://chatter/".$user->uid;
@@ -204,7 +205,9 @@ global $user;
             'ncn_only'=> $ncn_only,
         ));
 
-        if (!$pid) {
+        if ($pid) {
+            ncn_chatter_tagging_notify($pid, $content);
+        } else {
             $result['status'] = 'error';
             $result['msg'] = t("Failed to add post. Please try again after reloading page");
         }
@@ -228,6 +231,7 @@ global $user;
     $file_id = $_REQUEST['chatter_file'];
 
     if ($content || $file_id) {
+        // Attach File
         if ($file_id) {
             $file = file_load($file_id);
             $dest = "public://chatter/".$user->uid;
@@ -246,17 +250,85 @@ global $user;
             'file_id' => $file_id,
         ));
 
-        if (!$cid) {
+        if ($cid) {
+            ncn_chatter_tagging_notify($pid, $content);
+            $result['comments'] = ncn_chatter_render_post_comments($pid);   // Comments HTML
+        } else {
             $result['status'] = 'error';
             $result['msg'] = t("Failed to add comment. Please try again after reloading page");
-        } else {
-            // Success
-            $result['comments'] = ncn_chatter_render_post_comments($pid);   // Comments HTML
         }
     } else {
         $result['status'] = 'warning';
     }
     echo json_encode($result);
+}
+
+/**
+ * Change Content with Tagging
+ */
+function ncn_chatter_change_tagging_content($content) {
+global $user;
+    $pattern = "/@\[[^\]]*\]/";      //@[kevinjin]
+    $data = array();
+
+    preg_match_all($pattern, $content, $data, PREG_PATTERN_ORDER);
+    if (isset($data[0])) {
+        foreach($data[0] as $mention) {
+            $username = substr(substr($mention, 0, -1), 2); //remove @[...]
+            $_user = user_load_by_name($username);
+            if ($_user) {
+                $user_feed = ncn_chatter_get_feed_by_entity(FEED_TYPE_USER, $_user->uid);
+                $user_fullname = "@".user_fullname($_user);
+                if (ncn_chatter_check_feed_available($user, $user_feed['fid'])) {
+                    $replaced = l($user_fullname, 'ncn-chatter/user-profile-feed/'.$_user->uid);
+                } else {
+                    $replaced = $user_fullname;
+                }
+                $replaced = '<span class="feed-tagging">'.$replaced."</span>";
+                $content = str_replace($mention, $replaced, $content);
+            } else {
+
+            }
+        }
+    }
+
+    return $content;
+}
+
+/**
+ * Notify to mentioned user in status
+ */
+function ncn_chatter_tagging_notify($pid, $content) {
+global $user;
+    $current_user = user_load($user->uid);
+    
+    $pattern = "/@\[[^\]]*\]/";      //@[kevinjin]
+    $data = array();
+
+    preg_match_all($pattern, $content, $data, PREG_PATTERN_ORDER);
+    if (isset($data[0])) {
+        $mentioned_users = array();
+        foreach($data[0] as $mention) {
+            $username = substr(substr($mention, 0, -1), 2); //remove @[...]
+            $_user = user_load_by_name($username);
+            if ($_user) {
+                $mentioned_users[$_user->uid] = $_user;
+            } else {
+
+            }
+        }
+
+        foreach ($mentioned_users as $uid=>$_user) {
+            $user_feed = ncn_chatter_get_feed_by_entity(FEED_TYPE_USER, $uid);
+            if ($user_feed) {
+                $result = ncn_chatter_insert_feed_post_record(array('fid'=>$user_feed['fid'], 'pid'=>$pid));   // Feed-Post
+                if ($result && $result !== 'exist') {
+                    drupal_mail('ncn_chatter', 'mention_user', $_user->mail, language_default(),
+                                array('author'=>user_fullname($current_user)));
+                }
+            }
+        }
+    }
 }
 
 /**
