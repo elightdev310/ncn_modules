@@ -1,5 +1,27 @@
 <?php
 
+/**
+ * Include all inc file
+ */
+function require_once_folder_files($module, $path){
+    $path = drupal_get_path('module', $module).'/'.$path;
+
+    // $dir = new DirectoryIterator(drupal_realpath($path));
+    // foreach ($dir as $fileinfo) {
+    //     if (!$fileinfo->isDot() && $fileinfo->isFile() && strtolower($fileinfo->getExtension())=='inc' ) {
+    //         require_once $fileinfo->getPathname();
+    //     }
+    // }
+
+    foreach (drupal_system_listing('/\.inc$/', $path, 'name', 0) as $name => $file) {
+        module_load_include('inc', $module, "$path/$name");
+        //require_once(drupal_realpath($file->uri));
+    }
+}
+function get_realpath($module, $path) {
+    return drupal_realpath(drupal_get_path('module', $module).DIRECTORY_SEPARATOR .$path);
+}
+
 //------------------------------------------------------------------------------
 require_once('ncn_admin.define.inc');
 require_once('ncn_admin.fpdf.inc');
@@ -18,7 +40,11 @@ require_once('ncn_admin_scopesheet.inc');
 require_once('ncn_admin.note.inc');
 require_once('ncn_admin.settings.inc');
 
+//require_once_folder_files('ncn_admin', 'includes');
+
 require_once('ncn_admin.unused.inc');
+
+
 
 function ncn_admin_init()
 {
@@ -38,6 +64,9 @@ function ncn_admin_init()
     // Lity
     drupal_add_js (drupal_get_path('module', 'ncn_admin').'/js_plugins/lity/lity.min.js');
     drupal_add_css(drupal_get_path('module', 'ncn_admin').'/js_plugins/lity/lity.min.css', 'module', 'all', FALSE);
+
+    // jQuery SlimScroll
+    drupal_add_js (drupal_get_path('module', 'ncn_admin').'/js_plugins/jquery.slimscroll/jquery.slimscroll.min.js');
 
     //
     drupal_add_css(drupal_get_path('module', 'ncn_admin').'/ncn_admin.css');

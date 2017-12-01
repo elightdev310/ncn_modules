@@ -42,10 +42,10 @@ function fm_draw_leaduser($title, $name, $required)
     $result = db_query($query);
     $row_count = $result->rowCount();
     ?>
-    <tr style="text-align:right;">
-        <td class="tlabel"><!--<label><?/*= $title; */?>
-                : <?php /*if ($required == true) print '<font color=red>*</font>'; */?></label>--></td>
-        <td class="style11"><?= $title; ?> : <select name="<?= $name; ?>">
+    <div class="form-group">
+        <div class="col-sm-12 text-right">
+            <span class="control-label"><?= $title; ?></span> : 
+            <select name="<?= $name; ?>" class="form-control form-inline-control">
                 <option <?php if (!isset($_POST[$name][0]) || $_POST[$name][0] == "") print 'selected' ?>></option>
                 <?php
                 foreach ($result as $row) {
@@ -59,56 +59,52 @@ function fm_draw_leaduser($title, $name, $required)
                 }
                 ?>
             </select>
-    </tr>
+        </div>
+    </div>
 
 <?php
 }
 
 //------------------------------------------------------------------------------
-function draw_countryform_part($name, $disabled, $required)
+function draw_countryform_part($params)
 {
     $profile_country = (isset($_POST[$name]) && trim($_POST[$name]) != '' ? $_POST[$name] : '');
-    echo ncn_loc_country($name, 'ncn-loc-country', 'ncn-loc-state', $disabled, $required, $profile_country);
+    $params['sel_val'] = $profile_country;
+    draw_countryform_part_sel($params);
 }
-
-function draw_countryform_part_sel($name, $disabled, $required, $sel_val)
+function draw_countryform_part_sel($params)
 {
-    echo ncn_loc_country($name, 'ncn-loc-country', 'ncn-loc-state', $disabled, $required, $sel_val);
+    echo ncn_loc_country(array(
+        'name'      => $params['name'], 
+        'id'        => 'ncn-loc-country', 
+        'state_id'  => 'ncn-loc-state', 
+        'class'     => $params['class'], 
+        'disabled'  => $params['disabled'], 
+        'required'  => $params['required'], 
+        'country'   => $params['sel_val'], 
+    ));
 }
 
-function draw_stateform_part($name, $disabled, $required)
+function draw_stateform_part($params)
 {
     $profile_state = (isset($_POST[$name]) && trim($_POST[$name]) != '' ? $_POST[$name] : '');
-    echo ncn_loc_state($name, 'ncn-loc-state', $disabled, $required, $profile_state, 'US');
+    $params['sel_val'] = $profile_state;
+    $params['country'] = 'US';
+    draw_stateform_part_sel($params);
 }
 
-function draw_stateform_part_sel($name, $disabled, $required, $country, $sel_val)
+function draw_stateform_part_sel($params)
 {
-    echo ncn_loc_state($name, 'ncn-loc-state', $disabled, $required, $sel_val, $country);
+    echo ncn_loc_state(array(
+        'name'      => $params['name'], 
+        'id'        => 'ncn-loc-state', 
+        'class'     => $params['class'], 
+        'disabled'  => $params['disabled'], 
+        'required'  => $params['required'], 
+        'state'     => $params['sel_val'], 
+        'country'   => $params['country'], 
+    ));
 }
-
-/*function draw_stateform_part($name, $disabled, $required)
-{
-    $states = array("AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "DC", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY");
-    
-    if (!isset($_POST[$name]))
-    {   $_POST[$name] = "FL";   }
-?>
-    <select name="<?= $name; ?>" <?php if ($disabled == true) print ' disabled="disabled"'; ?>>
-    
-    <?php
-        foreach ($states as $state)
-        {
-            ?>
-            <option value="<?= $state; ?>" <?php if ($state == $_POST[$name]) print ' selected="selected "'; ?>><?= $state; ?></option>
-            <?php
-        }
-    
-    ?>
-    
-    </select>
-<?php
-}*/
 
 //------------------------------------------------------------------------------
 function fm_draw_countryfield($title, $name, $disabled = false, $required = false)
@@ -119,7 +115,11 @@ function fm_draw_countryfield($title, $name, $disabled = false, $required = fals
         <td class="tlabel"><label><?= $title; ?>
                 : <?php if ($required == true) print '<font color=red>*</font>'; ?></label></td>
         <td>
-            <?php draw_countryform_part($name, $disabled, $required); ?>
+            <?php draw_countryform_part(array(
+                            'name'=>$name, 
+                            'class'=>'', 
+                            'disabled'=>$disabled, 
+                            'required'=>$required)); ?>
         </td>
     </tr>
 
@@ -134,7 +134,11 @@ function fm_draw_statefield($title, $name, $disabled = false, $required = false)
         <td class="tlabel"><label><?= $title; ?>
                 : <?php if ($required == true) print '<font color=red>*</font>'; ?></label></td>
         <td>
-            <?php draw_stateform_part($name, $disabled, $required); ?>
+            <?php draw_stateform_part(array(
+                            'name'  => $name, 
+                            'class' => '', 
+                            'disabled' => $disabled, 
+                            'required' => $required )); ?>
         </td>
     </tr>
 

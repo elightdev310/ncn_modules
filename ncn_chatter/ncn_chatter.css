@@ -1,5 +1,5 @@
 .chatter-section {
-    padding: 5px 5px;
+    padding: 5px 0px;
 }
 .chatter-section .panel-box {
     border: none;
@@ -146,9 +146,15 @@
     line-height: 16px;
 }
 
-.chatter-file-preview-section .file img {
+.chatter-file-preview-section .file img.file-icon {
     float: left;
     margin-right: 5px;
+}
+
+@media screen and (max-width: 480px) {
+    .chatter-file-preview-section .image-file img {
+        width: 100%;
+    }
 }
 
 .tribute-container .ti-mention {

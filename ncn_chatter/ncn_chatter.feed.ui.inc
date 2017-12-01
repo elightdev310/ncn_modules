@@ -44,12 +44,12 @@ global $user;
     $post_form = theme('ncn_chatter_form_post', array('feed_id'=>$user_feed['fid']));   // Post Form
     $post_list = ncn_chatter_render_post_list_section($user_feed['fid'], 'user_follow');
 
-    $output = '<div class="chatter-section">';
-    $output.=   '<div class="chatter-section-content">';
-    $output.=   $post_form.$post_list;
-    $output.= '</div></div>';
+    ob_start();
+    @include get_realpath('ncn_chatter', 'ui/ncn_feed_page.php');
+    $content = ob_get_contents();
+    ob_end_clean();
 
-    return $output;
+    return $content;
 }
 
 /**
@@ -180,7 +180,7 @@ function ncn_chatter_render_post_list_section($fid, $type="feed") {
     drupal_add_css(drupal_get_path('module', 'ncn_admin').'/js_plugins/tribute/tribute.css', 'module', 'all', FALSE);
 
     ob_start();
-    @include('ui/ncn_chatter_post_list_section.inc');    // Render Post List
+    @include get_realpath('ncn_chatter', 'ui/ncn_chatter_post_list_section.inc');    // Render Post List
     $output = ob_get_contents();
     ob_end_clean();
     return $output;

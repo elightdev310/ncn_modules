@@ -9,12 +9,11 @@ function ncn_create_claim_page()
     drupal_add_js(drupal_get_path('module', 'ncn_create_claim') . '/ncn_create_claim.js');
     return theme('ncn_create_claim');
 }
-
 // preprocess function for "ncn_create_claim.tpl.php"
 function template_preprocess_ncn_create_claim(&$vars)
 {
     $GLOBALS['ncn_create_claim_titles'] = array(
-        'Create a New Claim',
+        'Create New Claim',
         'Terms and Conditions',
         '',
         'Finished'
@@ -68,7 +67,9 @@ function template_preprocess_ncn_create_claim(&$vars)
     switch ($pagenum) {
         default:
         case "1":
+            // Creating Form
             $vars['page_class'] = "create-claim-ccpage";
+            drupal_set_title('Create new claim');
             create_claim_page1();
             break;
         case "2":
@@ -98,7 +99,7 @@ function template_preprocess_ncn_create_claim(&$vars)
     ob_end_clean();
 
     $vars['title'] = $GLOBALS['ncn_create_claim_titles'][$pagenum - 1];
-    $vars['progress_list'] = ncn_create_claim_get_progress_list($pagenum - 1);
+    //$vars['progress_list'] = ncn_create_claim_get_progress_list($pagenum - 1);
     $vars['module_content'] = $create_content;
 }
 
@@ -125,90 +126,7 @@ function create_claim_page1()
 {
     // reset claim session
     $_SESSION['claim'] = array();
-
-    // draw the form
-    ?>
-    <form method="POST" id="create-claim-form">
-        <input type="hidden" name="tfunction" value="process">
-        <input type="hidden" name="page" value="1">
-        <table class="create_claim_table">
-
-            <?php fm_draw_leaduser("Internal Use Only", "lead_user", false); ?>
-            <?php fm_draw_date("Date of Loss", "date_of_loss", true); ?>
-            <?php fm_draw_textfield("Insured's Name", 'customer_name', false, true); ?>
-            <?php fm_draw_countryfield('Country', 'insured_country', false, true); ?>
-            <?php fm_draw_textfield('Address', 'insured_address', false, true); ?>
-            <?php fm_draw_textfield('City', 'insured_city', false, true); ?>
-            <?php fm_draw_statefield('State', 'insured_state', false, true); ?>
-            <?php fm_draw_textfield('Zip Code', 'insured_zip', false, true); ?>
-            <?php fm_draw_textfield("Insured's Phone Number", 'insured_phone_number', false, true); ?>
-            <?php fm_draw_textfield('Technician Service Name', 'technician_service_name', false, true); ?>
-            <script>
-                jQuery(document).ready(function () {
-                    jQuery("#fm_insured_phone_number").mask("999-999-9999");
-                });
-            </script>
-
-            <tr>
-                <td class="tlabel"><label>Claim Type:<font color="red">*</font> </label></td>
-                <td>
-                    <select id="claim_type" name="claim_type">
-                        <option value="">-- Choose --</option>
-                        <option value="residential" <?php echo ((isset($_POST['claim_type']) && $_POST['claim_type']=='residential') ? 'selected' : '');?>>Residential</option>
-                        <option value="commercial" <?php echo ((isset($_POST['claim_type']) && $_POST['claim_type']=='commercial') ? 'selected' : '');?>>Commercial</option>
-                    </select>
-                    &nbsp;
-                    <select id="claim_product" name="claim_product">
-                        <option value="">-- Choose --</option>
-                        <option value="Water" <?php echo ((isset($_POST['claim_product']) && $_POST['claim_product']=='Water') ? 'selected' : '');?>>Water</option>
-                        <option value="Water With Sketch" <?php echo ((isset($_POST['claim_product']) && $_POST['claim_product']=='Water With Sketch') ? 'selected' : '');?>>Water With Sketch</option>
-                   <!-- <option value="Fire" <?php echo ((isset($_POST['claim_product']) && $_POST['claim_product']=='Fire') ? 'selected' : '');?>>Fire</option>
-                        <option value="Fire With Sketch" <?php echo ((isset($_POST['claim_product']) && $_POST['claim_product']=='Fire With Sketch') ? 'selected' : '');?>>Fire With Sketch</option>    -->
-                        <option value="Fire/Smoke Contents Cleaning" <?php echo ((isset($_POST['claim_product']) && $_POST['claim_product']=='Fire/Smoke Contents Cleaning') ? 'selected' : '');?>>Contents Cleaning</option>
-                        <option value="Fire/Smoke Structure Cleaning" <?php echo ((isset($_POST['claim_product']) && $_POST['claim_product']=='Fire/Smoke Structure Cleaning') ? 'selected' : '');?>>Structure Cleaning</option>
-                        <option value="Mold" <?php echo ((isset($_POST['claim_product']) && $_POST['claim_product']=='Mold') ? 'selected' : '');?>>Mold</option>
-                        <option value="Mold With Sketch" <?php echo ((isset($_POST['claim_product']) && $_POST['claim_product']=='Mold With Sketch') ? 'selected' : '');?>>Mold With Sketch</option>
-                        <option value="Reconstruction" <?php echo ((isset($_POST['claim_product']) && $_POST['claim_product']=='Reconstruction') ? 'selected' : '');?>>Reconstruction</option>
-                        <option value="Reconstruction With Sketch" <?php echo ((isset($_POST['claim_product']) && $_POST['claim_product']=='Reconstruction With Sketch') ? 'selected' : '');?>>Reconstruction With Sketch</option>
-                    </select>
-                    &nbsp;
-                    <span id="claim_price"></span>
-                    <script type="text/javascript">
-                        (function ($) {
-                            $(document).ready(function () {
-                                $('#claim_type').bind('change', function(event){get_claim_invoice_price();});
-                                $('#claim_product').bind('change', function(event){get_claim_invoice_price();});
-                                $('#fm_expedite').bind('click', function(event){get_claim_invoice_expedite_price();});
-                            });
-                        })(jQuery);
-                    </script>
-                </td>
-
-            </tr>
-            <?php fm_draw_checkbox('Check this box if you would like to <b>EXPEDITE</b> your claim.<br/> Additional fee to expedite is: <span id="expedite_price"></span>', 'expedite', false, false); ?>
-            <tr>
-                <td>&nbsp;</td>
-                <td style="padding: 10px 0px; line-height: 25px; vertical-align:middle;"><a class="create-claim-btn" href="javascript:void();" onclick="create_claim_page1()">Create a Claim</a>
-                    <span style="margin-top: 2px;">&nbsp; or &nbsp;<a href="<?= $GLOBALS['base_url']; ?>/account">cancel
-                </td>
-                </span>
-            </tr>
-
-            <tr>
-                <td colspan=2>
-                    <div class="note">
-                        <strong>Please Note:</strong>
-                        By clicking the "Create a Claim" button, a Terms and Conditions Agreement will appear.<br/>
-                        To save this file you must first read and then click the "I Agree" button. At that time your
-                        credit card will be charged and processed for the agreed fee schedule for this claim file. If
-                        you select the "cancel" button, the claim will be deleted.
-                    </div>
-                </td>
-            </tr>
-        </table>
-    </form>
-<?php
-
+    @include get_realpath('ncn_create_claim', 'ui/create_claim_form.php');
 }
 
 
@@ -226,9 +144,16 @@ function create_claim_page1_submit($P_DATA = array())
         drupal_set_message("Please select Lead user", 'error');
         return FALSE;
     }*/
-    if ($P_DATA['date_of_loss'][0] == '' || $P_DATA['date_of_loss'][1] == '' || $P_DATA['date_of_loss'][2] == '') {
+    if ($P_DATA['date_of_loss'] == '') {
         drupal_set_message("Please input Date of Loss", 'error');
         return FALSE;
+    } else {
+        $date_of_loss = strtotime($P_DATA['date_of_loss']);
+        $P_DATA['date_of_loss'] = array(
+            date('F', $date_of_loss), 
+            date('j', $date_of_loss), 
+            date('Y', $date_of_loss), 
+        );
     }
 
     $P_DATA['customer_name'] = ncn_admin_remove_special_char_from_customer_name($P_DATA['customer_name']);

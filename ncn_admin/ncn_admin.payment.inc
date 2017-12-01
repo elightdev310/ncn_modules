@@ -1560,3 +1560,43 @@ $content =
     array(':a'=>$_POST['name'],':b'=>$customerProfileId,':c'=>$customerPaymentProfileId));
     return true;
 }
+
+//------------------------------------------------------------------------------
+function charge_retail_kit($customerProfileId, $customerPaymentProfileId, $product_id, $member_id, $owner_id)
+{
+    $node = node_load($product_id);
+    if (isset($node->data) && !is_array($node->data)) {
+      $node->data = unserialize($node->data);
+    }
+
+    if ($node->sell_price != 0) {
+        // attempt payment
+        $response = sendNcnPaymentRequest($customerProfileId, $customerPaymentProfileId, 
+                      array(
+                        'price'         => $node->sell_price, 
+                        'shipping_name' => $node->title, 
+                        'shipping_desc' => $node->title, 
+                        'item_id'       => $product_id, 
+                        'item_name'     => $node->title, 
+                        'item_desc'     => $node->title, 
+                      ));        
+        $auth_successful = true;
+        if ("Ok" == $response->messages->resultCode)
+        {
+            $auth_successful = true;
+            $response_code = 1;     // success
+        }
+        else
+        {
+            $auth_successful = false;
+            $response_code = 3;
+        }
+    } else {
+        $auth_successful = true;
+    }
+    //*** payment log ***//
+    $payment_success = ($auth_successful)? 1:0;
+    ncn_report_payment_log($product_id, $payment_success, null, $member_id, 0, 0, $owner_id );
+
+    return $auth_successful;
+}

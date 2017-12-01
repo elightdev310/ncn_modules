@@ -4,11 +4,11 @@ function create_claim_page1() {
 	var claim_product 	= jQuery('#claim_product').val();
 	if (claim_type == "" || claim_product == "") {	
 		alert( Drupal.t('Choose Claim Type.') );
-		return;
+		return false;
 	}
 	if (claim_product == 'Reconstruction') {
 		if (!confirm("You selected Reconstruction Invoice. Do you want to create a claim with this invoice?")) {
-			return;
+			return false;
 		}
 	}
 	jQuery('.create-claim-ccpage #create-claim-form').submit();

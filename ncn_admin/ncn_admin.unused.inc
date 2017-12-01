@@ -308,7 +308,11 @@ function user_add_distributor()
             </tr>
             <tr>
                 <td>Country</td>
-                <td><?php draw_countryform_part('profile_country', false, false); ?></td>
+                <td><?php draw_countryform_part(array(
+                            'name'=>'profile_country', 
+                            'class'=>'', 
+                            'disabled'=>false, 
+                            'required'=>false)); ?></td>
             </tr>
             <tr>
                 <td>Address</td>
@@ -320,7 +324,13 @@ function user_add_distributor()
             </tr>
             <tr>
                 <td>Province/State</td>
-                <td><?php draw_stateform_part('profile_state', false, false); ?></td>
+                <td><?php draw_stateform_part(array(
+                            'name'  => 'profile_state', 
+                            'class' => '', 
+                            'disabled' => false, 
+                            'required' => false, 
+                    )); ?>
+                    </td>
             </tr>
             <tr>
                 <td>Zip</td>
@@ -718,7 +728,11 @@ function user_add_associate()
             </tr>
             <tr>
                 <td>Country</td>
-                <td><?php draw_countryform_part('profile_country', false, false); ?></td>
+                <td><?php draw_countryform_part(array(
+                            'name'=>'profile_country', 
+                            'class'=>'', 
+                            'disabled'=>false, 
+                            'required'=>false)); ?></td>
             </tr>
             <tr>
                 <td>Address</td>
@@ -730,7 +744,12 @@ function user_add_associate()
             </tr>
             <tr>
                 <td>Province/State</td>
-                <td><?php draw_stateform_part('profile_state', false, false); ?></td>
+                <td><?php draw_stateform_part(array(
+                            'name'  => 'profile_state', 
+                            'class' => '', 
+                            'disabled' => false, 
+                            'required' => false, 
+                    )); ?></td>
             </tr>
             <tr>
                 <td>Zip</td>
@@ -824,7 +843,11 @@ function user_add_sub_user()
             </tr>
             <tr>
                 <td>Country</td>
-                <td><?php draw_countryform_part('profile_country', false, false); ?></td>
+                <td><?php draw_countryform_part(array(
+                            'name'=>'profile_country', 
+                            'class'=>'', 
+                            'disabled'=>false, 
+                            'required'=>false)); ?></td>
             </tr>
             <tr>
                 <td>Address</td>
@@ -836,7 +859,13 @@ function user_add_sub_user()
             </tr>
             <tr>
                 <td>Province/State</td>
-                <td><?php draw_stateform_part('profile_state', false, false); ?></td>
+                <td><?php draw_stateform_part(array(
+                            'name'  => 'profile_state', 
+                            'class' => '', 
+                            'disabled' => false, 
+                            'required' => false, 
+                    )); ?>
+                </td>
             </tr>
             <tr>
                 <td>Zip</td>
@@ -1016,7 +1045,11 @@ function user_add_account_manager()
             </tr>
             <tr>
                 <td>Country</td>
-                <td><?php draw_countryform_part('profile_country', false, false); ?></td>
+                <td><?php draw_countryform_part(array(
+                            'name'=>'profile_country', 
+                            'class'=>'', 
+                            'disabled'=>false, 
+                            'required'=>false)); ?></td>
             </tr>
             <tr>
                 <td>Address</td>
@@ -1028,7 +1061,13 @@ function user_add_account_manager()
             </tr>
             <tr>
                 <td>Province/State</td>
-                <td><?php draw_stateform_part('profile_state', false, false); ?></td>
+                <td><?php draw_stateform_part(array(
+                            'name'  => 'profile_state', 
+                            'class' => '', 
+                            'disabled' => false, 
+                            'required' => false, 
+                    )); ?>
+                </td>
             </tr>
             <tr>
                 <td>Zip</td>
@@ -1545,7 +1584,13 @@ function user_edit_new($in_admin = true, $uid = false)
         </tr>
         <tr>
             <td class="td-label">Country:</td>
-            <td><?php draw_countryform_part_sel('profile_country', false, false, $user->profile_country);?></td>
+            <td><?php draw_countryform_part_sel(array(
+                            'name'=>'profile_country', 
+                            'class'=>'', 
+                            'disabled'=>false, 
+                            'required'=>false, 
+                            'sel_val' =>$user->profile_country)); ?>
+            </td>
         </tr>
         <tr>
             <td class="td-label">Address:</td>
@@ -1557,7 +1602,15 @@ function user_edit_new($in_admin = true, $uid = false)
         </tr>
         <tr>
             <td class="td-label">Province/State:</td>
-            <td><?php draw_stateform_part_sel('profile_state', false, false, $user->profile_country, $user->profile_state);?></td>
+            <td><?php draw_stateform_part_sel(array(
+                            'name'  => 'profile_state', 
+                            'class' => '', 
+                            'disabled' => false, 
+                            'required' => false, 
+                            'sel_val'  => $user->profile_state, 
+                            'country'  => $user->profile_country, 
+                    )); ?>
+            </td>
         </tr>
         <tr>
             <td class="td-label">Zip:</td>

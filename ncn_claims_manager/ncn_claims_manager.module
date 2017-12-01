@@ -34,18 +34,6 @@ function ncn_claims_manager_init()
  */
 function ncn_claims_manager_menu()
 {
-    // user account edit
-    $items['account/my-account.html'] = array(
-        'page callback' => 'ncn_edit_my_account',
-        'type' => MENU_CALLBACK,
-        'access arguments' => array('access content'),
-    );
-    $items['account/my-extra-profile.html'] = array(
-        'page callback' => 'ncn_edit_extra_profile',
-        'type' => MENU_CALLBACK,
-        'access arguments' => array('access content'),
-    );
-
     // complete distributor control page
     $items['account/distributor.html'] = array(
         'page callback' => 'ncn_distributor_page',

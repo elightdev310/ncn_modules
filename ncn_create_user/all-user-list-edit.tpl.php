@@ -1,11 +1,11 @@
 <?php
 /**
- * admin/config/ncn_create_user/all_user_list/edit_user/{uid}
  * My Account (Edit My Profile) Page
+ *
+ * URL: account/my-account.html
+ * Admin URL: admin/config/ncn_create_user/all_user_list/edit_user/{uid}
+ * 
  */
-
-//$in_admin = true;
-//$uid = false;
 
 drupal_add_js(drupal_get_path('module', 'ncn_admin') . '/ncn_admin.js');
 // we are running this frunction from admin
@@ -428,6 +428,13 @@ switch ($tfunction)
         break;
 }
 ////////////////////////////////////////////////////////////////////////////////
+///
+///
+
+
+/******************************************************************************/
+/* Page UI
+/******************************************************************************/
 ?>
 
 <!-- Profile -->
@@ -435,96 +442,137 @@ switch ($tfunction)
     <?php if(isset($user->profile_memberid)&&is_member($user->profile_memberid)): ?>
         <?php
         $extra_field_url = 'account/my-extra-profile.html';
-        if (arg(0) == 'admin') {
+        if ($in_admin) {
             $extra_field_url = 'admin/config/ncn_create_user/edit_user_extra_profile/'.$user->uid;
         }
         ?>
         <div style="float: right; margin-top: 5px;"><a href="<?php echo base_path().$extra_field_url; ?>">Edit extra profiles</a></div>
     <?php endif;?>
-    <h2 class="sub-title">Profile</h2>
-    <p style="font-style: italic; font-size: 11px;">Password is optional.</p>
-    <p>For example, if you only wish to update users email address, leave all other fields blank.</p>
-    <form method="POST" id="update_profile_form">
-        <input type="hidden" name="tfunction" value="update_profile">
-        <table style="width:100%;">
-            <tr>
-                <td class="td-label">Username:</td>
-                <td><input type="text" name="username" id="username" value="<?= $user->name; ?>" style="width:200px;" <?php if ($GLOBALS['user']->uid!=1 && !user_access('ncn_admin edit username')) {echo "readonly";} ?>></td>
-            </tr>
-            <tr>
-                <td class="td-label">Email:</td>
-                <td><input type="text" name="mail" value="<?= $user->mail; ?>"  style="width:200px;"></td>
-            </tr>
-            <tr>
-                <td class="td-label">Password:</td>
-                <td><input type="password" name="pass" value=""  style="width:200px;"></td>
-            </tr>
-            <tr>
-                <td class="td-label">Confirm Password:</td>
-                <td><input type="password" name="pass2" value=""  style="width:200px;"></td>
-            </tr>
-            <tr>
-                <td class="td-label">First Name:</td>
-                <td><input type="text" name="profile_firstname" value="<?= $user->profile_firstname; ?>">
-            </tr>
-            <tr>
-                <td class="td-label">Last Name:</td>
-                <td><input type="text" name="profile_lastname" value="<?= $user->profile_lastname; ?>">
-            </tr>
-            <tr>
-                <td class="td-label">Company's Name:</td>
-                <td><input type="text" name="profile_legalname" value="<?= $user->profile_legalname; ?>">
-            </tr>
-            <tr>
-                <td class="td-label">Country:</td>
-                <td><?php draw_countryform_part_sel('profile_country', false, false, $user->profile_country);?></td>
-            </tr>
-            <tr>
-                <td class="td-label">Address:</td>
-                <td><input type="text" name="profile_address" value="<?= $user->profile_address; ?>">
-            </tr>
-            <tr>
-                <td class="td-label">City:</td>
-                <td><input type="text" name="profile_city" value="<?= $user->profile_city; ?>">
-            </tr>
-            <tr>
-                <td class="td-label">Province/State:</td>
-                <td><?php draw_stateform_part_sel('profile_state', false, false, $user->profile_country, $user->profile_state);?></td>
-            </tr>
-            <tr>
-                <td class="td-label">Zip:</td>
-                <td><input type="text" name="profile_zip" value="<?= $user->profile_zip; ?>">
-            </tr>
-            <tr>
-                <td class="td-label"></td>
-                <td><a class="update-profile-btn" href="javascript:void(0)" onClick="update_profile_submit();">Update Profile</a></td>
-            </tr>
-        </table>
-    </form>
-    <?php if(isset($user->profile_memberid)&&is_member($user->profile_memberid)) : ?>
+    <div class="profile-section">
+        <h2 class="sub-title">Profile</h2>
+        <p class="text-label" style="font-style: italic; font-size: 11px;">Password is optional.</p>
+        <p class="text-label">For example, if you only wish to update users email address, leave all other fields blank.</p>
+        <div class="panel-box"><div class="panel-box-content">
+        <form method="POST" id="update_profile_form" class="form-horizontal ncn-form-default">
+            <input type="hidden" name="tfunction" value="update_profile">
+
+            <div class="form-group">
+                <div for="username" class="col-sm-3 control-label">Username: </div>
+                <div class="col-sm-9">
+                    <input type="text" name="username" id="username" class="form-control" value="<?= $user->name; ?>" <?php if ($GLOBALS['user']->uid!=1 && !user_access('ncn_admin edit username')) {echo "readonly";} ?>>
+                </div>
+            </div>
+            <div class="form-group">
+                <div for="" class="col-sm-3 control-label">Email: </div>
+                <div class="col-sm-9">
+                    <input type="text" name="mail" class="form-control" value="<?= $user->mail; ?>">
+                </div>
+            </div>
+            <div class="form-group">
+                <div for="" class="col-sm-3 control-label">Password: </div>
+                <div class="col-sm-9">
+                    <input type="password" name="pass" class="form-control" value="">
+                </div>
+            </div>
+            <div class="form-group">
+                <div for="" class="col-sm-3 control-label">Confirm Password: </div>
+                <div class="col-sm-9">
+                    <input type="password" name="pass2" class="form-control" value="">
+                </div>
+            </div>
+            <div class="form-group">
+                <div for="" class="col-sm-3 control-label">First Name: </div>
+                <div class="col-sm-9">
+                    <input type="text" name="profile_firstname" class="form-control" value="<?= $user->profile_firstname; ?>">
+                </div>
+            </div>
+            <div class="form-group">
+                <div for="" class="col-sm-3 control-label">Last Name: </div>
+                <div class="col-sm-9">
+                    <input type="text" name="profile_lastname" class="form-control" value="<?= $user->profile_lastname; ?>">
+                </div>
+            </div>
+            <div class="form-group">
+                <div for="" class="col-sm-3 control-label">Company's Name: </div>
+                <div class="col-sm-9">
+                    <input type="text" name="profile_legalname" class="form-control" value="<?= $user->profile_legalname; ?>">
+                </div>
+            </div>
+            <div class="form-group">
+                <div for="" class="col-sm-3 control-label">Country: </div>
+                <div class="col-sm-9">
+                    <?php draw_countryform_part_sel(array(
+                            'name'=>'profile_country', 
+                            'class'=>'form-control', 
+                            'disabled'=>false, 
+                            'required'=>false, 
+                            'sel_val' =>$user->profile_country)); ?>
+                </div>
+            </div>
+            <div class="form-group">
+                <div for="" class="col-sm-3 control-label">Address: </div>
+                <div class="col-sm-9">
+                    <input type="text" name="profile_address" class="form-control" value="<?= $user->profile_address; ?>">
+                </div>
+            </div>
+            <div class="form-group">
+                <div for="" class="col-sm-3 control-label">City: </div>
+                <div class="col-sm-9">
+                    <input type="text" name="profile_city" class="form-control" value="<?= $user->profile_city; ?>">
+                </div>
+            </div>
+            <div class="form-group">
+                <div for="" class="col-sm-3 control-label">Province/State: </div>
+                <div class="col-sm-9">
+                    <?php draw_stateform_part_sel(array(
+                            'name'  => 'profile_state', 
+                            'class' => 'form-control', 
+                            'disabled' => false, 
+                            'required' => false, 
+                            'sel_val'  => $user->profile_state, 
+                            'country'  => $user->profile_country )); ?>
+                </div>
+            </div>
+            <div class="form-group">
+                <div for="" class="col-sm-3 control-label">Zip: </div>
+                <div class="col-sm-9">
+                    <input type="text" name="profile_zip" class="form-control" value="<?= $user->profile_zip; ?>">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-9 col-sm-offset-3">
+                    <a class="update-profile-btn btn btn-primary" href="javascript:void(0)" onClick="update_profile_submit();">Update Profile</a>
+                </div>
+            </div>
+        </form>
+
+        <?php if(isset($user->profile_memberid)&&is_member($user->profile_memberid)) : ?>
         <!-- Upload Member Logo-->
-        <form id="upload_member_logo_form" method="POST" enctype="multipart/form-data">
+        <form id="upload_member_logo_form" method="POST" enctype="multipart/form-data" class="form-horizontal ncn-form-default">
             <input type="hidden" id="member_logo_tfunction" name="tfunction" value="upload_member_logo" />
             <input type="hidden" name="member_id" value="<?php echo $user->profile_memberid; ?>" />
-            <table style="width:100%; margin-top: 30px;">
-                <tr>
-                    <td class="td-label">Member's logo:</td>
-                    <td><?php if ($member_logo_path = ncn_admin_get_member_logo($user->profile_memberid)): ?>
-                            <img src="<?php echo base_path().$member_logo_path; ?>" style="width: 300px"/> <br/>
-                        <?php endif; ?>
-                        <input type="file" size="25" accept="image/jpg, image/jpeg, image/gif, image/png" id="member_logo" name="files[member_logo]" /></td>
-                </tr>
-                <tr>
-                    <td class="td-label"></td>
-                    <td><a class="upload-logo-btn" href="javascript:void(0)" onClick="upload_member_logo();">Upload Member Logo</a>
-                        <?php if ($member_logo_path = ncn_admin_get_member_logo($user->profile_memberid)): ?>
-                            <a class="remove-logo-btn" href="javascript:void(0)" onClick="remove_member_logo();" style="margin-left: 15px;">Remove Member Logo</a>
-                        <?php endif; ?>
-                    </td>
-                </tr>
-            </table>
+            <div class="form-group">
+                <div for="" class="col-sm-3 control-label">Member's logo: </div>
+                <div class="col-sm-9">
+                    <?php if ($member_logo_path = ncn_admin_get_member_logo($user->profile_memberid)): ?>
+                        <img src="<?php echo url($member_logo_path); ?>" class="mb10" /> <br/>
+                    <?php endif; ?>
+                    <input type="file" class="form-control form-control-file" accept="image/jpg, image/jpeg, image/gif, image/png" id="member_logo" name="files[member_logo]" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-9 col-sm-offset-3">
+                    <a class="upload-logo-btn btn btn-primary" href="javascript:void(0)" onClick="upload_member_logo();">Upload Member Logo</a>
+                    <?php if ($member_logo_path = ncn_admin_get_member_logo($user->profile_memberid)): ?>
+                        <a class="remove-logo-btn btn btn-default" href="javascript:void(0)" onClick="remove_member_logo();" style="margin-left: 15px;">Remove Member Logo</a>
+                    <?php endif; ?>
+                </div>
+            </div>
         </form>
-    <?php endif; ?>
+        <?php endif; ?>
+        </div></div>
+    </div><!-- .profile-section -->
 </fieldset>
 <!-- End of Profile -->
 

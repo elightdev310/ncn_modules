@@ -62,7 +62,13 @@ drupal_add_js(drupal_get_path('module', 'ncn_admin') . '/ncn_admin.js');
                 </tr>
                 <tr>
                     <td class="td-label">Country</td>
-                    <td><?php draw_countryform_part_sel('country', false, false, $member['country']); ?></td>
+                    <td><?php draw_countryform_part_sel(array(
+                            'name'=>'country', 
+                            'class'=>'', 
+                            'disabled'=>false, 
+                            'required'=>false, 
+                            'sel_val' =>$member['country'])); ?>
+                    </td>
                 </tr>
                 <tr>
                     <td class="td-label">Address</td>
@@ -74,7 +80,14 @@ drupal_add_js(drupal_get_path('module', 'ncn_admin') . '/ncn_admin.js');
                 </tr>
                 <tr>
                     <td class="td-label">Province/State</td>
-                    <td><?php draw_stateform_part_sel('state', false, false, $member['country'], $member['state']); ?></td>
+                    <td><?php draw_stateform_part_sel(array(
+                                    'name'  => 'state', 
+                                    'class' => '', 
+                                    'disabled' => false, 
+                                    'required' => flase, 
+                                    'sel_val'  => $member['state'], 
+                                    'country'  => $member['country'] )); ?>
+                    </td>
                 </tr>
                 <tr>
                     <td class="td-label">Zip</td>

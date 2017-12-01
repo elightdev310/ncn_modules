@@ -35,7 +35,19 @@ function ncn_admin_aci_render_property_owner_info($claim_id, $section) {
     </tr>
     <tr>
         <td class="td-label"><label for="poi_insured_state">State:</label></td>
-        <td><div class="field-item text-field-item"><?php print ncn_loc_state('poi[insured_state]', 'poi_insured_state', false, false, isset($data['insured_state'])?$data['insured_state']:'', 'US'); ?></div></td>
+        <td><div class="field-item text-field-item">
+            <?php print ncn_loc_state(array(
+                            'name'      => 'poi[insured_state]', 
+                            'id'        => 'poi_insured_state', 
+                            'class'     => '', 
+                            'disabled'  => false, 
+                            'required'  => false, 
+                            'state'     => isset($data['insured_state'])?$data['insured_state']:'', 
+                            'country'   => 'US', 
+                        ));
+            ?>
+            </div>
+        </td>
     </tr>
     <tr>
         <td class="td-label"><label for="poi_insured_zip">Zip Code:</label></td>

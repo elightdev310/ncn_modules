@@ -4,11 +4,8 @@ require_once('ncn_chatter.define.inc');
 require_once('ncn_chatter.feed.inc');
 require_once('ncn_chatter.post.inc');
 require_once('ncn_chatter.follow.inc');
-
 require_once('ncn_chatter.feed.ui.inc');
-
 require_once('ncn_chatter.sync.inc');
-
 
 /**
  * Implements hook_menu()

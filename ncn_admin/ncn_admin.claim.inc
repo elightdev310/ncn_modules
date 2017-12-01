@@ -743,7 +743,15 @@ function ncn_admin_view_claim($claim_id)
                             $row['val']['val'] = $ins_match[1];
                         }
                         /* Hack for Mobile App Data */
-                        $res = ncn_loc_state($row['key'], 'claim_data_field_'.$row['key'], false, false, $row['val']['val'], 'US');
+                        $res = ncn_loc_state(array(
+                                    'name'      => $row['key'], 
+                                    'id'        => 'claim_data_field_'.$row['key'], 
+                                    'class'     => '', 
+                                    'disabled'  => false, 
+                                    'required'  => false, 
+                                    'state'     => $row['val']['val'], 
+                                    'country'   => 'US', 
+                                ));
                     } else {
                         if (is_array($row['val']['val']))
                         {

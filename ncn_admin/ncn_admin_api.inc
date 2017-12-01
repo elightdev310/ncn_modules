@@ -1,67 +1,4 @@
 <?php
-
-// NCN Member Specific Page Permission
-function check_role($roles = array(USER_ROLE_MEMBER, USER_ROLE_SUB_USER, USER_ROLE_LEADUSER))
-{
-    GLOBAL $user;
-    global $base_url;
-
-    if ($user->uid == 0) {
-        drupal_goto();
-    }
-    if ($user->uid ==1) {
-        return TRUE;
-    }
-    foreach($roles as $role) {
-        if (isset($user->roles[$role])) { return TRUE;}
-    }
-
-    if(is_distributor($user))
-    {
-        Header("Location:".$base_url."/account/distributor.html/create");
-        exit;
-    }
-
-    if(is_associate($user))
-    {
-        Header("Location:".$base_url."/account/associate.html/create");
-        exit;
-    }
-
-    if(is_member_user($user) || is_subuser($user))
-    {
-        Header("Location:".$base_url."/account");
-        exit;
-    }
-
-    if(is_claim_examiner($user))
-    {
-        Header("Location:".$base_url."/ce_portal/home");
-        exit;
-    }
-
-    Header("Location:".$base_url."/admin/config/ncn_admin");
-    exit;
-}
-
-
-// Distributor Report Password
-function add_report_password($username, $pass) {
-    module_load_include('inc', 'content', 'includes/password');
-    $query = "INSERT INTO auth_report(username, pass) VALUES('$username', '".user_hash_password(trim($pass))."')";
-    $result = db_query($query);
-}
-
-// Check Member Role
-function is_member($memberid) {
-    $query = db_query('SELECT * FROM member_id_pool WHERE member_id=:a AND used=1',array(':a'=>$memberid));
-    $result = $query;
-    if ($result->rowCount()>0) {
-        return true;
-    }
-    return false;
-}
-
 // Owner ID of Member
 function get_owner($memberid) {
 //  $query = "SELECT * FROM member_id_pool WHERE member_id='$memberid'";
@@ -72,65 +9,6 @@ function get_owner($memberid) {
         return $row['owner'];
     }
     return 0;
-}
-
-function check_existing_email($email) {
-    // Check in member_id_pool
-    $result = db_query("SELECT count(*) FROM {member_id_pool} 
-                        WHERE contactemail=:a AND used=:b",
-                        array(':a'=>$email,':b'=>0))
-            ->fetchField();
-    if ($result) { return true; }
-
-    // Check in users
-    $result = db_query("SELECT count(*) FROM {users} WHERE mail=:a",
-                        array(':a'=>$email))
-            ->fetchField();
-    if ($result) { return true; }
-    return false;
-}
-function check_existing_memberid($member_id, $used) {
-    $result = db_query('SELECT * FROM {member_id_pool} WHERE member_id=:a AND used=:b',array(':a'=>$member_id,':b'=>$used));
-    return $result->rowCount();
-}
-//------------------------------------------------------------------------------
-function charge_retail_kit($customerProfileId, $customerPaymentProfileId, $product_id, $member_id, $owner_id)
-{
-    $node = node_load($product_id);
-    if (isset($node->data) && !is_array($node->data)) {
-      $node->data = unserialize($node->data);
-    }
-
-    if ($node->sell_price != 0) {
-        // attempt payment
-        $response = sendNcnPaymentRequest($customerProfileId, $customerPaymentProfileId, 
-                      array(
-                        'price'         => $node->sell_price, 
-                        'shipping_name' => $node->title, 
-                        'shipping_desc' => $node->title, 
-                        'item_id'       => $product_id, 
-                        'item_name'     => $node->title, 
-                        'item_desc'     => $node->title, 
-                      ));        
-        $auth_successful = true;
-        if ("Ok" == $response->messages->resultCode)
-        {
-            $auth_successful = true;
-            $response_code = 1;     // success
-        }
-        else
-        {
-            $auth_successful = false;
-            $response_code = 3;
-        }
-    } else {
-        $auth_successful = true;
-    }
-    //*** payment log ***//
-    $payment_success = ($auth_successful)? 1:0;
-    ncn_report_payment_log($product_id, $payment_success, null, $member_id, 0, 0, $owner_id );
-
-    return $auth_successful;
 }
 
 //------------------------------------------------------------------------------
@@ -535,7 +413,8 @@ function ncn_admin_get_mail_body($body, &$message, $params, $html=FALSE) {
 }
 
 function ncn_admin_get_mail_body_from_template($file_name, $params) {
-    $base_url = "http://www.netclaimsnow.com";
+    //$base_url = "http://www.netclaimsnow.com";
+global $base_url;
     $img_basepath = $base_url."/".drupal_get_path('module', 'ncn_admin') . '/mail_template/image/';
     
     $mail_css_filepath = "mail_template/mail.css";
@@ -544,9 +423,9 @@ function ncn_admin_get_mail_body_from_template($file_name, $params) {
     $mail_css = ob_get_contents();
     ob_end_clean();
     
-    $file_path = "mail_template/".$file_name.".mtpl.php";
+    $file_path = get_realpath('ncn_admin', "mail_template/".$file_name.".mtpl.php");
     ob_start();
-    include($file_path);
+    include $file_path;
     $output = ob_get_contents();
     ob_end_clean();
     

@@ -121,6 +121,42 @@ function is_ncn_user($user) {
     return true;
 }
 
+// Check Member Role
+function is_member($memberid) {
+    $query = db_query('SELECT * FROM member_id_pool WHERE member_id=:a AND used=1',array(':a'=>$memberid));
+    $result = $query;
+    if ($result->rowCount()>0) {
+        return true;
+    }
+    return false;
+}
+
+// Distributor Report Password
+function add_report_password($username, $pass) {
+    module_load_include('inc', 'content', 'includes/password');
+    $query = "INSERT INTO auth_report(username, pass) VALUES('$username', '".user_hash_password(trim($pass))."')";
+    $result = db_query($query);
+}
+
+function check_existing_email($email) {
+    // Check in member_id_pool
+    $result = db_query("SELECT count(*) FROM {member_id_pool} 
+                        WHERE contactemail=:a AND used=:b",
+                        array(':a'=>$email,':b'=>0))
+            ->fetchField();
+    if ($result) { return true; }
+
+    // Check in users
+    $result = db_query("SELECT count(*) FROM {users} WHERE mail=:a",
+                        array(':a'=>$email))
+            ->fetchField();
+    if ($result) { return true; }
+    return false;
+}
+function check_existing_memberid($member_id, $used) {
+    $result = db_query('SELECT * FROM {member_id_pool} WHERE member_id=:a AND used=:b',array(':a'=>$member_id,':b'=>$used));
+    return $result->rowCount();
+}
 
 function user_fullname($user) {
     $fullname = '';

@@ -13,63 +13,6 @@ function ncn_claims_manager_get_account_header_menu()
 }
 
 /**
- * URL: account/my-account.html
- */
-function ncn_edit_my_account()
-{
-    GLOBAL $user;
-
-    ob_start();
-    ?>
-    <div id="my_account_page">
-        <div class="map-content">
-            <div class="map-header">
-                <div class="title">Edit My Profile</div>
-                <div class="help"><a href="#">Help</a></div>
-            </div>
-            <div class="map-content-wrapper">
-                <?php //user_edit_new(false, $user->uid); ?>
-                <?php print theme('all_user_list_edit',array('in_admin'=>false, 'uid'=>$user->uid)) ?>
-            </div>
-        </div>
-    </div>
-    <?php
-    $contents = ob_get_contents();
-    ob_end_clean();
-
-    return $contents;
-
-}
-
-/**
- * URL: account/my-extra-profile.html
- */
-function ncn_edit_extra_profile()
-{
-    GLOBAL $user;
-
-    ob_start();
-    ?>
-    <div id="my_account_page">
-        <div class="map-content">
-            <div class="map-header">
-                <div class="title">Edit My Extra Profile</div>
-                <div class="help"><a href="#">Help</a></div>
-            </div>
-            <div class="map-content-wrapper">
-                <?php user_edit_extra_profile($user->uid, false); // function from ncn_admin.module ?>
-            </div>
-        </div>
-    </div>
-    <?php
-    $contents = ob_get_contents();
-    ob_end_clean();
-
-    return $contents;
-}
-
-
-/**
  * URL: account/confirm_submit_claim
  */
 function ncn_claims_manager_submit_claim_confirm()

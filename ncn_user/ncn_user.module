@@ -1,6 +1,8 @@
 <?php
 
 require_once('ncn_user.helper.inc');
+require_once('ncn_user.account.inc');
+require_once('ncn_user.ui.inc');
 
 /**
  * hook_init function
@@ -14,7 +16,6 @@ function ncn_user_init() {
  */
 function ncn_user_permission()
 {
-	
 }
 
 /**
@@ -22,9 +23,19 @@ function ncn_user_permission()
  */
 function ncn_user_menu()
 {
-	$item = array();
-	
-	return $item;
+    $items = array();
+    // user account edit
+    $items['account/my-account.html'] = array(
+        'page callback' => 'ncn_edit_my_account',
+        'type' => MENU_CALLBACK,
+        'access arguments' => array('access content'),
+    );
+    $items['account/my-extra-profile.html'] = array(
+        'page callback' => 'ncn_edit_extra_profile',
+        'type' => MENU_CALLBACK,
+        'access arguments' => array('access content'),
+    );
+    return $items;
 }
 
 /**

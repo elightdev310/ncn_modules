@@ -54,7 +54,12 @@
     </tr>
     <tr>
       <td>Country</td>
-      <td><?php draw_countryform_part('profile_country', false, false); ?></td>
+      <td><?php draw_countryform_part_sel(array(
+                            'name'=>'profile_country', 
+                            'class'=>'', 
+                            'disabled'=>false, 
+                            'required'=>false)); ?>
+      </td>
     </tr>
     <tr>
       <td>Address</td>
@@ -66,7 +71,13 @@
     </tr>
     <tr>
       <td>Province/State</td>
-      <td><?php draw_stateform_part('profile_state', false, false); ?></td>
+      <td>
+        <?php draw_stateform_part(array(
+                            'name'  => 'profile_state', 
+                            'class' => '', 
+                            'disabled' => false, 
+                            'required' => false )); ?>
+      </td>
     </tr>
     <tr>
       <td>Zip</td>

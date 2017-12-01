@@ -198,7 +198,12 @@ function render_dist_create_member($create_step, &$vars) {
                 </tr>
                 <tr>
                     <td class="td-label">Country:</td>
-                    <td><?php draw_countryform_part('country', false, false); ?></td>
+                    <td><?php draw_countryform_part(array(
+                            'name'=>'country', 
+                            'class'=>'', 
+                            'disabled'=>false, 
+                            'required'=>false)); ?>
+                    </td>
                 </tr>
                 <tr>
                     <td class="td-label">Address:</td>
@@ -210,7 +215,12 @@ function render_dist_create_member($create_step, &$vars) {
                 </tr>
                 <tr>
                     <td class="td-label">Province/State:</td>
-                    <td><?php draw_stateform_part('state', false, false); ?></td>
+                    <td><?php draw_stateform_part(array(
+                            'name'  => 'state', 
+                            'class' => '', 
+                            'disabled' => false, 
+                            'required' => false )); ?>
+                    </td>
                 </tr>
                 <tr>
                     <td class="td-label">Zip:</td>

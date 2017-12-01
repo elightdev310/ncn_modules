@@ -442,7 +442,7 @@ function ncn_chatter_render_attached_file($fid) {
                 // Image 
                 $file_url = $file->uri;
                 
-                $output.= '<a href="'.file_create_url($file_url).'" data-lity>';
+                $output.= '<a href="'.file_create_url($file_url).'" class="image-file" data-lity>';
                     $output.= theme('image_style', 
                                     array('style_name' => 'image_tab_upload', 
                                           'path' => $file_url));

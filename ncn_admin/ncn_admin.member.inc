@@ -59,7 +59,12 @@ function ncn_admin_page_member_ids()
             </tr>
             <tr>
                 <td>Country</td>
-                <td><?php draw_countryform_part('country', false, false); ?></td>
+                <td><?php draw_countryform_part(array(
+                            'name'=>'country', 
+                            'class'=>'', 
+                            'disabled'=>false, 
+                            'required'=>false)); ?>
+                </td>
             </tr>
             <tr>
                 <td>Address</td>
@@ -71,7 +76,13 @@ function ncn_admin_page_member_ids()
             </tr>
             <tr>
                 <td>Province/State</td>
-                <td><?php draw_stateform_part('state', false, false); ?></td>
+                <td><?php draw_stateform_part(array(
+                            'name'  => 'state', 
+                            'class' => '', 
+                            'disabled' => false, 
+                            'required' => false, 
+                    )); ?>
+                </td>
             </tr>
             <tr>
                 <td>Zip</td>
