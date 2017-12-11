@@ -83,7 +83,7 @@ $action_url = url('chatter/post/'.$post['id'].'/add/comment');
                                         </div>
                                     </div>
                                     <div class="button-container">
-                                        <button type="button" class="btn btn-flat add-comment-btn">Write</button>
+                                        <button type="button" class="btn btn-primary add-comment-btn">Write</button>
                                     </div>
                                 </div>
                             </div>

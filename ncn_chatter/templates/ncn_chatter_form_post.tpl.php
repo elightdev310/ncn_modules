@@ -59,7 +59,7 @@ $user_feed = ncn_chatter_get_feed_by_entity(FEED_TYPE_USER, $user->uid);
                         <?php endif; ?>
                     </div>
                     <div class="button-container">
-                        <button type="button" class="btn btn-flat add-post-btn">Share</button>
+                        <button type="button" class="btn btn-primary add-post-btn">Share</button>
                     </div>
                 </div>
             </div>
