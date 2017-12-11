@@ -55,7 +55,7 @@
                             <?php echo strClaimAddress($row['claim_id']) ?>
                         </td>
                         <td class="td-ars-info">
-                            <a href="#" class="btn btn-primary">Edit</a>
+                            <a href="<?php print url('account/ar/'.$row['claim_id']); ?>" class="btn btn-primary">Edit</a>
                         </td>
                         <td class="td-approve-invoice">
                             <a href="<?php print url("account/approve_invoice/".$row['claim_id']) ?>" class="btn btn-primary approve-btn">Approve Invoice</a>

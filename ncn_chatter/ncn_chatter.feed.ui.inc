@@ -99,11 +99,11 @@ global $user;
 /**
  * Render Claim Feed Block in Claim View Page
  */
-function ncn_chatter_claim_feed_block($claim_id, $ars=false) {
+function ncn_chatter_claim_feed_block($claim_id, $type='claim') {
     $claim = get_claim_data($claim_id);
     if ($claim) {
         $type = FEED_TYPE_CLAIM;
-        if ($ars) {
+        if ($type == 'ar') {
             $type = FEED_TYPE_AR;
         }
         $feed = ncn_chatter_get_feed_by_entity($type, $claim_id);
