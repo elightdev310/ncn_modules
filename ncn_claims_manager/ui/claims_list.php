@@ -80,15 +80,17 @@
                         </td>
                         <td class="td-photo-album">
                             <?php if ($editable == true): ?>
-                            <a href="#" class="enabled btn btn-primary" onclick='open_edit_box(<?php echo $row['claim_id']; ?>)'>Edit Album</a>
+                            <a class="enabled btn btn-primary" onclick='open_edit_box(<?php echo $row['claim_id']; ?>)'>
+                                <span class="btn-camera-icon">Edit Album</span>
+                            </a>
                             <?php endif; ?>
                         </td>
                         <td class="td-property-loss-address">
                             <?php echo strClaimAddress($row['claim_id']) ?>
                         </td>
                         <td class="td-rooms">
-                            <?php if ($editable == true): ?>
-                            <a href="#" class="btn btn-primary" onclick="open_scopesheet_edit_box(<?php echo $row['claim_id']; ?>)">Edit</a>
+                            <?php if ($editable == true && ncn_claims_manager_get_room_numbers($row['claim_id'])>0): ?>
+                            <a class="btn btn-primary" onclick="open_scopesheet_edit_box(<?php echo $row['claim_id']; ?>)">Edit</a>
                             <?php endif; ?>
                         </td>
                         <td class="td-claim-processing">

@@ -7,8 +7,20 @@ function ncn_claim_manager_member_dashboard_page()
 {
 global $user;
     $total_claim_value = invoiced_to_date($user->uid, true);
-    $total_claims = 22;
+    $total_claims = user_detail_get_total_claims($user);
     $average_claim_value= $total_claim_value / $total_claims;
+
+    //
+    $claims = db_select('claims', 'c')
+            ->fields('c')
+            ->condition('c.user_id', $user->uid)
+            ->condition('c.deleted', 0)
+            ->condition('c.claim_status', 'incomplete')
+            ->orderBy('c.last_modified', 'DESC')
+            ->extend('PagerDefault')
+            ->limit(5)
+            ->execute()
+            ->fetchAll();
 
     ob_start();
     @include get_realpath('ncn_claims_manager', 'ui/ncn_member_dashboard.php');

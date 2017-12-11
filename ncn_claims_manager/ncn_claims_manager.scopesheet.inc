@@ -41,6 +41,14 @@ function ncn_claims_manager_get_first_roomname($claim_id) {
   } 
   return '';
 }
+function ncn_claims_manager_get_room_numbers($claim_id) {
+  $row = ncn_cd($claim_id, 'scope', true);
+  if (!empty($row)) {
+      return count($row)-1;
+  } 
+  return 0;
+}
+
 function ncn_claims_manager_scope_sheet($claim_id, $room_name) {
   if (isset($_REQUEST['from_photo_album']) && $_REQUEST['from_photo_album']==1) {
     ncn_save_claim($claim_id, true);
