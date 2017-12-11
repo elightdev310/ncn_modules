@@ -116,7 +116,7 @@
                                 </td>
                                 <td class="td-claim-processing">
                                     <?php if ($send_to_admin == true && !is_leaduser($user)): ?>
-                                    <a href="<?php print url("account/additional_claim_info/".$row['claim_id']) ?>" class="btn btn-primary">Edit</a>
+                                    <a href="<?php print url("account/edit_claim/".$row['claim_id']) ?>" class="btn btn-primary">Edit</a>
                                     <?php endif; ?>
                                 </td>
                                 <td class="td-create-my-invoice">

@@ -9,14 +9,16 @@ function ncn_chatter_insert_feed_record($data=array()) {
         return false;
     }
 
-    $fid = db_insert('chatter_feed')
+    $result = db_insert('chatter_feed')
         ->fields(array(
             'type'      => $data['type'], 
             'entity_id' => $data['entity_id'], 
             'status'    => (isset($data['status'])? $data['status'] : 1), 
         ))
         ->execute();
-    return $fid;
+
+    $feed = ncn_chatter_get_feed_by_entity($data['type'], $data['entity_id']);
+    return $feed['fid'];
 }
 
 /**

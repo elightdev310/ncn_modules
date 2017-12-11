@@ -18,7 +18,7 @@ require_once('ncn_claims_manager.ui.inc');
 require_once('ncn_claims_manager.page.inc');
 require_once('ncn_claims_manager.page.v1.inc');
 
-require_once('ncn_claims_manager.aci.inc');
+require_once('ncn_claims_manager.aci.v1.inc');
 require_once('ncn_claims_manager.scopesheet.inc');
 require_once('ncn_claims_manager.note.inc');
 

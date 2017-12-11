@@ -99,21 +99,24 @@ global $user;
 /**
  * Render Claim Feed Block in Claim View Page
  */
-function ncn_chatter_claim_feed_block($claim_id) {
+function ncn_chatter_claim_feed_block($claim_id, $ars=false) {
     $claim = get_claim_data($claim_id);
     if ($claim) {
         $type = FEED_TYPE_CLAIM;
-        if ($claim['claim_status'] == 'receivables') {
+        if ($ars) {
             $type = FEED_TYPE_AR;
         }
         $feed = ncn_chatter_get_feed_by_entity($type, $claim_id);
+        $fid = 0;
         if (!$feed) {
             // Create Claim Feed
-            $feed = ncn_chatter_create_feed(array('type'=>$type, 'entity_id'=>$claim_id));
-            if (!$feed) { return ''; }
+            $fid = ncn_chatter_create_feed(array('type'=>$type, 'entity_id'=>$claim_id));
+            if (!$fid) { return ''; }
+        } else {
+            $fid = $feed['fid'];
         }
 
-        $feed_block = ncn_chatter_feed_block($feed['fid']);
+        $feed_block = ncn_chatter_feed_block($fid);
         $output = '<div class="chatter-section">';
         $output.=   '<div class="chatter-section-content">';
         $output.=   $feed_block;
