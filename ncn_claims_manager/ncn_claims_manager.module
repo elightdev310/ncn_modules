@@ -14,10 +14,14 @@ to the right of "Service Invoice"
 */
 
 require_once('ncn_claims_manager.inc');
+require_once('ncn_claims_manager.ui.inc');
 require_once('ncn_claims_manager.page.inc');
+require_once('ncn_claims_manager.page.v1.inc');
+
 require_once('ncn_claims_manager.aci.inc');
 require_once('ncn_claims_manager.scopesheet.inc');
 require_once('ncn_claims_manager.note.inc');
+
 require_once('distributor/ncn_distributor.inc');
 require_once('associate/ncn_associate.inc');
 

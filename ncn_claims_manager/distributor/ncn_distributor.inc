@@ -909,3 +909,128 @@ function render_change_report_pass_page($uid, $type)
     </form>
 <?php
 }
+
+function draw_sales_report_table($data)
+{
+    ?>
+    <div class="clear-block">
+        <div class="ncn-pager-ranger" style="font-weight: bold; margin-bottom:5px;"></div>
+    </div>
+    <div class="table-header">
+        <table>
+            <tr class="header">
+                <td class="td-company-name"><strong>Company Name</strong></td>
+                <td class="td-member-name"><strong>Member Name</strong></td>
+                <td class="td-start-up-fee"><strong>Start-up Fee</strong></td>
+                <td class="td-monthly-membership-fee"><strong>Monthly Membership Fee</strong></td>
+                <td class="td-date"><strong>Date</strong></td>
+                <td class="td-total-earned"><strong>Total Earned</strong></td>
+            </tr>
+        </table>
+    </div>
+    <div class="table-body">
+        <?php
+        drupal_add_css(drupal_get_path('module', 'ncn_message') . '/ncn_message.css', 'module', 'all', FALSE);
+        drupal_add_js(drupal_get_path('module', 'ncn_message') . '/ncn_message.js');
+
+        $page_records = 10;
+        $row_count = count($data);
+        $page_num = 0;
+
+        $member_count = 0;
+        foreach ($data as $key => $data_part) {
+            if ($member_count % $page_records == 0) {
+                $page_num++; ?>
+                <table class="ncn-pager ncn-pager-page-<?php echo $page_num; ?>">
+            <?php } ?>
+            <tr>
+                <td class="td-company-name"><?php echo $data_part[0]; ?></td>
+                <td class="td-member-name"><?php echo $data_part[1]; ?></td>
+                <td class="td-start-up-fee"><?php echo $data_part[2]; ?></td>
+                <td class="td-monthly-membership-fee"><?php echo $data_part[3]; ?></td>
+                <td class="td-date"><?php echo date('d M Y H:i:s', $data_part[4]); ?></td>
+                <td class="td-total-earned"><?php echo render_payment_cost($data_part[5]); ?></td>
+            </tr>
+            <?php if ($member_count % $page_records == ($page_records - 1)): ?>
+                </table>
+            <?php endif; ?>
+            <?php
+            $member_count += 1;
+        }
+        if ($member_count == 0) {
+            ?>
+            <table class="">
+                <?php
+                for ($i = $member_count; $i < $page_records; $i++) {
+                    ?>
+                    <tr>
+                        <td colspan="6">&nbsp;</td>
+                    </tr>
+                <?php } ?>
+            </table>
+        <?php
+        } else if (($member_count % $page_records) != 0) {
+            for ($i = $member_count; $i < (ceil($member_count / $page_records) * $page_records); $i++) {
+                ?>
+                <tr>
+                    <td colspan="6">&nbsp;</td>
+                </tr>
+            <?php
+            }
+            echo "</table>";
+        }
+        ?>
+    </div>
+    <div class="ncn-pager-control clearfix">    <!-- pager_control -->
+        <div style="float: right">
+            <a class="first" href="#" onclick="pm_page_action('first');">first</a>
+            <a class="prev" href="#" onclick="pm_page_action('prev');">prev</a>
+            <a class="next" href="#" onclick="pm_page_action('next');">next</a>
+            <a class="last" href="#" onclick="pm_page_action('last');">last</a>
+        </div>
+    </div>
+    <script type="text/javascript">
+        var total_records = <?php echo $member_count ?>;
+        var page_records = <?php echo $page_records; ?>;
+        var page_number = 1;    //global;
+        var page_count = <?php echo $page_num; ?>;
+        jQuery(document).ready(function () {
+            pm_select_page(page_number);
+            if (total_records <= page_records) {
+                jQuery('.ncn-pager-ranger').css('display', 'none');
+                jQuery('.ncn-pager-control').css('display', 'none');
+            }
+        });
+    </script>
+<?php
+}
+
+function ncn_claims_manager_draw_signup_fee_select($name, $default)
+{
+    // #options
+    $payments = array();
+    $pnode = node_load(SKU_SUF_DF);
+    $pnode->data = unserialize($pnode->data);
+    $payments[SKU_SUF_DF] = $pnode; // NCN Membership Kit ($279)
+    
+    // $pnode = node_load(SKU_SUF_DP);
+    // $pnode->data = unserialize($pnode->data);
+    // $payments[SKU_SUF_DP] = $pnode; // NCN Membership Kit Options ($99)
+
+    /* NCN GOLD MEMBER SPECIAL  */
+    // $pnode = node_load(SKU_SUF_GMSD);
+    // $pnode->data = unserialize($pnode->data);
+    // $payments[SKU_SUF_GMSD] = $pnode; // NCN Membership Kit Options ($49)
+
+    /*$pnode = node_load(57);   $pnode->data = unserialize($pnode->data);
+    $payments['57'] = $pnode;   // NCN Gold First Special($0)*/
+
+    $select_field = "<select id=\"$name\" name=\"$name\"> \r\n";
+    foreach ($payments as $key => $product) {
+        $selected = ($key == $default) ? "selected" : "";
+        $select_field .= "<option value=\"$key\" $selected >" . $product->title . " ($" . number_format($product->cost, 2) . ")</option>";
+    }
+    $select_field .= "</select> \r\n";
+
+    return $select_field;
+}

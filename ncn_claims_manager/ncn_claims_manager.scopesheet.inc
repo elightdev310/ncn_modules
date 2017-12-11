@@ -28,12 +28,28 @@ function ncn_claims_manager_scope_sheet($claim_id, $room_name) {
     ob_end_clean();
     return $output;
 }*/
-
+function ncn_claims_manager_get_first_roomname($claim_id) {
+  $row = ncn_cd($claim_id, 'scope', true);
+  if (!empty($row)) {
+      $customer_name = ncn_cd($claim_id, 'customer_name');
+      foreach ($row as $room_name => $room) {
+        if ($customer_name == $room_name) {
+          continue;
+        }
+        return $room_name;
+      }
+  } 
+  return '';
+}
 function ncn_claims_manager_scope_sheet($claim_id, $room_name) {
   if (isset($_REQUEST['from_photo_album']) && $_REQUEST['from_photo_album']==1) {
     ncn_save_claim($claim_id, true);
   }
   
+  if ($room_name == 0) {
+    $room_name = ncn_claims_manager_get_first_roomname($claim_id);
+  }
+
   $section_title = '';
   
   drupal_set_title($claim_id." - Scope Sheet");
@@ -87,22 +103,22 @@ function ncn_claims_manager_scopesheet_render_claim_info($claim_id, $room_name, 
 }
 
 function ncn_claims_manager_scopesheet_render_select_room_name($claim_id, $id, $value, $mode="edit") {
-    global $base_url;
-    $rooms = ncn_api_cm_room_get_claim_rooms_data($claim_id, FALSE);
-    $select_field = "<select id=\"$id\" name=\"$id\"> \r\n";
-    foreach ($rooms as $room) {
-        $room_name = $room['name'];
-        $selected = ($room_name==$value)? "selected" : "";
-        if ($mode=="edit") {
-            $ss_url = base_path()."account/scope_sheet/$claim_id/".rawurlencode($room_name);
-        } else {
-            $ss_url = base_path()."account/scope_sheet_view/$claim_id/".rawurlencode($room_name);
-    }
-    $select_field .= "<option value=\"".$ss_url."\" $selected >".$room_name."</option>";
-    }
-    $select_field .= "</select> \r\n";
-    
-    return $select_field;
+  global $base_url;
+  $rooms = ncn_api_cm_room_get_claim_rooms_data($claim_id, FALSE);
+  $select_field = "<select id=\"$id\" name=\"$id\"> \r\n";
+  foreach ($rooms as $room) {
+      $room_name = $room['name'];
+      $selected = ($room_name==$value)? "selected" : "";
+      if ($mode=="edit") {
+          $ss_url = base_path()."account/scope_sheet/$claim_id/".rawurlencode($room_name);
+      } else {
+          $ss_url = base_path()."account/scope_sheet_view/$claim_id/".rawurlencode($room_name);
+  }
+  $select_field .= "<option value=\"".$ss_url."\" $selected >".$room_name."</option>";
+  }
+  $select_field .= "</select> \r\n";
+  
+  return $select_field;
 }
 /**
  * Render Top Section Links (under Scope Sheet)
@@ -126,9 +142,8 @@ function ncn_claims_manager_scopesheet_render_section_links($claim_id, $room_nam
                 show_aci_section('scopesheet_link_room_dimensions');
             }); ", 'inline'
     );
-    
+
     return $output;
-    
 }
 
 /**
@@ -143,7 +158,7 @@ function ncn_claims_manager_get_scopesheet_sections() {
         'structural_moisture_reading'   => array('title'        =>'Structural Moisture Readings',
                                                  'render_func'  =>'ncn_admin_ss_render_structural_moisture_readings'), 
         'equipment_placement'           => array('title'        =>'Equipment Placement', 
-                                                     'render_func'  =>'ncn_admin_ss_render_equipment_placement'), 
+                                                 'render_func'  =>'ncn_admin_ss_render_equipment_placement'), 
         'services'                      => array('title'        =>'Services', 
                                                  'render_func'  =>'ncn_admin_ss_render_services'), 
         'comments'                      => array('title'        =>'Comments', 

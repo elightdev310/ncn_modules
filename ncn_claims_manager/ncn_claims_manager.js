@@ -235,8 +235,20 @@
         } catch(err) {
             alert(err);
         }
+        return false;
+    }
 
+    function open_scopesheet_edit_box(claim_id)
+    {
+        try{
+            // open the colorbox
+            var in_url = Drupal.settings.basePath+"account/scope_sheet/"+claim_id+"/0";
 
+            jQuery.colorbox({width:"900px",height:"650px",href:in_url,open:true,iframe:true,onClosed:function(){ }});
+        } catch(err) {
+            alert(err);
+        }
+        return false;
     }
 
     //------------------------------------------------------------------------------

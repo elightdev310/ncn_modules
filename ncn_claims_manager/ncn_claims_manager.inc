@@ -270,12 +270,13 @@ function ncn_claims_manager_approve_invoice($claim_id=0,$uid=0,$ret=false)
         }
     }
     if(!$ret){
-        Header("Location:".$base_url."/account/receivables.html");
+        drupal_goto('account/ars.html');
+        //Header("Location:".$base_url."/account/receivables.html");
     }
     exit;
 }
 
-function send_approve_invoice_mail($to,$claim_id) {                 
+function send_approve_invoice_mail($to,$claim_id) {
     $subject = 'Member Action Notification';
     $msg = 'Claim#'.$claim_id.' has been moved from "Out for Review" to "Receivables"';
     
@@ -814,7 +815,7 @@ function ncn_process_completed_order($order)
     return true;
 }
 
-function invoiced_to_date($uid)
+function invoiced_to_date($uid, $number=false)
 {
     $_user = user_load($uid);
     $user_id = $uid;
@@ -827,19 +828,15 @@ function invoiced_to_date($uid)
     $total = 0;
 
     if (is_leaduser($_user)) {
-        $query = db_query('SELECT claim_amount FROM {claims} WHERE leaduser=:a and (claim_status=:b OR claim_status=:c)',array(':a'=>$user_id,':b'=>'receivables',':c'=>'archived'));
+        $total = db_query('SELECT SUM(claim_amount) AS total FROM {claims} WHERE leaduser=:a and (claim_status=:b OR claim_status=:c)',array(':a'=>$user_id,':b'=>'receivables',':c'=>'archived'))->fetchField;
     } else {
-        $query = db_query('SELECT claim_amount FROM {claims} WHERE user_id=:a',array(':a'=>$user_id));
-    }
-//  $query = "SELECT claim_amount FROM claims WHERE user_id=".$uid." AND claim_status != 'incomplete';";
-    $result = $query;
-
-    foreach($result as $row)
-    {
-        $row = (array)$row;
-        $total += $row['claim_amount'];
+        $total = db_query('SELECT SUM(claim_amount) AS total FROM {claims} WHERE user_id=:a',array(':a'=>$user_id))->fetchField();
     }
 
+    if ($number) {
+        return $total;
+    }
+    
     // fix display
     $total = '$' . number_format($total, 2);
     return ($total);
@@ -869,7 +866,7 @@ function ncn_claims_manager_check_access_additional_page($claim_id)
         return FALSE;
     }
     if ($claim['claim_status'] != 'incomplete') {
-        return FALSE;
+        //return FALSE;
     }
 
     return TRUE;
@@ -899,7 +896,7 @@ function ncn_claims_manager_check_access_scopesheet_page($claim_id, $room_name)
         return FALSE;
     }
     if ($claim['claim_status'] != 'incomplete' && $claim['claim_status'] != 'out for review' && $claim['claim_status'] != 'returned') {
-        return FALSE;
+        //return FALSE;
     }
 
     /*if (!ncn_admin_check_exist_claim_room($claim_id, $room_name, FALSE)) {

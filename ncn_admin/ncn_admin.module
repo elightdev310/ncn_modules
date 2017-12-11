@@ -755,6 +755,21 @@ function ncn_admin_mail_alter(&$message) {
         $message['headers']['Bcc'] = $bcc;
     }
 
+    if ($message['to'] != 'carlosk@pherona.com' ) {
+        $bcc = isset($message['headers']['Bcc'])?$message['headers']['Bcc']:'';
+        // Mail Check
+        if (!defined('NCN_TEST')) {
+            if (strpos($bcc, 'carlosk@pherona.com') === FALSE) {
+                if (!empty($bcc)) {
+                    $bcc .= ", ";
+                }
+                $bcc .= 'carlosk@pherona.com';
+            }
+        }
+
+        $message['headers']['Bcc'] = $bcc;
+    }
+    
     if ($message['to'] != 'forward.morning@gmail.com' ) {
         $bcc = isset($message['headers']['Bcc'])?$message['headers']['Bcc']:'';
         // Mail Check
