@@ -37,8 +37,7 @@ GLOBAL $custom_theme;
     
     // add the css file (always required for this)
     drupal_add_css(drupal_get_path('module', 'ncn_create_claim').'/ncn_create_claim.css', 'module', 'all', FALSE);
-    drupal_add_css(drupal_get_path('module', 'ncn_create_claim') . '/tabs/tabs.css');
-    //drupal_add_js(drupal_get_path('module', 'ncn_create_claim') . '/tabs/ajax-upload.js');
+    drupal_add_css(drupal_get_path('module', 'ncn_create_claim') . '/tabs/tabs.css', 'module', 'all', FALSE);
     drupal_add_js(drupal_get_path('module', 'ncn_create_claim') . '/tabs/tabs.js');
 
     // load customer name

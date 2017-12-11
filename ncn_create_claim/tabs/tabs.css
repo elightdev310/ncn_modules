@@ -118,8 +118,7 @@ html ul.tabs li.active, html ul.tabs li.active a:hover  { /*--Makes sure that th
 /* ---- ROOMS LIST ---- */
 .ar_upload_wrapper	{
 	float:left;
-	width:280px;
-	height:220px;
+	height:250px;
 }
 
 .ar_upload_wrapper p	{
