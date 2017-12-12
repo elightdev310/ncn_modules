@@ -45,10 +45,15 @@
     </div>
 
     <div class="row">
-        <div class="ar-detail col-sm-8 col-md-7"> 
-            
+        <div class="ar-detail col-sm-7"> 
+            <h3>DETAILS</h3>
+            <div class="panel-box">
+            <div class="panel-box-content">
+                <?php print ncn_edit_claim_ar_details_panel($claim_id); ?>
+            </div>
+            </div>
         </div>
-        <div class="col-sm-4 col-md-5"> 
+        <div class="col-sm-5"> 
             <?php print ncn_chatter_claim_feed_block($claim_id, 'ar'); ?>
         </div>
     </div>
