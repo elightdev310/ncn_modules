@@ -197,7 +197,7 @@ function ncn_admin_sync_additional_data($claim_id, $options = array()) {
  * ACI Render - "Information" Section
  */ 
 function ncn_admin_aci_render_claim_information($claim_id, $section) {
-    global $base_url;
+global $base_url;
     $data = array();
     if (isset($_POST['ci'])) {
         $data = $_POST['ci'];
@@ -576,7 +576,8 @@ function ncn_admin_aci_render_dcl_log_list($claim_id) {
     
     ob_start();
 ?>
-<table>
+<div class="table-responsive">
+<table class="table">
 <thead>
     <th class='dcl-day-week'>Day of Week</th>
     <th class='dcl-date'>Date</th>
@@ -603,6 +604,7 @@ function ncn_admin_aci_render_dcl_log_list($claim_id) {
 <?php endforeach; ?>
 </tbody>
 </table>
+</div>
 <?php
     $output = ob_get_contents();
     ob_end_clean();
@@ -626,50 +628,58 @@ function ncn_admin_aci_render_dcl_action_panel($claim_id, $action, $index=0) {
     }
     ob_start();
 ?>
-<table>
-    <tr>
-        <td class="td-label"><label for="dcl_date">Date (MM/DD/YY):</label></td>
-        <td><div class="field-item text-field-item small-size"><input type="text" name="dc_log[date]" id="dcl_date" value="<?php echo isset($log['date'])?$log['date']:''; ?>" onkeypress="return isDateKey(event);" /></div></td>
-    </tr>
-    <tr>
-        <td class="td-label"><label for="dcl_men"># Men:</label></td>
-        <td><div class="field-item text-field-item small-size"><input type="text" name="dc_log[men]" id="dcl_men" onkeypress="return isNumberKey(event, false);" onkeyup="dcl_calc_total_hours();" value="<?php echo isset($log['men'])?$log['men']:''; ?>" /></div></td>
-    </tr>
-    <tr>
-        <td class="td-label"><label for="dcl_hours_day">Hours Per Day:</label></td>
-        <td><div class="field-item text-field-item small-size"><input type="text" name="dc_log[hours_day]" id="dcl_hours_day" onkeypress="return isNumberKey(event, true);" onkeyup="dcl_calc_total_hours();" value="<?php echo isset($log['hours_day'])?$log['hours_day']:''; ?>" /></div></td>
-    </tr>
-    <tr>
-        <td class="td-label"><label for="dcl_hours_day">Total Hours:</label></td>
-        <td><div class="field-item text-field-item small-size">
-            <input type="text" name="dc_log[total_hours]" id="dcl_total_hours" value="<?php echo isset($log['men'])?$log['men']:0 * isset($log['hours_day'])?$log['hours_day']:0; ?>" readonly /><span>&nbsp;(Calculated automatically)</span>
-        </div></td>
-    </tr>
-    <tr>
-        <td class="td-label"><label for="dcl_after_hours">After Hours:</label></td>
-        <td>
+<div class="dcl-form-section">
+    <div class="form-group">
+        <div for="username" class="col-sm-4 control-label">Date (MM/DD/YY):</div>
+        <div class="col-sm-8 date-control">
+            <input type="text" class="form-control" name="dc_log[date]" id="dcl_date" value="<?php echo isset($log['date'])?$log['date']:''; ?>" onkeypress="return isDateKey(event);" />
+        </div>
+    </div>
+    <div class="form-group">
+        <div for="dcl_men" class="col-sm-4 control-label"># Men:</div>
+        <div class="col-sm-8">
+            <input type="text" class="form-control" name="dc_log[men]" id="dcl_men" onkeypress="return isNumberKey(event, false);" onkeyup="dcl_calc_total_hours();" value="<?php echo isset($log['men'])?$log['men']:''; ?>" />
+        </div>
+    </div>
+    <div class="form-group">
+        <div for="dcl_hours_day" class="col-sm-4 control-label">Hours Per Day:</div>
+        <div class="col-sm-8">
+            <input type="text" class="form-control" name="dc_log[hours_day]" id="dcl_hours_day" onkeypress="return isNumberKey(event, true);" onkeyup="dcl_calc_total_hours();" value="<?php echo isset($log['hours_day'])?$log['hours_day']:''; ?>" />
+        </div>
+    </div>
+    <div class="form-group">
+        <div for="dcl_hours_day" class="col-sm-4 control-label">Total Hours:</div>
+        <div class="col-sm-8">
+            <input type="text" class="form-control" name="dc_log[total_hours]" id="dcl_total_hours" value="<?php echo isset($log['men'])?$log['men']:0 * isset($log['hours_day'])?$log['hours_day']:0; ?>" readonly /><span>&nbsp;(Calculated automatically)</span>
+        </div>
+    </div>
+    <div class="form-group">
+        <div for="dcl_hourdcl_after_hourss_day" class="col-sm-4 control-label">After Hours:</div>
+        <div class="col-sm-8">
             <ul class="field-check-lists inline-group-fields clearfix">
                 <li class="inline-field-item"><input type="radio" name="dc_log[after_hours]" id="dcl_after_hours_yes" value="Yes" <?php if(isset($log['after_hours'])&&$log['after_hours']=='Yes') { echo "checked='checked'";} ?> /><label for="dcl_after_hours_yes">Yes</label></li>
                 <li class="inline-field-item"><input type="radio" name="dc_log[after_hours]" id="dcl_after_hours_no" value="No" <?php if(isset($log['after_hours'])&&$log['after_hours']=='No') { echo "checked='checked'";} ?> /><label for="dcl_after_hours_no">No</label></li>
             </ul>
-        </td>
-    </tr>
-    <tr>
-        <td></td>
-        <td>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-4 control-label"></div>
+        <div class="col-sm-8">
             <div class='aci-actions'>
                 <input type="hidden" id="dcl_action_type" name="dcl_action_type" value="<?php echo $action; ?>" />
                 <input type="hidden" id="dcl_log_index" name="dcl_log_index" value="<?php echo $index; ?>" />
                 <?php if ($action == 'new'): ?>
-                    <input type='button' value='  Add  ' onclick="on_click_aci_dcl_log_action(<?php echo $claim_id; ?>)"/>
+                    <input type='button' class="btn btn-primary" value='  Add  ' onclick="on_click_aci_dcl_log_action(<?php echo $claim_id; ?>)"/>
                 <?php else: ?>
-                    <input type='button' value='  OK  ' onclick="on_click_aci_dcl_log_action(<?php echo $claim_id; ?>)" />&nbsp;&nbsp;&nbsp;
-                    <input type='button' value='  Cancel  ' onclick="render_aci_dcl_log_action_panel(<?php echo $claim_id; ?>, 'new', 0)" />
+                    <input type='button' class="btn btn-primary" value='  OK  ' onclick="on_click_aci_dcl_log_action(<?php echo $claim_id; ?>)" />&nbsp;&nbsp;&nbsp;
+                    <input type='button' class="btn"value='  Cancel  ' onclick="render_aci_dcl_log_action_panel(<?php echo $claim_id; ?>, 'new', 0)" />
                 <?php endif; ?>
             </div>
-        </td>
-    </tr>
-</table>
+        </div>
+    </div>
+
+</div>
+
 <script>
 jQuery(function() {
     ncn_admin_aci_dcl_datepicker();
@@ -1059,7 +1069,7 @@ function ncn_admin_aci_render_sections($claim_id) {
  * ACI Render - "Comments" Section
  */ 
 function ncn_admin_aci_render_comments($claim_id, $section) {   
-        $data = array();
+    $data = array();
     if (isset($_POST['comments'])) {
         $data = $_POST['comments'];
     } else {

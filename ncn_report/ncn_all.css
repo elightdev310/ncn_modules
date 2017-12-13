@@ -160,7 +160,8 @@ table#aci_ci_content {
 	margin-top: 15px;
 }
 .inline-field-item {
-	display: inline;
+	display: inline-block;
+	float: left;
 }
 li.inline-field-item {
 	list-style-type: none;
@@ -168,7 +169,7 @@ li.inline-field-item {
 ul.inline-group-fields {
 	margin: 0px;
 	padding: 0px;
-	display: inline;
+	display: inline-block;
 }
 .aci-section-content .field-item.inline-field {
 	display: inline;

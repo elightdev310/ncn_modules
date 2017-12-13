@@ -46,10 +46,8 @@
 
     <div class="row">
         <div class="claims-detail col-sm-8 col-md-7"> 
-            <div class="claims-section-wrapper">
-                <div class="aci-section-links"><?php print ncn_claims_manager_aci_render_section_links($claim_id); ?></div>
-                <div class="aci-section-content-wrapper"><?php print ncn_claims_manager_aci_render_section_content($claim_id); ?></div>
-            </div>
+            <h3>DETAILS</h3>
+            <?php print ncn_edit_claim_aci_panel($claim_id); ?>
         </div>
         <div class="col-sm-4 col-md-5"> 
             <?php print ncn_chatter_claim_feed_block($claim_id); ?>
