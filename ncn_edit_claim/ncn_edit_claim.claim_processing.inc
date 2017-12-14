@@ -1,6 +1,28 @@
 <?php
 function ncn_edit_claim_processing_page($claim_id) {
     $claim = get_claim_data($claim_id);
+    $editable = true;
+    $send_to_archive = false;
+    $send_to_admin = false;
+    $approve_deny = false;
+    switch ($claim['claim_status']) {
+        case 'incomplete':
+            $editable = true;
+            $send_to_archive = false;
+            $send_to_admin = true;
+            break;
+        case 'out for review':
+        case 'returned':
+        case 'approved':
+            $editable = true;
+            $send_to_archive = false;
+            $send_to_admin = false;
+            $approve_deny = true;
+            break;
+        case 'archived': 
+            $editable = false;
+            break;
+    }
     
     ob_start();
     @include get_realpath('ncn_edit_claim', 'ui/claim_processing_page.php');

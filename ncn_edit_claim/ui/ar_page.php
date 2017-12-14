@@ -6,6 +6,18 @@
 
 <div id="page_loading"></div>
 <div id="page_results" class="ar-page">
+    <div class="clearfix">
+    <div class="claim-top-links-section">
+        <div class="panel-box claim-link-list">
+            <div class="panel-box-content">
+                <a href="#" class="btn">New Note</a> 
+                <a href="#" class="btn">Edit</a> 
+            </div>
+        </div>
+        <a href="#" class="btn btn-primary claim-right-link">Approve Invoice</a>
+    </div>
+    </div>
+
     <div class="ar-icon-section">
         <div>Account Receivables</div>
         <div class="name-info"><?php echo $claim_id; ?></div>

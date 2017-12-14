@@ -6,6 +6,32 @@
 
 <div id="page_loading"></div>
 <div id="page_results" class="claim-processing-page">
+    <div class="clearfix">
+    <div class="claim-top-links-section">
+        <div class="panel-box claim-link-list">
+            <div class="panel-box-content">
+                <?php if ($editable == true && ncn_claims_manager_get_room_numbers($claim_id)>0): ?>
+                    <a class="btn" onclick="open_scopesheet_edit_box(<?php echo $claim_id; ?>)">EDIT ROOM(s)</a> 
+                <?php else: ?>
+                    <a class="btn disabled">EDIT ROOM(s)</a> 
+                <?php endif; ?>
+                <?php if ($editable == true): ?>
+                    <a class="btn" onclick='open_edit_box(<?php echo $claim_id; ?>)'>EDIT PHOTO ALBUM</a> 
+                <?php else: ?>
+                    <a class="btn disabled">EDIT PHOTO ALBUM</a> 
+                <?php endif; ?>
+                <a href="" class="btn">EDIT CLAIM</a> 
+                <a href="" class="btn">NEW MONITORING HOURS</a> 
+            </div>
+        </div>
+        <?php if ($send_to_admin == true && !is_leaduser($user)): ?>
+            <a class="btn btn-primary claim-right-link create-invoice-btn enabled colorbox-node" href="<?php echo $base_url; ?>/account/confirm_submit_claim/<?= $claim_id; ?>?width=700&height=540">Create My Invoice</a>
+        <?php else: ?>
+            <a class="btn btn-primary disabled" >Create My Invoice</a>
+        <?php endif; ?>
+    </div>
+    </div>
+
     <div class="claim-icon-section">
         <div>Claim</div>
         <div class="name-info"><?php echo ncn_cd($claim_id, 'customer_name') ?></div>
