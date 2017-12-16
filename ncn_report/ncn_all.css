@@ -83,9 +83,6 @@ select#report_category{
 /************************************************************/
 /* Additional Claim Information 														*/
 /************************************************************/
-.additional-claim-info-inline-page {
-	width: 860px;
-}
 .claims-detail.additional-claim-info {
 	width: 850px;
 }
@@ -218,12 +215,18 @@ ul.inline-group-fields {
 }
 .aci-claim-info .aci-claim-info-item {
 	display: inline-block;
-	margin-right: 25px;
+	margin: 0px 10px;
 }
 .aci-claim-info .aci-claim-info-item.align-right {
 	float: right;
 	margin-right: 0px;
 	margin-left: 25px;
+	font-size: 0.9em;
+	margin-top: 5px;
+}
+
+.aci-claim-info .aci-claim-info-wrapper {
+	margin: 5px 20px;
 }
 /************************************************************/
 /* Room Scope Sheet																					*/
@@ -388,7 +391,7 @@ table.ss-list-table tbody {
 }
 #ss_claim_room_scope_sheet_form .aci-section-content .tinyscrollbar .viewport {
 	width: 97%;
-	height: 415px;
+	height: 380px;
 }
 #view_aci_addtional_claims_data {
 	line-height: 24px;

@@ -240,7 +240,7 @@
             // open the colorbox
             var in_url = Drupal.settings.basePath+"account/scope_sheet/"+claim_id+"/0";
 
-            jQuery.colorbox({width:"900px",height:"650px",href:in_url,open:true,iframe:true,onClosed:function(){ }});
+            jQuery.colorbox({width:"1024px",height:"650px",href:in_url,open:true,iframe:true,onClosed:function(){ }});
         } catch(err) {
             alert(err);
         }

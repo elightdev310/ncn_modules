@@ -54,7 +54,7 @@ function ncn_claims_manager_scope_sheet($claim_id, $room_name) {
     ncn_save_claim($claim_id, true);
   }
   
-  if ($room_name == 0) {
+  if ($room_name === 0 || $room_name === '0') {
     $room_name = ncn_claims_manager_get_first_roomname($claim_id);
   }
 
@@ -67,8 +67,12 @@ function ncn_claims_manager_scope_sheet($claim_id, $room_name) {
     <div class="claims-section-wrapper ">
       <div class="aci-claim-info ss-claim-info"><?php print ncn_claims_manager_scopesheet_render_claim_info($claim_id, $room_name); ?></div>
       <div class="title"><?php echo $section_title; ?></div>
-      <div class="aci-section-links ss-section-links"><?php print ncn_claims_manager_scopesheet_render_section_links($claim_id, $room_name, "edit"); ?></div>
-      <div class="aci-section-content-wrapper ss-section-content-wrapper"><?php print ncn_claims_manager_scopesheet_render_section_content($claim_id, $room_name); ?></div>
+      <div class="panel-box">
+        <div class="panel-box-content">
+          <div class="aci-section-links ss-section-links"><?php print ncn_claims_manager_scopesheet_render_section_links($claim_id, $room_name, "edit"); ?></div>
+          <div class="aci-section-content-wrapper ss-section-content-wrapper"><?php print ncn_claims_manager_scopesheet_render_section_content($claim_id, $room_name); ?></div>
+        </div>
+      </div>
     </div>
   </div>
 <?php 
@@ -81,48 +85,26 @@ function ncn_claims_manager_scope_sheet($claim_id, $room_name) {
  * Render Claim & Room Information (Scope Sheet)
  */ 
 function ncn_claims_manager_scopesheet_render_claim_info($claim_id, $room_name, $mode="edit") {
-    global $base_url;
-    $output = '<div class="aci-claim-info-wrapper ss-claim-info-wrapper clearfix">';
-    $output.= "<div class='aci-claim-info-item ss-claim-info-item'>Claim ID: $claim_id</div>";
-    $output.= "<div class='aci-claim-info-item ss-claim-info-item'>Room Name: ".ncn_claims_manager_scopesheet_render_select_room_name($claim_id, "ncn_cm_ss_room_name", $room_name, $mode)."</div>";
-    
-    $photo_album_url = base_path()."account/edit_claim_inline/$claim_id/room/".$room_name;
-    $output.= "<div class='aci-claim-info-item ss-claim-info-item align-right'>";
-    if ($mode=='edit') {
-        $view_url = base_path()."account/scope_sheet_view/$claim_id/$room_name";
-        $output.= "<a href='$view_url'><b>VIEW</b> Scopesheet</a>";
-    } else {
-        $edit_url = base_path()."account/scope_sheet/$claim_id/$room_name";
-        $output.= "<a href='$edit_url'><b>EDIT</b> Scopesheet</a>";
-    }
-    $output.= "&nbsp;&nbsp;|&nbsp;&nbsp;<a href='$photo_album_url'><b>Back to Photo Album</b></a>";
-    $output.= "</div>";
-    $output.= '</div>'; 
-    drupal_add_js("
-        jQuery(document).ready(function() {
-            jQuery('#ncn_cm_ss_room_name').bind('change', function() {
-                var url = jQuery('#ncn_cm_ss_room_name').val();
-                window.location = url;
-            });
-        });
-    ", "inline");
-    
-    return $output;
+  ob_start();
+  @include get_realpath('ncn_claims_manager', 'ui/scopesheet/ss_claim_info_panel.php');
+  $content = ob_get_contents();
+  ob_end_clean();
+
+  return $content;
 }
 
 function ncn_claims_manager_scopesheet_render_select_room_name($claim_id, $id, $value, $mode="edit") {
-  global $base_url;
   $rooms = ncn_api_cm_room_get_claim_rooms_data($claim_id, FALSE);
   $select_field = "<select id=\"$id\" name=\"$id\"> \r\n";
   foreach ($rooms as $room) {
       $room_name = $room['name'];
       $selected = ($room_name==$value)? "selected" : "";
       if ($mode=="edit") {
-          $ss_url = base_path()."account/scope_sheet/$claim_id/".rawurlencode($room_name);
+          $ss_url = url("account/scope_sheet/$claim_id/".rawurlencode($room_name));
       } else {
-          $ss_url = base_path()."account/scope_sheet_view/$claim_id/".rawurlencode($room_name);
-  }
-  $select_field .= "<option value=\"".$ss_url."\" $selected >".$room_name."</option>";
+          $ss_url = url("account/scope_sheet_view/$claim_id/".rawurlencode($room_name));
+      }
+      $select_field .= "<option value=\"".$ss_url."\" $selected >".$room_name."</option>";
   }
   $select_field .= "</select> \r\n";
   
