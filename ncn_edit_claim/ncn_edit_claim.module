@@ -12,6 +12,12 @@ function ncn_edit_claim_menu()
       'type' => MENU_CALLBACK,
       'access arguments' => array('access content'),
     );
+    $items['account/claim/%/add-room'] = array(
+      'page callback' => 'ncn_edit_claim_add_room',
+      'page arguments'=> array(2), 
+      'type' => MENU_CALLBACK,
+      'access arguments' => array('access content'),
+    );
 
     $items['account/ar/%'] = array(
       'page callback' => 'ncn_edit_claim_ar_page',

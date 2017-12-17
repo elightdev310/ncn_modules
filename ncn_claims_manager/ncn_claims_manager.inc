@@ -1,5 +1,95 @@
 <?php
 
+/**
+ * NCN Action: Add Room
+ */
+function ncn_action_claim_add_room($claim_id, $room_name) {
+    if ($room_name == '')
+    {
+        return array(
+            'status' => 'error', 
+            'msg'    => t("Room name is empty.")
+        );
+    }
+
+    $room_name = preg_replace("/[^a-zA-Z0-9\s]/", "", $room_name);
+
+    $result = db_query("SELECT * FROM {claims_data} WHERE claim_id=:a AND `key`=:b",
+                        array(':a'=>$claim_id,':b'=>'scope'));
+    $row_count = $result->rowCount();
+    $b_insert = true;
+    if ($row_count > 0)
+    {
+        // load images
+        $row = $result->fetchAssoc();
+        $scope = unserialize($row['val']);
+        $b_insert = false;
+    }
+
+    if (empty($scope))
+    {
+        $scope = array();
+        $default_room_name = ncn_admin_claim_get_default_room_name($claim_id);
+        $scope[$default_room_name] = array();
+    }
+
+    if (array_key_exists($room_name, $scope))
+    {
+        return array(
+            'status'  => 'error', 
+            'msg'     => t("Room(!room_name) exists already.", array('!room_name' => $room_name)) 
+        );
+    }
+
+    $scope[$room_name] = array(); // Add a room
+    $scope = serialize($scope);
+    if ($b_insert)
+    {
+        $query = "INSERT INTO claims_data VALUES(:a, :b, :c, :d, :e)";
+        $result = db_query($query, array(
+            ':a' => $claim_id,
+            ':b' => '',
+            ':c' => 'scope',
+            ':d' => $scope,
+            ':e' => 0,
+        ));
+    }
+    else
+    {
+        $query = "UPDATE claims_data SET `val`=:a WHERE claim_id=:b AND `key`=:c";
+        $result = db_query($query, array(
+            ':a' => $scope,
+            ':b' => $claim_id,
+            ':c' => 'scope',
+        ));
+    }
+
+    if ($result->rowCount()==0)
+    {
+        return array(
+            'status' => 'error', 
+            'msg'    => t('Failed to add a room.')
+        );
+    }
+
+    //////////////////
+    $log_message = t('!user_name added a room(!room_name)', array(
+        '!user_name' => ncn_amin_get_user_role_and_name() ,
+        '!room_name' => $room_name
+    ));
+    ncn_admin_insert_claim_log($claim_id, date('U') , $log_message);
+
+    return array(
+        'status' => 'success', 
+        'msg'    => t('Added a room(!room_name), successfully.', array('!room_name' => $room_name)), 
+        'room_name' => $room_name
+    );
+}
+
+
+
+
+
 //------------------------------------------------------------------------------
 // assigns new account manager
 function get_account_manager_id($distributor_id)

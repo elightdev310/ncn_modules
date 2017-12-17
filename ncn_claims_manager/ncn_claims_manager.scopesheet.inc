@@ -41,13 +41,13 @@ function ncn_claims_manager_get_first_roomname($claim_id) {
   } 
   return '';
 }
-function ncn_claims_manager_get_room_numbers($claim_id) {
-  $row = ncn_cd($claim_id, 'scope', true);
-  if (!empty($row)) {
-      return count($row)-1;
-  } 
-  return 0;
-}
+// function ncn_claims_manager_get_room_numbers($claim_id) {
+//   $row = ncn_cd($claim_id, 'scope', true);
+//   if (!empty($row)) {
+//       return count($row)-1;
+//   } 
+//   return 0;
+// }
 
 function ncn_claims_manager_scope_sheet($claim_id, $room_name) {
   if (isset($_REQUEST['from_photo_album']) && $_REQUEST['from_photo_album']==1) {
@@ -69,8 +69,14 @@ function ncn_claims_manager_scope_sheet($claim_id, $room_name) {
       <div class="title"><?php echo $section_title; ?></div>
       <div class="panel-box">
         <div class="panel-box-content">
-          <div class="aci-section-links ss-section-links"><?php print ncn_claims_manager_scopesheet_render_section_links($claim_id, $room_name, "edit"); ?></div>
-          <div class="aci-section-content-wrapper ss-section-content-wrapper"><?php print ncn_claims_manager_scopesheet_render_section_content($claim_id, $room_name); ?></div>
+          <?php if(!empty($room_name)): ?>
+            <div class="aci-section-links ss-section-links"><?php print ncn_claims_manager_scopesheet_render_section_links($claim_id, $room_name, "edit"); ?></div>
+            <div class="aci-section-content-wrapper ss-section-content-wrapper"><?php print ncn_claims_manager_scopesheet_render_section_content($claim_id, $room_name); ?></div>
+          <?php else: ?>
+            <div class="text-center m20">
+              Please Add a room
+            </div>
+          <?php endif; ?>
         </div>
       </div>
     </div>
@@ -100,9 +106,9 @@ function ncn_claims_manager_scopesheet_render_select_room_name($claim_id, $id, $
       $room_name = $room['name'];
       $selected = ($room_name==$value)? "selected" : "";
       if ($mode=="edit") {
-          $ss_url = url("account/scope_sheet/$claim_id/".rawurlencode($room_name));
+          $ss_url = url("account/scope_sheet/$claim_id/".($room_name));
       } else {
-          $ss_url = url("account/scope_sheet_view/$claim_id/".rawurlencode($room_name));
+          $ss_url = url("account/scope_sheet_view/$claim_id/".($room_name));
       }
       $select_field .= "<option value=\"".$ss_url."\" $selected >".$room_name."</option>";
   }

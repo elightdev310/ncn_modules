@@ -185,10 +185,6 @@ function on_click_ncn_admin_delete_first_room(roomname) {
 	jQuery('#ncn_admin_delete_first_room').submit();
 }
 
-function string_trim(text) {
-  return text.replace(/^\s+/g, '').replace(/\s+$/g, '');
-}
-
 function on_click_ncn_admin_una_member_delete() {
 	if (confirm(Drupal.t('Are you sure you want to remove an unactivated member?'))) {
 		return true;

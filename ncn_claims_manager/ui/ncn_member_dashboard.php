@@ -110,7 +110,7 @@
                                     <?php echo strClaimAddress($row['claim_id']) ?>
                                 </td>
                                 <td class="td-rooms">
-                                    <?php if ($editable == true && ncn_claims_manager_get_room_numbers($row['claim_id'])>0 ): ?>
+                                    <?php if ($editable == true): ?>
                                     <a class="btn btn-primary" onclick="open_scopesheet_edit_box(<?php echo $row['claim_id']; ?>)">Edit</a>
                                     <?php endif; ?>
                                 </td>

@@ -9,13 +9,11 @@ require_once('ncn_report.mobile.inc');
 hook_init function
 */
 function ncn_report_init() {
-    drupal_add_css(drupal_get_path('module', 'ncn_report').'/ncn_all.css', 'module', 'all', FALSE);
     drupal_add_css(drupal_get_path('module', 'ncn_report').'/jquery_redmond/jquery.ui.all.css', 'module', 'all', FALSE);
     
+    drupal_add_css(drupal_get_path('module', 'ncn_report').'/ncn_all.css', 'module', 'all', FALSE);
+    drupal_add_js(drupal_get_path('module', 'ncn_report') . '/ncn_all.js');
     drupal_add_js(drupal_get_path('module', 'ncn_report') . '/ncn_report.js');
-    // drupal_add_js(drupal_get_path('module', 'ncn_report') . '/jquery.ui.core.js');
-    // drupal_add_js(drupal_get_path('module', 'ncn_report') . '/jquery.ui.widget.js');
-    // drupal_add_js(drupal_get_path('module', 'ncn_report') . '/jquery.ui.datepicker.js');
 }
 
 //------------------------------------------------------------------------------

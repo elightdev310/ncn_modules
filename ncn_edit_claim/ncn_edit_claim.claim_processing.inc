@@ -1,4 +1,9 @@
 <?php
+/**
+ * URL: account/edit_claim/%
+ *
+ * Claim Processing Page
+ */
 function ncn_edit_claim_processing_page($claim_id) {
     $claim = get_claim_data($claim_id);
     $editable = true;
@@ -169,4 +174,28 @@ function ncn_edit_claim_aci_comments_panel($claim_id) {
     ob_end_clean();
 
     return $content;
+}
+
+/**
+ * URL: account/claim/%/add-room
+ * Ajax Action: add room
+ */
+function ncn_edit_claim_add_room($claim_id) {
+    $json_result = array(
+        'status' => 'success', 
+        'msg'    => ''
+    );
+
+    if (isset($_POST['room_name'])) {
+        $room_name = $_POST['room_name'];
+        $result = ncn_action_claim_add_room($claim_id, $room_name);
+        $json_result = $result;
+    } else {
+        $json_result = array(
+            'status' => 'error', 
+            'msg'    => 'You need to input room name',
+        );
+    }
+
+    echo json_encode($json_result);
 }

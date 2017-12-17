@@ -10,7 +10,7 @@
     <div class="claim-top-links-section">
         <div class="panel-box claim-link-list">
             <div class="panel-box-content">
-                <?php if ($editable == true && ncn_claims_manager_get_room_numbers($claim_id)>0): ?>
+                <?php if ($editable == true): ?>
                     <a class="btn" onclick="open_scopesheet_edit_box(<?php echo $claim_id; ?>)">EDIT ROOM(s)</a> 
                 <?php else: ?>
                     <a class="btn disabled">EDIT ROOM(s)</a> 

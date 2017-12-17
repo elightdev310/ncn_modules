@@ -2237,6 +2237,8 @@ function get_distributor_associate_name($user_id)
 
 /**
  * Add Room Action Handler (in View Claim Page)
+ *
+ * TO DO: Change using ncn_action_claim_add_room()
  */
 
 function ncn_admin_photo_add_room($claim_id, $room_name)

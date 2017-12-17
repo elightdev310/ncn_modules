@@ -285,7 +285,6 @@ function ncn_create_claim_roomtab()
                     <!-- <input type="button" value="Remove Photo" class="remove-photo-album" onclick="removePhotoInAlbum(<?= $claim_id; ?>, '<?= $room_name; ?>', '<?= $image_id; ?>');" /> -->
                 <?php endif; ?>
             </div>
-
         </form>
     <?php
     }
