@@ -13,7 +13,7 @@ GLOBAL $custom_theme;
     if (!$room_choose_value) { $room_choose_value = 1; $room_choose_type = 'tab'; }
     }
   
-    $custom_theme = "ncn_account";
+    //$custom_theme = "ncn_account";
     $GLOBALS['in_edit'] = true;
 
     if (isset($_POST['tfunction']))

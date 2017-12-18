@@ -235,6 +235,7 @@ function ncn_create_claim_roomtab()
     $fdata = array();
     $c = 0;
 
+    print '<div class="row">';
     // get the room id from the arg
     for ($i = 0; $i < $pic_count; $i++) {
         // image
@@ -267,6 +268,7 @@ function ncn_create_claim_roomtab()
         }
 
         ?>
+        <div class="col-sm-4">
         <form method="POST" class="ar_form" enctype="multipart/form-data"
               action="<?= base_path() ?>account/upload_room_image/<?= "$claim_id/$room_name"; ?>" id="newHotnessForm">
             <input type="hidden" name="image_id" value="<?= $image_id; ?>">
@@ -278,18 +280,28 @@ function ncn_create_claim_roomtab()
                 <div class="ar_imgbox_hidden" style="display: none;"><img src="<?= $img_src_hidden; ?>"
                                                                           id="<?= $image_id; ?>_hidden"></div>
 
-                <input type="file" name="files[file]" value="<?= $file_value; ?>">
-
-                <input type="submit" value="Upload Photo">
-                <?php if (isset($_SESSION['claim'][$claim_id]['scope'][$room_name][$image_id])): ?>
-                    <!-- <input type="button" value="Remove Photo" class="remove-photo-album" onclick="removePhotoInAlbum(<?= $claim_id; ?>, '<?= $room_name; ?>', '<?= $image_id; ?>');" /> -->
-                <?php endif; ?>
+                <div class="button-section clearfix">
+                    <input type="file" class="photo-file hidden" name="files[file]" value="<?= $file_value; ?>" >
+                    <input type="submit" class="hidden upload-photo-file" value="Upload Photo">
+                    <a href="#" class="btn btn-primary pull-right choose-photo-file">
+                        <?php if (isset($_SESSION['claim'][$claim_id]['scope'][$room_name][$image_id])): ?>
+                            Replace Photo
+                        <?php else: ?>
+                            Upload Photo
+                        <?php endif; ?>
+                    </a>
+                    <?php if (isset($_SESSION['claim'][$claim_id]['scope'][$room_name][$image_id])): ?>
+                        <!-- <input type="button" value="Remove Photo" class="remove-photo-album" onclick="removePhotoInAlbum(<?= $claim_id; ?>, '<?= $room_name; ?>', '<?= $image_id; ?>');" /> -->
+                    <?php endif; ?>
+                </div>
             </div>
         </form>
+        </div>
     <?php
     }
+    print '</div>';
 
-    $_url_room_scope_sheet = base_path() . "account/scope_sheet/$claim_id/" . rawurlencode($room_name) . "?from_photo_album=1";
+    $_url_room_scope_sheet = url("account/scope_sheet/$claim_id/" . $room_name) . "?from_photo_album=1";
     if ($pic_count == 6) {
         echo '<div class="ncn-room-action-panel clearfix"><span>You need to SAVE room before you can access Scope Sheet</span> &nbsp;&nbsp; <a href="' . $_url_room_scope_sheet . '" >Edit Room ScopeSheet</a></div>';
     }

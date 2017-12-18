@@ -26,10 +26,12 @@ function tab_click(id)
 
 				// setup image uploads
 				var options = { 
+					beforeSubmit: function(arr, $form, options) {
+					    $form.find('.ar_imgbox').loadingOverlay();
+					}, 
 				    success: imageResponse
 				};				
 				jQuery('.ar_form').ajaxForm(options);
-
 			} 
 		});
 		 
@@ -42,18 +44,19 @@ function tab_click(id)
 //------------------------------------------------------------------------------
 function imageResponse(res, statusText, xhr, $form)
 {
-    //console.log(res);
 	var results = res.split("|");
 	
 	if (results[1] == "success")
 	{
 		document.getElementById(results[3]).src = results[2];
 		document.getElementById(results[3]+"_hidden").src = results[4];
+		$form.find('.choose-photo-file').html('Replace Photo');
 	}
 	else
 	{
 		alert(results[2]);
 	}
+	$form.find('.ar_imgbox').loadingOverlay('remove');
 }
 
 //------------------------------------------------------------------------------
@@ -92,7 +95,7 @@ function rename_room(tab_index, claim_id)
 	var new_name = prompt("Enter new room name", room_name);
 	
 	if (new_name == null)
-	{	return;		}
+	{	return false;		}
 
 	// rename the room (in session)
 	var rename_url = Drupal.settings.basePath+'account/renameroomtab/'+claim_id;
@@ -123,7 +126,7 @@ function rename_room(tab_index, claim_id)
 		}
 	});
 
-
+	return false;
 }
 
 //------------------------------------------------------------------------------

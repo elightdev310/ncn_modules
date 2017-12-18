@@ -227,7 +227,7 @@
         try{
             // open the colorbox
             var in_url = Drupal.settings.basePath+"account/edit_claim_inline/"+claim_id+"/tab/1";
-            jQuery.colorbox({width:"900px",height:"650px",href:in_url,open:true,iframe:true,onClosed:function(){ reload_claim(claim_id); }});
+            jQuery.colorbox({width:"1024px",height:"650px",href:in_url,open:true,iframe:true,onClosed:function(){ reload_claim(claim_id); }});
         } catch(err) {
             alert(err);
         }
