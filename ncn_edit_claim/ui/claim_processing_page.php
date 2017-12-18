@@ -20,8 +20,8 @@
                 <?php else: ?>
                     <a class="btn disabled">EDIT PHOTO ALBUM</a> 
                 <?php endif; ?>
-                <a href="" class="btn">EDIT CLAIM</a> 
-                <a href="" class="btn">NEW MONITORING HOURS</a> 
+                <!-- <a href="#" class="btn">EDIT CLAIM</a>  -->
+                <a href="#" class="btn new-monitoring-hours">NEW MONITORING HOURS</a> 
             </div>
         </div>
         <?php if ($send_to_admin == true && !is_leaduser($user)): ?>
@@ -81,3 +81,13 @@
     </div>
 
 </div>
+
+<script>
+jQuery(function($) {
+    $(document).ready(function() {
+        $('.claim-top-links-section .new-monitoring-hours').on('click', function() {
+            $('.claim-aci-section .aci-dcl-link').trigger('click');
+        });
+    });
+});
+</script>

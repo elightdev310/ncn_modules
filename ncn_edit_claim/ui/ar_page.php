@@ -11,7 +11,7 @@
         <div class="panel-box claim-link-list">
             <div class="panel-box-content">
                 <a href="#" class="btn">New Note</a> 
-                <a href="#" class="btn">Edit</a> 
+                <!-- <a href="#" class="btn">Edit</a>  -->
             </div>
         </div>
         <a href="#" class="btn btn-primary claim-right-link">Approve Invoice</a>
