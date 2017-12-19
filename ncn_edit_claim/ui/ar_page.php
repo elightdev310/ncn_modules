@@ -1,6 +1,8 @@
 <?php
 /**
  * AR Page
+ *
+ * @var: $claim_id, $claim, $member_user, $aci_icp
  */
 ?>
 
@@ -38,13 +40,13 @@
             <tbody>
                 <tr>
                     <td class="td-member-name">
-                        <?php echo user_fullname($member_user); ?>
+                        <?php echo $member_user->profile_legalname; ?>
                     </td>
                     <td class="td-carrier-name">
-                        
+                        <?php echo isset($aci_icp['insured_name'])?$aci_icp['insured_name']:''; ?>
                     </td>
                     <td class="td-amount">
-                        
+                        <?php echo '$' . number_format($claim['payment_received'], 2); ?>
                     </td>
                     <td class="td-file-status">
                         

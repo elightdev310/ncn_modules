@@ -657,6 +657,30 @@ function ncn_claims_manager_submit_claim_outforreview($claim_id=0,$uid=0,$ret=fa
 }
 
 /**
+ * NCN Help Function: Get Last Invoice File Information
+ */
+function ncn_get_claim_invoice_info($claim_id, $live, $revision, $invoice_id) {
+    if (!is_numeric($revision)) {
+        $revision_sql = "";
+    } else {
+        $revision_sql = " AND claims_invoices.revision=" . $revision . " ";
+    }
+
+    if($live==11){
+        $revision_sql .= " AND claims_invoices.invoice_id=" . $invoice_id . " ";
+    }
+
+    $query = "SELECT * FROM claims_invoices 
+                WHERE claims_invoices.claim_id={$claim_id} AND claims_invoices.`live`= {$live} {$revision_sql}
+                ORDER BY claims_invoices.revision DESC LIMIT 0,1";
+    $result = db_query($query);
+    if ($invoice_file = $result->fetchAssoc()) {
+        return $invoice_file;
+    }
+    return false;
+}
+
+/**
  * Download claim file
  * URL: account/serve_invoice_file/{$claim_id}/{$live}/[$revision]/[$invoice_id]
  */
