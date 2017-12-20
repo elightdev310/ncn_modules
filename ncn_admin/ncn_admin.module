@@ -35,6 +35,7 @@ require_once('ncn_admin.claim_invoice.inc');
 require_once('ncn_admin.aci.inc');
 require_once('ncn_admin.claim_timer_trigger.inc');
 require_once('ncn_admin.claim_processing.view.inc');
+require_once('ncn_admin.ars.inc');
 require_once('ncn_admin.payment.inc');
 require_once('ncn_admin_scopesheet.inc');
 require_once('ncn_admin.note.inc');

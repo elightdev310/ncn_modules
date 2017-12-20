@@ -2,6 +2,19 @@
 <div id="page_results" class="claims-list-page $class_name;">
     <div class="page-title-section clearfix">
         <div class="title page-title pull-left mr20">ARS</div>
+        <div class="pull-left">
+            <?php print theme_select(array(
+                'element' => array(
+                    '#options' => array(
+                            'all'       => 'All Claims', 
+                            'active'    => 'Active Claims', 
+                            'out_for_review'=>'Out for Review', 
+                            'archived'  => 'Archived Claims'
+                        ), 
+                    '#value' => $filter, 
+                    '#attributes' => array('class'=>array('claim-list-filter')), 
+                ))); ?>
+        </div>
     </div>
     <div class="panel-box">
         <div class="panel-box-content">
@@ -55,7 +68,7 @@
                             <?php echo strClaimAddress($row['claim_id']) ?>
                         </td>
                         <td class="td-ars-info">
-                            <a href="<?php print url('account/ar/'.$row['claim_id']); ?>" class="btn btn-primary">Edit</a>
+                            <a href="<?php print url('account/ar/'.$row['claim_id']); ?>" class="btn btn-primary">View</a>
                         </td>
                         <td class="td-approve-invoice">
                             <a href="<?php print url("account/approve_invoice/".$row['claim_id']) ?>" class="btn btn-primary approve-btn">Approve Invoice</a>
@@ -80,7 +93,7 @@ jQuery(function($) {
     $(document).ready(function() {
         $('.claim-list-filter').on('change', function() {
             var filter = $(this).val();
-            window.location.href = Drupal.settings.basePath + "account/claims.html?filter="+filter;
+            window.location.href = Drupal.settings.basePath + "account/ars.html?filter="+filter;
         });
     });
 });

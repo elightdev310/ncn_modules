@@ -1032,8 +1032,12 @@ function ncn_admin_view_claim($claim_id)
     </div>
     <?php endif; ?>
     <?php endif;//Create Invoice; ?>
-    
+
     <?php
+
+    // ARS Section
+    print ncn_admin_claim_view_ars_section($claim_id);
+
     if (module_exists('ncn_chatter')) {
         echo ncn_chatter_claim_feed_block($claim_id);
     }

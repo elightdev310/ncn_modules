@@ -14,7 +14,12 @@ $arr_adjuster = explode(' ', $aci_icp['claim_adjuster']);
 $adjuster_firstname = isset($arr_adjuster[0])? $arr_adjuster[0]:'';
 $adjuster_lastname  = isset($arr_adjuster[1])? $arr_adjuster[1]:'';
 
+$ars_pr = unserialize(get_ncn_data_extra($claim_id, 'ars_peer_review'));
+if (empty($ars_pr)) { $ars_pr = array(); }
+$ars_hoa= unserialize(get_ncn_data_extra($claim_id, 'ars_hoa'));
+if (empty($ars_hoa)) { $ars_hoa = array(); }
 ?>
+
 <div class="ar-details-panel">
     <div class="sub-section">
         <div class="row">
@@ -198,15 +203,15 @@ $adjuster_lastname  = isset($arr_adjuster[1])? $arr_adjuster[1]:'';
         <h4>Peer Review</h4>
         <div class="form-group">
             <label>Peer Review Company<a class="about-icon" href="#">about</a></label>
-            <div class="form-value"></div>
+            <div class="form-value"><?php echo $ars_pr['company']; ?></div>
         </div>
         <div class="form-group">
             <label>Peer Review  Contact First Name<a class="about-icon" href="#">about</a></label>
-            <div class="form-value"></div>
+            <div class="form-value"><?php echo $ars_pr['first_name']; ?></div>
         </div>
         <div class="form-group">
             <label>Peer Review Contact Last Name<a class="about-icon" href="#">about</a></label>
-            <div class="form-value"></div>
+            <div class="form-value"><?php echo $ars_pr['last_name']; ?></div>
         </div>
     </div>
 
@@ -214,15 +219,15 @@ $adjuster_lastname  = isset($arr_adjuster[1])? $arr_adjuster[1]:'';
         <h4>HOA Information</h4>
         <div class="form-group">
             <label>HOA Name<a class="about-icon" href="#">about</a></label>
-            <div class="form-value"></div>
+            <div class="form-value"><?php echo $ars_hoa['name']; ?></div>
         </div>
         <div class="form-group">
             <label>HOA Contact First Name<a class="about-icon" href="#">about</a></label>
-            <div class="form-value"></div>
+            <div class="form-value"><?php echo $ars_hoa['first_name']; ?></div>
         </div>
         <div class="form-group">
             <label>HOA Contact Last Name<a class="about-icon" href="#">about</a></label>
-            <div class="form-value"></div>
+            <div class="form-value"><?php echo $ars_hoa['last_name']; ?></div>
         </div>
     </div>
 
