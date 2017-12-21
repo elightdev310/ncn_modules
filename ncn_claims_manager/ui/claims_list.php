@@ -6,10 +6,13 @@
             <?php print theme_select(array(
                 'element' => array(
                     '#options' => array(
-                            'all'       => 'All Claims', 
-                            'active'    => 'Active Claims', 
-                            'out_for_review'=>'Out for Review', 
-                            'archived'  => 'Archived Claims'
+                            'all'           => 'All Claims', 
+                            'incomplete'    => 'Active Claims', 
+                            'out for review'=> 'Out for Review', 
+                            'returned'      => 'Returned', 
+                            'approved'      => 'Approved', 
+                            'receivables'   => 'Receivables', 
+                            'archived'      => 'Archived'
                         ), 
                     '#value' => $filter, 
                     '#attributes' => array('class'=>array('claim-list-filter')), 

@@ -39,27 +39,32 @@ global $user;
     
     $filter = isset($_REQUEST['filter'])?$_REQUEST['filter']:'all';
     $db_or = db_or();
-    if ($filter == 'active') {
-        $db_or->condition('c.claim_status', 'incomplete');
-        $class_name = 'my-active-claims-detail';
-    } else if( $filter == 'out_for_review' || 
-               $filter == 'returned' || 
-               $filter == 'approved' ) {
-        $db_or->condition('c.claim_status', 'out for review');
-        $db_or->condition('c.claim_status', 'returned');
-        $db_or->condition('c.claim_status', 'approved');
-        $class_name = 'out-for-review-detail';
-    } else if ($filter == 'archived') {
-        $db_or->condition('c.claim_status', 'archived');
-        $class_name = 'archived-claims-detail';
+    if ($filter == 'all') {
+        $db_or->condition('1', 1);
     } else {
-        $db_or->condition('c.claim_status', 'incomplete');
-        $db_or->condition('c.claim_status', 'out for review');
-        $db_or->condition('c.claim_status', 'returned');
-        $db_or->condition('c.claim_status', 'approved');
-        $db_or->condition('c.claim_status', 'archived');
-        $class_name = 'all-claims-detail';
+        $db_or->condition('c.claim_status', $filter);
     }
+    // if ($filter == 'active') {
+    //     $db_or->condition('c.claim_status', 'incomplete');
+    //     $class_name = 'my-active-claims-detail';
+    // } else if( $filter == 'out_for_review' || 
+    //            $filter == 'returned' || 
+    //            $filter == 'approved' ) {
+    //     $db_or->condition('c.claim_status', 'out for review');
+    //     $db_or->condition('c.claim_status', 'returned');
+    //     $db_or->condition('c.claim_status', 'approved');
+    //     $class_name = 'out-for-review-detail';
+    // } else if ($filter == 'archived') {
+    //     $db_or->condition('c.claim_status', 'archived');
+    //     $class_name = 'archived-claims-detail';
+    // } else {
+    //     $db_or->condition('c.claim_status', 'incomplete');
+    //     $db_or->condition('c.claim_status', 'out for review');
+    //     $db_or->condition('c.claim_status', 'returned');
+    //     $db_or->condition('c.claim_status', 'approved');
+    //     $db_or->condition('c.claim_status', 'archived');
+    //     $class_name = 'all-claims-detail';
+    // }
 
     $per_page = 10;
 
@@ -93,26 +98,10 @@ global $user;
     
     $filter = isset($_REQUEST['filter'])?$_REQUEST['filter']:'all';
     $db_or = db_or();
-    if ($filter == 'active') {
-        $db_or->condition('c.claim_status', 'incomplete');
-        $class_name = 'my-active-claims-detail';
-    } else if( $filter == 'out_for_review' || 
-               $filter == 'returned' || 
-               $filter == 'approved' ) {
-        $db_or->condition('c.claim_status', 'out for review');
-        $db_or->condition('c.claim_status', 'returned');
-        $db_or->condition('c.claim_status', 'approved');
-        $class_name = 'out-for-review-detail';
-    } else if ($filter == 'archived') {
-        $db_or->condition('c.claim_status', 'archived');
-        $class_name = 'archived-claims-detail';
+    if ($filter == 'all') {
+        $db_or->condition('1', 1);
     } else {
-        $db_or->condition('c.claim_status', 'incomplete');
-        $db_or->condition('c.claim_status', 'out for review');
-        $db_or->condition('c.claim_status', 'returned');
-        $db_or->condition('c.claim_status', 'approved');
-        $db_or->condition('c.claim_status', 'archived');
-        $class_name = 'all-claims-detail';
+        $db_or->condition('c.claim_status', $filter);
     }
 
     $per_page = 10;
@@ -124,6 +113,7 @@ global $user;
     $claims= $query->fields('c')
             ->condition('c.user_id', $user->uid)
             ->condition('c.deleted', 0)
+            ->condition('c.claim_status', 'unpurchased', '!=')
             ->condition('cde.val', 1)   // ARS
             ->condition($db_or)
             ->orderBy('c.last_modified', 'DESC')
