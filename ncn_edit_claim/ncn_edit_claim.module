@@ -25,6 +25,13 @@ function ncn_edit_claim_menu()
       'type' => MENU_CALLBACK,
       'access arguments' => array('access content'),
     );
+    $items['account/ar/%/approve_invoice'] = array(
+      'page callback' => 'ncn_edit_claim_ar_approve_invoice',
+      'page arguments'=> array(2), 
+      'type' => MENU_CALLBACK,
+      'access arguments' => array('access content'),
+    );
+
 
     $items['account/edit_claim_inline'] = array(
       'page callback' => 'ncn_edit_claim_handler',

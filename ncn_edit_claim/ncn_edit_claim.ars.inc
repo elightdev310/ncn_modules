@@ -29,3 +29,33 @@ function ncn_edit_claim_ar_details_panel($claim_id) {
 
     return $content;
 }
+
+/**
+ * URL: account/ar/%/approve_invoice
+ */
+function ncn_edit_claim_ar_approve_invoice($claim_id) {
+    $json_result = array(
+        'status' => 'success', 
+        'msg'    => ''
+    );
+    $status = ARS_CARRIER_SUBMISSION;
+    ncn_action_change_ars_file_status($claim_id, $status);
+
+    echo json_encode($json_result);
+    exit;
+}
+function ncn_action_change_ars_file_status($claim_id, $status) {
+    $num_updated = db_update("claims")
+                ->fields(array('ars_file_status'=>$status))
+                ->condition('claim_id', $claim_id)
+                ->execute();
+}
+
+function ncn_edit_claim_ars_approve_invoice_js($container_section) {
+    ob_start();
+    @include get_realpath('ncn_edit_claim', 'ui/ar_approve_invoice.js.php');
+    $content = ob_get_contents();
+    ob_end_clean();
+
+    return $content;
+}

@@ -36,11 +36,7 @@ function ncn_admin_claim_view_ars_section($claim_id) {
 
         // 
         if ($_POST['ars_file_status'] != $claim['ars_file_status']) {
-            $num_updated = db_update("claims")
-                ->fields(array('ars_file_status'=>$_POST['ars_file_status']))
-                ->condition('claim_id', $claim_id)
-                ->execute();
-
+            ncn_action_change_ars_file_status($claim_id, $_POST['ars_file_status']);
             $log_message = t("!user_name change ARS File Status to :ars_file_status.", 
                                 array('!user_name'=>ncn_amin_get_user_role_and_name(), 
                                       ':ars_file_status' => $ars_file_status_info[$_POST['ars_file_status']]

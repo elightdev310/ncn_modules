@@ -84,7 +84,7 @@ $ars_file_status_info = ncn_ars_file_status();
                             <a href="<?php print url('account/ar/'.$row['claim_id']); ?>" class="btn btn-primary">View</a>
                         </td>
                         <td class="td-approve-invoice">
-                            <a href="<?php print url("account/approve_invoice/".$row['claim_id']) ?>" class="btn btn-primary approve-btn">Approve Invoice</a>
+                            <a href="#" class="btn btn-primary approve-btn ars-approve-invoice-btn" data-claim="<?php echo $row['claim_id']; ?>">Approve Invoice</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -111,3 +111,5 @@ jQuery(function($) {
     });
 });
 </script>
+
+<?php print ncn_edit_claim_ars_approve_invoice_js('.claims-list-page .panel-box'); ?>
