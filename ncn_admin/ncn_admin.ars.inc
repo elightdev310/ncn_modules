@@ -7,11 +7,14 @@
  * Admin - Claim View - ARS Section
  */
 function ncn_admin_claim_view_ars_section($claim_id) {
+    $ars_file_status_info = ncn_ars_file_status();
+    $claim = get_claim_data($claim_id);
+
     $old_a_data = array(
         'pr' =>  unserialize(get_ncn_data_extra($claim_id, 'ars_peer_review')), 
         'hoa' => unserialize(get_ncn_data_extra($claim_id, 'ars_hoa')), 
     );
-    $is_ars = ncn_is_claim_ars($claim_id);
+    $is_ars = ncn_is_claim_ars($claim);
 
     // Checkbox - ARS
     if (isset($_POST['ars_function']) && $_POST['ars_function']=='ars') {
@@ -19,6 +22,7 @@ function ncn_admin_claim_view_ars_section($claim_id) {
         if (isset($_POST['ars_is_ars']) && $_POST['ars_is_ars']==1) {
             $ars_is_ars = 1;
         }
+
         if ($is_ars != $ars_is_ars) {
             ncn_set_claim_ars($claim_id, $ars_is_ars);
             if ($ars_is_ars) {
@@ -28,8 +32,21 @@ function ncn_admin_claim_view_ars_section($claim_id) {
             }
             ncn_admin_insert_claim_log($claim_id, date('U'), $log_message);
         }
-
         $is_ars = $ars_is_ars;
+
+        // 
+        if ($_POST['ars_file_status'] != $claim['ars_file_status']) {
+            $num_updated = db_update("claims")
+                ->fields(array('ars_file_status'=>$_POST['ars_file_status']))
+                ->condition('claim_id', $claim_id)
+                ->execute();
+
+            $log_message = t("!user_name change ARS File Status to :ars_file_status.", 
+                                array('!user_name'=>ncn_amin_get_user_role_and_name(), 
+                                      ':ars_file_status' => $ars_file_status_info[$_POST['ars_file_status']]
+                                ));
+            ncn_admin_insert_claim_log($claim_id, date('U'), $log_message);
+        }
     }
 
     // Fields
@@ -49,6 +66,8 @@ function ncn_admin_claim_view_ars_section($claim_id) {
             ncn_admin_insert_claim_log($claim_id, date('U'), $log_message);
         }
     }
+
+    $claim = get_claim_data($claim_id);
 
     //ui
     ob_start();
@@ -77,13 +96,30 @@ function ncn_admin_get_claim_log_ar_data($old, $updated) {
   return $claim_log;
 }
 
-function ncn_is_claim_ars($claim_id) {
-    $ars = get_ncn_data_extra($claim_id, 'claim_ars');
-    if (!empty($ars)) {
+function ncn_is_claim_ars($claim) {
+    if (is_numeric($claim)) {
+        $claim = get_claim_data($claim);
+    }
+    if (isset($claim['ars']) && !empty($claim['ars'])) {
         return true;
     }
     return false;
 }
 function ncn_set_claim_ars($claim_id, $yes=1) {
-    set_ncn_data_extra($claim_id, 'claim_ars', $yes);
+    $num_updated = db_update('claims')
+        ->fields(array('ars' => $yes))
+        ->condition('claim_id', $claim_id)
+        ->execute();
+}
+
+function ncn_ars_file_status() {
+    return array(
+        ARS_FILE_SETUP          => 'File Setup', 
+        ARS_OUT_FOR_APPROVAL    => 'Out for Approval', 
+        ARS_CARRIER_SUBMISSION  => 'Carrier Submission', 
+        ARS_AWAITING_CC         => 'Awaiting Carrier Confirmation', 
+        ARS_NEGOTIATIONS        => 'Negotiations', 
+        ARS_COLLECTIONS         => 'Collections', 
+        ARS_CLOSED              => 'Closed', 
+    );
 }

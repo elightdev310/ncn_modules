@@ -1,3 +1,9 @@
+<?php
+/**
+ * ARS List
+ */
+$ars_file_status_info = ncn_ars_file_status();
+?>
 <div id="page_loading"></div>
 <div id="page_results" class="claims-list-page $class_name;">
     <div class="page-title-section clearfix">
@@ -30,6 +36,7 @@
                     <th class="td-claim-status">Status</th>
                     <th class="td-insured-name">Insured Name</th>
                     <th class="td-property-loss-address">Property Loss Address</th>
+                    <th class="td-ars-file-status">ARS File Status</th>
                     <th class="td-ars-info">ARS Info</th>
                     <th class="td-approve-invoice">Approve Invoice</th>
                 </tr>
@@ -69,6 +76,9 @@
                         </td>
                         <td class="td-property-loss-address">
                             <?php echo strClaimAddress($row['claim_id']) ?>
+                        </td>
+                        <td class="td-ars-file-status">
+                            <?php echo $ars_file_status_info[$row['ars_file_status']]; ?>
                         </td>
                         <td class="td-ars-info">
                             <a href="<?php print url('account/ar/'.$row['claim_id']); ?>" class="btn btn-primary">View</a>

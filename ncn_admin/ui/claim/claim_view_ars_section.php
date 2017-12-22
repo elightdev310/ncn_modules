@@ -1,8 +1,11 @@
 <?php
 /**
  * Admin Claim View - ARS Section
- * @var: $claim_id, $is_ars
+ * @var: $claim_id, $is_ars, $claim
  */
+
+$ars_file_status_info = ncn_ars_file_status();
+
 $data = array();
 //
 if (isset($_POST['pr'])) {
@@ -40,6 +43,17 @@ if (isset($_POST['hoa'])) {
             <label for="ars_is_ars"><strong>Is this claim in ARS</strong></label>
         </div>
         <div class="ars-fields-section <?php echo ($is_ars?'':'hidden') ?>">
+            <div class="">
+                <label>ARS File Status: </label>
+                <select name="ars_file_status" class="ars-file-status">
+                <?php foreach ($ars_file_status_info as $ars_key=>$ars_val): ?>
+                    <option value="<?php echo $ars_key; ?>" <?php echo ($claim['ars_file_status']==$ars_key)?'SELECTED':''; ?> >
+                        <?php echo $ars_val; ?>
+                    </option>
+                <?php endforeach; ?>
+                </select>
+            </div>
+
             <table style="border: solid 0px;">
                 <tbody style="border:0px;">
                     <tr class="odd">

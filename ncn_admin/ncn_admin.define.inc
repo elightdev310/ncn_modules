@@ -70,3 +70,15 @@ define('CRM_FIELD_TOTAL_YTD',                   441286);    // Total $$ YTD
 define('CRM_FIELD_TOTAL_ALL_TIME',              441287);    // Total $$ All Time 
 
 define('CRM_FIELD_VOS_ACCOUNT',                 441288);    // VOS account
+
+
+
+
+// ARS File Status
+define('ARS_FILE_SETUP',                        'file_setup');
+define('ARS_OUT_FOR_APPROVAL',                  'out_for_approval');
+define('ARS_CARRIER_SUBMISSION',                'carrier_submission');
+define('ARS_AWAITING_CC',                       'awaiting_carrier_confirmation');
+define('ARS_NEGOTIATIONS',                      'negotiations');
+define('ARS_COLLECTIONS',                       'collections');
+define('ARS_CLOSED',                            'closed');

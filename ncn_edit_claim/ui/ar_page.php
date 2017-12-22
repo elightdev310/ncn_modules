@@ -4,6 +4,7 @@
  *
  * @var: $claim_id, $claim, $member_user, $aci_icp
  */
+$ars_file_status_info = ncn_ars_file_status();
 ?>
 
 <div id="page_loading"></div>
@@ -49,7 +50,7 @@
                         <?php echo '$' . number_format($claim['payment_received'], 2); ?>
                     </td>
                     <td class="td-file-status">
-                        
+                        <?php echo $ars_file_status_info[$claim['ars_file_status']]; ?>
                     </td>
                 </tr>
             </tbody>

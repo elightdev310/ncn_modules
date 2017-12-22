@@ -4,6 +4,8 @@
  *
  * @var: $claim_id, $claim, $member_user, $aci_poi, $aci_icp
  */
+$ars_file_status_info = ncn_ars_file_status();
+
 $invoice_file = ncn_get_claim_invoice_info($claim_id, 1);   // Final Invoice file
 
 $arr_claimant = explode(' ', $aci_poi['insured_name']);
@@ -45,7 +47,9 @@ if (empty($ars_hoa)) { $ars_hoa = array(); }
         <div class="row">
             <div class="form-group col-sm-6">
                 <label>File Status<a class="about-icon" href="#">about</a></label>
-                <div class="form-value"></div>
+                <div class="form-value">
+                    <?php echo $ars_file_status_info[$claim['ars_file_status']]; ?>
+                </div>
             </div>
             <div class="form-group col-sm-6">
                 <label>Primary Contact<a class="about-icon" href="#">about</a></label>

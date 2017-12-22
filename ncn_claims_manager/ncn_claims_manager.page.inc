@@ -10,7 +10,18 @@ global $user;
     $total_claims = user_detail_get_total_claims($user);
     $average_claim_value= $total_claim_value / $total_claims;
 
-    //
+    ob_start();
+    @include get_realpath('ncn_claims_manager', 'ui/ncn_member_dashboard.php');
+    $content = ob_get_contents();
+    ob_end_clean();
+
+    return $content;
+}
+/**
+ * Dashboard - Claims Section
+ */
+function ncn_claims_manager_dashboard_claims_section() {
+global $user;
     $claims = db_select('claims', 'c')
             ->fields('c')
             ->condition('c.user_id', $user->uid)
@@ -23,7 +34,135 @@ global $user;
             ->fetchAll();
 
     ob_start();
-    @include get_realpath('ncn_claims_manager', 'ui/ncn_member_dashboard.php');
+    @include get_realpath('ncn_claims_manager', 'ui/dashboard/ncn_member/claims.php');
+    $content = ob_get_contents();
+    ob_end_clean();
+
+    return $content;
+}
+/**
+ * Dashboard - Invoices Section
+ */
+function ncn_claims_manager_dashboard_invoices_section() {
+global $user;
+    $claims = db_select('claims', 'c')
+            ->fields('c')
+            ->condition('c.user_id', $user->uid)
+            ->condition('c.deleted', 0)
+            ->condition('c.claim_status', 'out for review')
+            ->orderBy('c.last_modified', 'DESC')
+            ->extend('PagerDefault')
+            ->limit(5)
+            ->execute()
+            ->fetchAll();
+
+    ob_start();
+    @include get_realpath('ncn_claims_manager', 'ui/dashboard/ncn_member/claims.php');
+    $content = ob_get_contents();
+    ob_end_clean();
+
+    return $content;
+}
+/**
+ * Dashboard - More Info Needed Section
+ */
+function ncn_claims_manager_dashboard_more_info_needed_section() {
+global $user;
+    $claims = db_select('claims', 'c')
+            ->fields('c')
+            ->condition('c.user_id', $user->uid)
+            ->condition('c.deleted', 0)
+            ->condition('c.claim_status', 'out for review')
+            ->condition('c.workflow', 'rejected_claim_docs')
+            ->orderBy('c.last_modified', 'DESC')
+            ->extend('PagerDefault')
+            ->limit(5)
+            ->execute()
+            ->fetchAll();
+
+    ob_start();
+    @include get_realpath('ncn_claims_manager', 'ui/dashboard/ncn_member/claims.php');
+    $content = ob_get_contents();
+    ob_end_clean();
+
+    return $content;
+}
+/**
+ * Dashboard - Invoices Completed Section
+ */
+function ncn_claims_manager_dashboard_invoices_completed_section() {
+global $user;
+    $db_or = db_or();
+    $db_or->condition('c.claim_status', 'returned');
+    $db_or->condition('c.claim_status', 'approved');
+    
+    $claims = db_select('claims', 'c')
+            ->fields('c')
+            ->condition('c.user_id', $user->uid)
+            ->condition('c.deleted', 0)
+            ->condition($db_or)
+            ->orderBy('c.last_modified', 'DESC')
+            ->extend('PagerDefault')
+            ->limit(5)
+            ->execute()
+            ->fetchAll();
+
+    ob_start();
+    @include get_realpath('ncn_claims_manager', 'ui/dashboard/ncn_member/claims.php');
+    $content = ob_get_contents();
+    ob_end_clean();
+
+    return $content;
+}
+/**
+ * Dashboard - Out for Approval Section
+ */
+function ncn_claims_manager_dashboard_out_for_approval_section() {
+global $user;    
+    $claims = db_select('claims', 'c')
+            ->fields('c')
+            ->condition('c.user_id', $user->uid)
+            ->condition('c.deleted', 0)
+            ->condition('c.ars', 1)
+            ->condition('c.ars_file_status', ARS_OUT_FOR_APPROVAL)
+            ->orderBy('c.last_modified', 'DESC')
+            ->extend('PagerDefault')
+            ->limit(5)
+            ->execute()
+            ->fetchAll();
+
+    ob_start();
+    @include get_realpath('ncn_claims_manager', 'ui/dashboard/ncn_member/claims.php');
+    $content = ob_get_contents();
+    ob_end_clean();
+
+    return $content;
+}
+/**
+ * Dashboard - ARS in Progress Section
+ */
+function ncn_claims_manager_dashboard_ars_in_progress_section() {
+global $user;
+    $db_or = db_or();
+    $db_or->condition('c.ars_file_status', ARS_CARRIER_SUBMISSION);
+    $db_or->condition('c.ars_file_status', ARS_AWAITING_CC);
+    $db_or->condition('c.ars_file_status', ARS_NEGOTIATIONS);
+    $db_or->condition('c.ars_file_status', ARS_COLLECTIONS);
+    
+    $claims = db_select('claims', 'c')
+            ->fields('c')
+            ->condition('c.user_id', $user->uid)
+            ->condition('c.deleted', 0)
+            ->condition('c.ars', 1)
+            ->condition($db_or)
+            ->orderBy('c.last_modified', 'DESC')
+            ->extend('PagerDefault')
+            ->limit(5)
+            ->execute()
+            ->fetchAll();
+
+    ob_start();
+    @include get_realpath('ncn_claims_manager', 'ui/dashboard/ncn_member/claims.php');
     $content = ob_get_contents();
     ob_end_clean();
 
@@ -107,14 +246,14 @@ global $user;
     $per_page = 10;
 
     $query = db_select('claims', 'c');
-    $query->leftJoin('claims_data_extra', 'cde', 
-                      'cde.claim_id = c.claim_id AND cde.name=:cde_name', 
-                      array(':cde_name'=>'claim_ars'));
+    // $query->leftJoin('claims_data_extra', 'cde', 
+    //                   'cde.claim_id = c.claim_id AND cde.name=:cde_name', 
+    //                   array(':cde_name'=>'claim_ars'));
     $claims= $query->fields('c')
             ->condition('c.user_id', $user->uid)
             ->condition('c.deleted', 0)
             ->condition('c.claim_status', 'unpurchased', '!=')
-            ->condition('cde.val', 1)   // ARS
+            ->condition('c.ars', 1)   // ARS
             ->condition($db_or)
             ->orderBy('c.last_modified', 'DESC')
             ->extend('PagerDefault')

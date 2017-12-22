@@ -862,7 +862,9 @@ function ncn_save_claim($claim_id = 0, $update = false, $claim_type = '', $claim
                                 'workflow'=>'',
                                 'expedite'=>$expedite,
                                 'deleted'=>0,
-                                'leaduser'=>$claim_lead))
+                                'leaduser'=>$claim_lead, 
+                                'ars'     =>0, 
+                                'ars_file_status' => ''))
                  ->execute();
         $_SESSION['claim']['id'] = $claim_id;
     }
