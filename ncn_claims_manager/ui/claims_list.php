@@ -103,7 +103,7 @@
                         </td>
                         <td class="td-create-my-invoice">
                             <?php if ($send_to_admin == true && !is_leaduser($user)): ?>
-                            <a class="create-invoice-btn enabled colorbox-node btn btn-primary" href="<?php echo $base_url; ?>/account/confirm_submit_claim/<?= $claim_id; ?>?width=700&height=540">Create My Invoice</a>
+                            <a class="create-invoice-btn enabled colorbox-node btn btn-primary" href="<?php echo $base_url; ?>/account/confirm_submit_claim/<?php echo $row['claim_id']; ?>?width=700&height=540">Create My Invoice</a>
                             <?php endif; ?>
                         </td>
                     </tr>

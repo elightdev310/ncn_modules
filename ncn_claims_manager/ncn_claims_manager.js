@@ -29,7 +29,8 @@
         jQuery.get(archive_url, function(data)  {
             if (data == "success")
             {
-                window.location = base_url+'/account/archived.html';
+                //window.location = base_url+'/account/archived.html';
+                window.location = base_url+'/account/claims.html';
             }
         });
 
@@ -51,11 +52,13 @@
         jQuery.get(partial_url, function(data)  {
             if (data == "100%")
             {
-                window.location = base_url+'/account/archived.html';
+                //window.location = base_url+'/account/archived.html';
+                window.location = base_url+'/account/claims.html';
             }
             else
             {
-                window.location = base_url+'/account/receivables.html';
+                //window.location = base_url+'/account/receivables.html';
+                window.location = base_url+'/account/ars.html';
             }
         });
 

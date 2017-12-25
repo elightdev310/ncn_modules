@@ -514,3 +514,23 @@ function ncn_chatter_file_entity_download_link($variables) {
   return $output;
 }
 
+/**
+ * Create a post in a claim feed
+ * @var $type: FEED_TYPE_CLAIM or FEED_TYPE_AR
+ */
+function ncn_chatter_auto_post_in_claim($claim_id, $type, $content, $file_id=0, $ncn_only=0, $uid=1) {
+    $fid = ncn_chatter_get_claim_feed_id($claim_id, $type);
+    if ($fid) {
+        $pid = ncn_chatter_create_post($uid, $fid, array(
+                'content' => $content, 
+                'file_id' => $file_id,
+                'ncn_only'=> $ncn_only,
+                'feed_id' => $fid,
+            ));
+        if ($pid) {
+            ncn_chatter_tagging_notify($pid, $content);
+        }
+        return $pid;
+    }
+    return false;
+}

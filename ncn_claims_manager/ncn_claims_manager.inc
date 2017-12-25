@@ -348,7 +348,7 @@ function ncn_claims_manager_approve_invoice($claim_id=0,$uid=0,$ret=false)
 
      //   $query = "UPDATE claims SET claim_status='receivables' WHERE claim_id=" . $claim_id;
         $result = db_query('UPDATE {claims} SET claim_status=:a WHERE claim_id=:b',array(':a'=>'receivables',':b'=>$claim_id));
-        $msg = t('Your Claim has been moved to "Receivables".');
+        $msg = t('Your Claim(#'.$claim_id.') has been moved to "Receivables".');
         if($ret){
             return "success__".$msg;
         } else {
@@ -391,7 +391,8 @@ function ncn_claims_manager_purchase_invoice()
     if ($product_id != 0) {
         if (!ncn_do_payment($member_id, $product_id)) {
             drupal_set_message(t('Failed to purchase invoice. (claim_id: !claim_id)', array('!claim_id' => $claim_id)), 'error');
-            drupal_goto('account/out-for-review.html');
+            //drupal_goto('account/out-for-review.html');
+            drupal_goto('account/claims.html');
             exit;
         } else {
             $arr_products[$product_id] = node_load($product_id);
@@ -630,7 +631,7 @@ function ncn_claims_manager_submit_claim_outforreview($claim_id=0,$uid=0,$ret=fa
         drupal_get_messages('error');
 
         // show success to the user
-        $msg = t('Your Claim has been moved to "Out for Review" and has been submitted to admin for approval.');
+        $msg = t('Your Claim(#'.$claim_id.') has been moved to "Out for Review" and has been submitted to admin for approval.');
         $log_message = t('!user_name moved claim to "Out for Review".', array('!user_name'=>ncn_amin_get_user_role_and_name($actvt_user_id)));
         ncn_admin_insert_claim_log($claim_id, date('U'), $log_message);
         if($ret){
@@ -650,7 +651,7 @@ function ncn_claims_manager_submit_claim_outforreview($claim_id=0,$uid=0,$ret=fa
         }
     }
     if(!$ret){
-        Header("Location:{$base_url}/account/my-active-claims.html");
+        Header("Location:{$base_url}/account/claims.html");
         exit;
     }
 

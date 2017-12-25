@@ -36,7 +36,7 @@
 <!--          <input type="button" value="Cancel" onclick="parent.$.colorbox.close();" />-->
           <input type="button" value="Cancel" onclick="jQuery('#cboxClose').trigger('click');" />
         &nbsp;
-        <input type="button" value="Continue >" id="continue_button" disabled="disabled" onclick="parent.window.location='<?= $GLOBALS['base_url']; ?>/account/submit_claim/<?= $GLOBALS['claim_id']; ?>';" />
+        <input type="button" value="Continue >" id="continue_button" disabled="disabled" onclick="parent.window.location='<?= url('account/submit_claim/'.$claim_id); ?>';" />
       </td>
     </tr>
     <tr>

@@ -56,6 +56,24 @@ function ncn_chatter_create_feed($feed=array()) {
 }
 
 /**
+ * Get Claim Feed
+ * If it doesn't exist, it would be created.
+ */
+function ncn_chatter_get_claim_feed_id($claim_id, $type=FEED_TYPE_CLAIM) {
+    $feed = ncn_chatter_get_feed_by_entity($type, $claim_id);
+    $fid = 0;
+    if (!$feed) {
+        // Create Claim Feed
+        $fid = ncn_chatter_create_feed(array('type'=>$type, 'entity_id'=>$claim_id));
+        if (!$fid) { return 0; }
+    } else {
+        $fid = $feed['fid'];
+    }
+    return $fid;
+}
+
+
+/**
  * Get Feed by fid
  */
 function ncn_chatter_get_feed($fid) {

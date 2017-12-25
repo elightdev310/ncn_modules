@@ -106,14 +106,10 @@ function ncn_chatter_claim_feed_block($claim_id, $type='claim') {
         if ($type == 'ar') {
             $type = FEED_TYPE_AR;
         }
-        $feed = ncn_chatter_get_feed_by_entity($type, $claim_id);
-        $fid = 0;
-        if (!$feed) {
-            // Create Claim Feed
-            $fid = ncn_chatter_create_feed(array('type'=>$type, 'entity_id'=>$claim_id));
-            if (!$fid) { return ''; }
-        } else {
-            $fid = $feed['fid'];
+
+        $fid = ncn_chatter_get_claim_feed_id($claim_id, $type);
+        if (!$fid) {
+            return '';
         }
 
         $feed_block = ncn_chatter_feed_block($fid);

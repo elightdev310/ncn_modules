@@ -286,11 +286,12 @@ function ncn_claims_manager_submit_claim_confirm()
     drupal_add_css(drupal_get_path('module', 'ncn_claims_manager') . '/ncn_claims_manager.css', array('group' => CSS_DEFAULT, 'type' => 'file'));
     //drupal_add_js(drupal_get_path('module', 'ncn_claims_manager') . '/ncn_claims_manager.js');
 
+    $claim_id = arg(2);
     $custom_theme = "ncn_account";
     $GLOBALS['in_edit'] = true;
-    $GLOBALS['claim_id'] = arg(2);
+    $GLOBALS['claim_id'] = $claim_id;
 
-    return theme('ncn_confirm_submit_claim', array('stat'=>1));
+    return theme('ncn_confirm_submit_claim', array('claim_id'=>$claim_id, 'stat'=>1));
 }
 //------------------------------------------------------------------------------
 // preprocess function for "ncn_add_room.tpl.php"

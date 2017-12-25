@@ -180,7 +180,7 @@ function ncn_claims_manager_theme()
 {
     return array(
         'ncn_confirm_submit_claim' => array(
-            'arguments' => array('stat' => NULL),
+            'arguments' => array('claim_id' => 0, 'stat' => NULL),
             'template' => 'ncn_confirm_submit_claim',
         ),
         'ncn_dist_page' => array(
