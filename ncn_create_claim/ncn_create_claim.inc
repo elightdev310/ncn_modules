@@ -317,7 +317,7 @@ function ncn_create_claim_create_new_claim($redirect = TRUE)
                 $result = db_query('UPDATE {claims} SET claim_status=:a WHERE claim_id=:b',array(':a'=>'incomplete',':b'=>$claim_id));
                 ncn_create_claim_send_mail($claim_id);
                 if ($redirect) {
-                    drupal_goto("account/my-active-claims.html");
+                    drupal_goto("account/claims.html");
                     exit;
                 } else {
                     return TRUE;
@@ -336,7 +336,7 @@ function ncn_create_claim_create_new_claim($redirect = TRUE)
             $result = db_query('UPDATE {claims} SET claim_status=:a WHERE claim_id=:b',array(':a'=>'incomplete',':b'=>$claim_id));
             ncn_create_claim_send_mail($claim_id);
             if ($redirect) {
-                drupal_goto("account/my-active-claims.html");
+                drupal_goto("account/claims.html");
                 exit;
             } else {
                 return TRUE;

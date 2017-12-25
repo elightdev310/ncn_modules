@@ -718,7 +718,7 @@ function uc_authorizenet_sim_complete($cart_id = NULL)
 			$results = t("<p>Thank you for your claim(#!claim_id).</p>", array(
 				'!claim_id' => $claim_id
 			));
-			$results.= '<p>Click <a href="'.$base_url.'/account/my-active-claims.html">here</a> to return to your account.</p>';
+			$results.= '<p>Click <a href="'.$base_url.'/account/claims.html">here</a> to return to your account.</p>';
 			$page = '';
 		}
 	}
