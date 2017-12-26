@@ -169,7 +169,7 @@ function ncn_admin_invoiceform_1_submit($form, &$form_state)
         $claim_file_title = ncn_admin_get_claim_file_title($live);
         // add entry to logfile
         
-        $log_message = ncn_amin_get_user_role_and_name()." uploaded new file: ".$file->filename." ( $claim_file_title - revision #".$revision. " )";
+        $log_message = ncn_amin_get_user_role_and_name()." uploaded new file: ".$res->filename." ( $claim_file_title - revision #".$revision. " )";
         ncn_admin_insert_claim_log($claim_id, date('U'), $log_message);
         
         // success!
@@ -185,6 +185,13 @@ function ncn_admin_invoiceform_1_submit($form, &$form_state)
 
             $output = shell_exec($command);
             //$final_locked_invoice_name = ncn_admin_get_locked_invoice_filename($final_invoice_name);
+        }
+
+        // Final Invoice
+        if ($live == 1) {
+            // Auto Post in Claim Feed
+            $msg = "NCN uploaded new invoice file ($res->filename).";
+            ncn_chatter_auto_post_in_claim($claim_id, FEED_TYPE_CLAIM, $msg, $res->fid);
         }
     }
 }
@@ -760,6 +767,16 @@ function _add_pdf_invoice($file, $claim_id) {
         array(':a'=>$claim_id,':b'=>$revision,':c'=>$file['filename'],':d'=>$file['filepath'],':e'=>$file['filemime'],
             ':f'=>date('U'),':g'=>$live));
     
+    // Inser file_managed entry
+    global $user;
+    $db_file = new stdClass;
+    $db_file->uid       = $user->uid;
+    $db_file->filename  = $file['filename'];
+    $db_file->uri       = str_replace("sites/default/files/", "public://", $file['filepath']);
+    $db_file->status    = 1;
+    $db_file->filemime  = $file['filemime'];
+    file_save($db_file);
+
     // add entry to logfile
     if ($live == 1)
     {   $log_message = ncn_amin_get_user_role_and_name()." created new file: ".$file['filename'].", revision #".$revision;    }
@@ -767,6 +784,9 @@ function _add_pdf_invoice($file, $claim_id) {
     {   $log_message = ncn_amin_get_user_role_and_name()." created new file: ".$file['filename'].", revision #".$revision;    }
     
     ncn_admin_insert_claim_log($claim_id, date('U'), $log_message);
+    // Auto Post - Create Invoice
+    $msg = "NCN created new invoice file ($db_file->filename).";
+    ncn_chatter_auto_post_in_claim($claim_id, FEED_TYPE_CLAIM, $msg, $db_file->fid);
 }
 
 /**
