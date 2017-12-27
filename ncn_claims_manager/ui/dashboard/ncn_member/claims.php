@@ -53,7 +53,7 @@
         ?>
             <tr>
                 <td class="td-id">
-                    <?php echo $row['claim_id'] ?>
+                    <a href="<?php print url("account/edit_claim/".$row['claim_id']) ?>" class=""><?php echo $row['claim_id'] ?></a>
                 </td>
                 <td class="td-created-at">
                     <?php echo strTime($row['created']) ?>
