@@ -254,6 +254,7 @@ global $user;
             ->condition('c.deleted', 0)
             ->condition('c.claim_status', 'unpurchased', '!=')
             ->condition('c.ars', 1)   // ARS
+            ->condition('c.claim_status', 'receivables')
             ->condition($db_or)
             ->orderBy('c.last_modified', 'DESC')
             ->extend('PagerDefault')

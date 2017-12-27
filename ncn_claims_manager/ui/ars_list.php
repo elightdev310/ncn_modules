@@ -8,7 +8,7 @@ $ars_file_status_info = ncn_ars_file_status();
 <div id="page_results" class="claims-list-page $class_name;">
     <div class="page-title-section clearfix">
         <div class="title page-title pull-left mr20">ARS</div>
-        <div class="pull-left">
+        <!-- <div class="pull-left">
             <?php print theme_select(array(
                 'element' => array(
                     '#options' => array(
@@ -23,7 +23,7 @@ $ars_file_status_info = ncn_ars_file_status();
                     '#value' => $filter, 
                     '#attributes' => array('class'=>array('claim-list-filter')), 
                 ))); ?>
-        </div>
+        </div> -->
     </div>
     <div class="panel-box">
         <div class="panel-box-content">
