@@ -448,7 +448,8 @@
                 alert("Success to submit change order requests");
                     //parent.jQuery.colorbox.close();
                     //parent.window.location.reload(true);
-                    window.location = Drupal.settings.basePath+'account/out-for-review.html';
+                    //window.location = Drupal.settings.basePath+'account/out-for-review.html';
+                    window.location = Drupal.settings.basePath+'account/claims.html';
                 }
                 else {
                     alert(json.msg);

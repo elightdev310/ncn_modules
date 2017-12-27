@@ -44,9 +44,11 @@ function ncn_change_order_request($claim_id) {
 
     ?>
 
-    <div id="page_loading">
+    <div class="pull-right">
+    </div>
+    <div id="page_loading" class="panel-box">
 
-        <div class="claims-detail">
+        <div class="claims-detail panel-box-content">
 
             <div class="claims-section-wrapper">
 

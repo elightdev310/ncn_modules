@@ -1,5 +1,5 @@
 <div id="page_loading"></div>
-<div id="page_results" class="claims-list-page $class_name;">
+<div id="page_results" class="claims-list-page">
     <div class="page-title-section clearfix">
         <div class="title page-title pull-left mr20">Claims</div>
         <div class="pull-left">
@@ -34,6 +34,7 @@
                     <th class="td-rooms">Rooms</th>
                     <th class="td-claim-processing">Claim Processing</th>
                     <th class="td-create-my-invoice">Create My Invoice</th>
+                    <th class="td-final-approval">Approval</th>
                 </tr>
             </thead>
             <tbody>
@@ -66,6 +67,15 @@
                         case 'archived': 
                             $editable = false;
                             break;
+                    }
+
+                    $result2 = db_query('SELECT * FROM {claims_invoices} WHERE claim_id=:a AND live=1',
+                        array(':a'=>$row['claim_id']));
+                        $live_claim_count = $result2->rowCount();
+
+                    $claim_locked = false;
+                    if (ncn_admin_get_claim_first_free_locked($row['claim_id']) == 'LOCKED') {
+                        $claim_locked = true;
                     }
                 ?>
                     <tr>
@@ -104,6 +114,20 @@
                         <td class="td-create-my-invoice">
                             <?php if ($send_to_admin == true && !is_leaduser($user)): ?>
                             <a class="create-invoice-btn enabled colorbox-node btn btn-primary" href="<?php echo $base_url; ?>/account/confirm_submit_claim/<?php echo $row['claim_id']; ?>?width=700&height=540">Create My Invoice</a>
+                            <?php endif; ?>
+                        </td>
+                        <td class="td-final-approval">
+                            <?php if ($approve_deny == true && $row['claim_status'] != 'returned'): ?>
+                                <?php if ($live_claim_count > 0): ?>
+                                    <?php if ($claim_locked == true): ?>
+                                        <?php echo "<a href='#' class='purchase-btn btn btn-primary' onclick=\"window.location = '".$base_url."/account/purchase_invoice/".$row['claim_id']."';\">Purchase</a>"; ?>
+                                    <?php else: ?>
+                                        <?php echo "<a href='#' class='approve-btn btn btn-primary' onclick=\"window.location = '".$base_url."/account/approve_invoice/".$row['claim_id']."';\">Approve</a>"; ?>
+                                    <?php endif; ?>
+                                    <?php $_change_order_request_url = $base_url . "/account/ncn_change_order_request/" . $row['claim_id']; ?>
+                                    <a href="<?php echo $_change_order_request_url; ?>" class="reject-btn btn btn-primary">Change Order</a>
+                                    <!-- <a href="#" class="reject-btn" onclick="if (confirm('Please confirm you wish to change this invoice and notify the administrator.')) { window.location = '/account/reject_invoice/<?= $claim_id; ?>'; }">Reject</a> -->
+                                <?php endif; ?>
                             <?php endif; ?>
                         </td>
                     </tr>

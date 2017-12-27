@@ -339,12 +339,12 @@ function ncn_claims_manager_approve_invoice($claim_id=0,$uid=0,$ret=false)
     
     // get live/preview
     $user_id_sql = '';
-    $query = "SELECT claim_status FROM claims WHERE claim_id=" . $claim_id . $user_id_sql;
+    $query = "SELECT * FROM claims WHERE claim_id=" . $claim_id . $user_id_sql;
     $result = db_query($query);
     $row_count = $result->rowCount();
 
     if ($row_count > 0) {
-        $row = $result->fetchAssoc();
+        $claim = $result->fetchAssoc();
 
      //   $query = "UPDATE claims SET claim_status='receivables' WHERE claim_id=" . $claim_id;
         $result = db_query('UPDATE {claims} SET claim_status=:a WHERE claim_id=:b',array(':a'=>'receivables',':b'=>$claim_id));
@@ -359,10 +359,11 @@ function ncn_claims_manager_approve_invoice($claim_id=0,$uid=0,$ret=false)
             return "error__No Claim Found.";
         }
     }
-    if(!$ret){
+    if(!$ret & isset($claim) && $claim['ars']){
         drupal_goto('account/ars.html');
         //Header("Location:".$base_url."/account/receivables.html");
     }
+    drupal_goto('account/claims.html');
     exit;
 }
 
