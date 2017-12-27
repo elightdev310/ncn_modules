@@ -56,6 +56,25 @@ function ncn_chatter_create_feed($feed=array()) {
 }
 
 /**
+ * Create User & Company Feed
+ */
+function ncn_chatter_create_user_feed($uid) {
+    // User Feed
+    $user_fid = ncn_chatter_create_feed(array(
+        'type'      => FEED_TYPE_USER, 
+        'entity_id' => $uid
+    ));
+
+    if (is_member_user($account)) {
+        // Company Feed
+        $company_fid = ncn_chatter_create_feed(array(
+            'type'      => FEED_TYPE_COMPANY, 
+            'entity_id' => $uid
+        ));
+    }
+}
+
+/**
  * Get Claim Feed
  * If it doesn't exist, it would be created.
  */

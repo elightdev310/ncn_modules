@@ -141,19 +141,7 @@ function ncn_chatter_theme($existing, $type, $theme, $path) {
  * Implements hook_user_insert().
  */
 function ncn_chatter_user_insert(&$edit, $account, $category) {
-    // User Feed
-    $user_fid = ncn_chatter_create_feed(array(
-        'type'      => FEED_TYPE_USER, 
-        'entity_id' => $account->uid
-    ));
-
-    if (is_member_user($account)) {
-        // Company Feed
-        $company_fid = ncn_chatter_create_feed(array(
-            'type'      => FEED_TYPE_COMPANY, 
-            'entity_id' => $account->uid
-        ));
-    }
+    ncn_chatter_create_user_feed($account->uid);
 }
 
 /**

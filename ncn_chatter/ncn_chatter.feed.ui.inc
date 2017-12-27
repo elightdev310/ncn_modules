@@ -16,7 +16,11 @@ global $user;
 
     $user_feed = ncn_chatter_get_feed_by_entity(FEED_TYPE_USER, $_user->uid);
     if (!$user_feed) {
-        return '';
+        ncn_chatter_create_user_feed($_user->uid);
+        $user_feed = ncn_chatter_get_feed_by_entity(FEED_TYPE_USER, $_user->uid);
+        if (!$user_feed) {
+            return '';
+        }
     }
 
     $post_form = theme('ncn_chatter_form_post', array('feed_id'=>$user_feed['fid']));   // Post Form
@@ -37,8 +41,12 @@ global $user;
 
     $user_feed = ncn_chatter_get_feed_by_entity(FEED_TYPE_USER, $user->uid);
     if (!$user_feed) {
-        drupal_set_message(t("User Feed doesn't exist. Please report this to administrator."), 'warning');
-        return false;
+        ncn_chatter_create_user_feed($user->uid);
+        $user_feed = ncn_chatter_get_feed_by_entity(FEED_TYPE_USER, $user->uid);
+        if (!$user_feed) {
+            drupal_set_message(t("User Feed doesn't exist. Please report this to administrator."), 'warning');
+            return false;
+        }
     }
     
     $post_form = theme('ncn_chatter_form_post', array('feed_id'=>$user_feed['fid']));   // Post Form
