@@ -385,7 +385,7 @@ function pm_message_tags($v, $body)
 }
 
 //------------------------------------------------------------------------------
-function pm_send($from, $to, $subject, $body, $claim_id = 0, $in_reply_to = 0, $mail_template='', $_params=array(), $b_log=false, $log_message="")
+function pm_send($from, $to, $subject, $body, $claim_id = 0, $in_reply_to = 0, $mail_template='', $_params=array(), $b_log=false, $log_message="", $chatter=true)
 {
 GLOBAL $user;
     $user = user_load($user->uid);
@@ -419,6 +419,16 @@ GLOBAL $user;
     //  $query = "INSERT INTO pm_message VALUES(NULL, ".$from.", ".$to.", 0, ".$claim_id.", ".date('U').", \"".AddSlashes($subject)."\", \"".AddSlashes($body)."\", ".$in_reply_to.", 0, $claim_log);";
         $result = db_query('INSERT INTO {pm_message} VALUES(NULL,:a,:b,:c,:d,:e,:f,:g,:h,:i,:j)',
             array(':a'=>$from,':b'=>$to,':c'=>0,':d'=>$claim_id,':e'=>date('U'),':f'=>$subject,':g'=>$body,':h'=>$in_reply_to,':i'=>0,':j'=>$claim_log));
+
+        if ($chatter) {
+            $from_uid = $from;
+            if (!$from) {
+                $from_uid = $user->uid;
+            }
+            
+            $msg = $subject."\r\n".$body;
+            ncn_chatter_auto_post_in_claim($claim_id, 0, $msg, 0, 0, $from_uid);
+        }
     }
 
     if ($mail_template == 'no mail') {

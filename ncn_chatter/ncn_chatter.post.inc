@@ -518,7 +518,21 @@ function ncn_chatter_file_entity_download_link($variables) {
  * Create a post in a claim feed
  * @var $type: FEED_TYPE_CLAIM or FEED_TYPE_AR
  */
-function ncn_chatter_auto_post_in_claim($claim_id, $type, $content, $file_id=0, $ncn_only=0, $uid=1) {
+function ncn_chatter_auto_post_in_claim($claim_id, $type, $content, $file_id=0, $ncn_only=0, $uid=0) {
+global $user;
+    if (!$uid) {
+        if ($user->uid) {
+            $uid = $user->uid;
+        } else {
+            return false;
+        }
+    }
+    
+    if (!$type = 0) {
+        $claim = get_claim_data($claim_id);
+        $type = ($claim['ars'])? FEED_TYPE_AR : FEED_TYPE_CLAIM;
+    }
+
     $fid = ncn_chatter_get_claim_feed_id($claim_id, $type);
     if ($fid) {
         $pid = ncn_chatter_create_post($uid, $fid, array(
