@@ -12,7 +12,7 @@
     <input type='hidden' name='tfunction' value='additional_claims_data' />
 
     <ul class="nav nav-pills panel-box-content">
-        <li class="active"><a data-toggle="pill" href="#aci_poi">Property Onwer Info</a></li>
+        <li class="active"><a data-toggle="pill" href="#aci_poi">Property Owner Info</a></li>
         <li><a data-toggle="pill" href="#aci_ci">Claim Information</a></li>
         <li><a data-toggle="pill" href="#aci_dcl" class="aci-dcl-link">Daily Claim Log</a></li>
         <li><a data-toggle="pill" href="#aci_icp">Insurance Policy Information</a></li>

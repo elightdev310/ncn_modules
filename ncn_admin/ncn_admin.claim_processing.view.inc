@@ -67,15 +67,15 @@ function ncn_admin_view_aci_render_property_owner_info($claim_id, $section) {
 ?>
 <table>
   <tr>
-    <td class="td-label"><label for="poi_insured_name">Insured's Name:</label></td>
+    <td class="td-label"><label for="poi_insured_name">Owner/Insured Name:</label></td>
     <td><div class="field-item text-field-item"><div id="poi_insured_name"><?php echo $data['insured_name']; ?></div></div></td>
   </tr>
   <tr>
-    <td class="td-label"><label for="poi_insured_address">Property Address:</label></td>
+    <td class="td-label"><label for="poi_insured_address">Property Loss Address:</label></td>
     <td><div class="field-item text-field-item"><div id="poi_insured_address"><?php echo $data['insured_address']; ?></div></div></td>
   </tr>
   <tr>
-    <td class="td-label"><label for="poi_apt_bldg">Apt/Bldg:</label></td>
+    <td class="td-label"><label for="poi_apt_bldg">Apt/Suite/Bldg:</label></td>
     <td><div class="field-item text-field-item"><div id="poi_apt_bldg"><?php echo $data['apt_bldg']; ?></div></div></td>
   </tr>
   <tr>
@@ -90,6 +90,28 @@ function ncn_admin_view_aci_render_property_owner_info($claim_id, $section) {
     <td class="td-label"><label for="poi_insured_zip">Zip Code:</label></td>
     <td><div class="field-item text-field-item"><div id="poi_insured_zip"><?php echo $data['insured_zip']; ?></div></div></td>
   </tr>
+
+  <tr>
+    <td class="td-label"><label for="poi_billing_address">Billing Address:</label></td>
+    <td><div class="field-item text-field-item"><div id="poi_billing_address"><?php echo $data['billing_address']; ?></div></div></td>
+  </tr>
+  <tr>
+    <td class="td-label"><label for="poi_billing_apt_bldg">Apt/Suite/Bldg:</label></td>
+    <td><div class="field-item text-field-item"><div id="poi_billing_apt_bldg"><?php echo $data['billing_apt_bldg']; ?></div></div></td>
+  </tr>
+  <tr>
+    <td class="td-label"><label for="poi_billing_city">City:</label></td>
+    <td><div class="field-item text-field-item"><div id="poi_billing_city"><?php echo $data['billing_city']; ?></div></div></td>
+  </tr>
+  <tr>
+    <td class="td-label"><label for="poi_billing_state">State:</label></td>
+    <td><div class="field-item text-field-item"><div id="poi_billing_state"><?php echo $data['billing_state']; ?></div></div></td>
+  </tr>
+  <tr>
+    <td class="td-label"><label for="poi_billing_zip">Zip Code:</label></td>
+    <td><div class="field-item text-field-item"><div id="poi_billing_zip"><?php echo $data['billing_zip']; ?></div></div></td>
+  </tr>
+
   <tr>
     <td class="td-label">
       <label for="poi_phone_0_number">Phone

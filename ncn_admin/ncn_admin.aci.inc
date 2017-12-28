@@ -18,15 +18,15 @@ function ncn_admin_aci_render_property_owner_info($claim_id, $section) {
 ?>
 <table>
     <tr>
-        <td class="td-label"><label for="poi_insured_name">Insured's Name:</label></td>
+        <td class="td-label"><label for="poi_insured_name">Owner/Insured Name:</label></td>
         <td><div class="field-item text-field-item"><input type="text" name="poi[insured_name]" id="poi_insured_name" value="<?php echo isset($data['insured_name'])?$data['insured_name']:''; ?>" /></div></td>
     </tr>
     <tr>
-        <td class="td-label"><label for="poi_insured_address">Property Address:</label></td>
+        <td class="td-label"><label for="poi_insured_address">Property Loss Address:</label></td>
         <td><div class="field-item text-field-item"><input type="text" name="poi[insured_address]" id="poi_insured_address" value="<?php echo isset($data['insured_address'])?$data['insured_address']:''; ?>" /></div></td>
     </tr>
     <tr>
-        <td class="td-label"><label for="poi_apt_bldg">Apt/Bldg:</label></td>
+        <td class="td-label"><label for="poi_apt_bldg">Apt/Suite/Bldg:</label></td>
         <td><div class="field-item text-field-item"><input type="text" name="poi[apt_bldg]" id="poi_apt_bldg" value="<?php echo isset($data['apt_bldg'])?$data['apt_bldg']:''; ?>" /></div></td>
     </tr>
     <tr>
@@ -53,6 +53,40 @@ function ncn_admin_aci_render_property_owner_info($claim_id, $section) {
         <td class="td-label"><label for="poi_insured_zip">Zip Code:</label></td>
         <td><div class="field-item text-field-item"><input type="text" name="poi[insured_zip]" id="poi_insured_zip" value="<?php echo isset($data['insured_zip'])?$data['insured_zip']:''; ?>" /></div></td>
     </tr>
+
+    <tr>
+        <td class="td-label"><label for="poi_billing_address">Billing Address (if different):</label></td>
+        <td><div class="field-item text-field-item"><input type="text" name="poi[billing_address]" id="poi_billing_address" value="<?php echo isset($data['billing_address'])?$data['billing_address']:''; ?>" /></div></td>
+    </tr>
+    <tr>
+        <td class="td-label"><label for="poi_billing_apt_bldg">Apt/Suite/Bldg:</label></td>
+        <td><div class="field-item text-field-item"><input type="text" name="poi[billing_apt_bldg]" id="poi_billing_apt_bldg" value="<?php echo isset($data['billing_apt_bldg'])?$data['billing_apt_bldg']:''; ?>" /></div></td>
+    </tr>
+    <tr>
+        <td class="td-label"><label for="poi_billing_city">City:</label></td>
+        <td><div class="field-item text-field-item"><input type="text" name="poi[billing_city]" id="poi_billing_city" value="<?php echo isset($data['billing_city'])?$data['billing_city']:''; ?>" /></div></td>
+    </tr>
+    <tr>
+        <td class="td-label"><label for="poi_billing_state">State:</label></td>
+        <td><div class="field-item text-field-item">
+            <?php print ncn_loc_state(array(
+                            'name'      => 'poi[billing_state]', 
+                            'id'        => 'poi_billing_state', 
+                            'class'     => '', 
+                            'disabled'  => false, 
+                            'required'  => false, 
+                            'state'     => isset($data['billing_state'])?$data['billing_state']:'', 
+                            'country'   => 'US', 
+                        ));
+            ?>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td class="td-label"><label for="poi_billing_zip">Zip Code:</label></td>
+        <td><div class="field-item text-field-item"><input type="text" name="poi[billing_zip]" id="poi_billing_zip" value="<?php echo isset($data['billing_zip'])?$data['billing_zip']:''; ?>" /></div></td>
+    </tr>
+
     <tr>
         <td class="td-label">
             <label for="poi_phone_0_number">Phone
