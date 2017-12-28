@@ -45,6 +45,33 @@ global $base_url;
             <input type="text" class="form-control" name="icp[date_of_loss]" id="icp_date_of_loss" value="<?php echo isset($data['date_of_loss'])?$data['date_of_loss']:''; ?>" onkeypress="return isDateKey(event);" />
         </div>
     </div>
+
+    <div class="form-group">
+        <div for="icp_field_adjuster" class="col-sm-4 control-label">Field Adjuster:</div>
+        <div class="col-sm-8">
+            <input type="text" class="form-control" name="icp[field_adjuster]" id="icp_field_adjuster" value="<?php echo isset($data['field_adjuster'])?$data['field_adjuster']:''; ?>" />
+        </div>
+    </div>
+    <div class="form-group">
+        <div for="icp_field_adjuster_email" class="col-sm-4 control-label">Field Adjuster Email:</div>
+        <div class="col-sm-8">
+            <input type="text" class="form-control" name="icp[field_adjuster_email]" id="icp_field_adjuster_email" value="<?php echo isset($data['field_adjuster_email'])?$data['field_adjuster_email']:''; ?>" />
+        </div>
+    </div>
+    <div class="form-group">
+        <div for="icp_field_adjuster_phone" class="col-sm-4 control-label">Phone:</div>
+
+        <div class="field-item text-field-item inline-field field-phone-number col-sm-5 col-xs-7"><input type="text" class="form-control" name="icp[field_adjuster_phone][number]" id="icp_field_adjuster_phone_number" onkeypress="return isNumberKey(event, false);" value="<?php echo isset($data['field_adjuster_phone']['number'])?$data['field_adjuster_phone']['number']:''; ?>" /></div>
+        <div class="field-item text-field-item inline-field field-phone-ext col-sm-3 col-xs-5"><input type="text" class="form-control" name="icp[field_adjuster_phone][ext]" id="icp_field_adjuster_phone_ext" value="<?php echo isset($data['field_adjuster_phone']['ext'])?$data['field_adjuster_phone']['ext']:''; ?>" /></div>
+    </div>
+    <div class="form-group">
+        <div for="icp_field_adjuster_alternate_phone" class="col-sm-4 control-label">Alternate Phone:</div>
+
+        <div class="field-item text-field-item inline-field field-phone-number col-sm-5 col-xs-7"><input type="text" class="form-control" name="icp[field_adjuster_alternate_phone][number]" id="icp_field_adjuster_alternate_phone" class="phone-style-field" onkeypress="return isNumberKey(event, false);" value="<?php echo isset($data['field_adjuster_alternate_phone']['number'])?$data['field_adjuster_alternate_phone']['number']:''; ?>" /></div>
+        <div class="field-item text-field-item inline-field field-phone-ext col-sm-3 col-xs-5"><input type="text" class="form-control" name="icp[field_adjuster_alternate_phone][ext]" id="icp_field_adjuster_alternate_phone_ext" value="<?php echo isset($data['field_adjuster_alternate_phone']['ext'])?$data['field_adjuster_alternate_phone']['ext']:''; ?>" /></div>
+    </div>
+
+
     <div class="form-group">
         <div for="icp_claim_adjuster" class="col-sm-4 control-label">Claim Adjuster:</div>
         <div class="col-sm-8">
@@ -52,19 +79,19 @@ global $base_url;
         </div>
     </div>
     <div class="form-group">
-        <div for="icp_adjuster_email" class="col-sm-4 control-label">Adjuster Email:</div>
+        <div for="icp_adjuster_email" class="col-sm-4 control-label">Claim Adjuster Email:</div>
         <div class="col-sm-8">
             <input type="text" class="form-control" name="icp[adjuster_email]" id="icp_adjuster_email" value="<?php echo isset($data['adjuster_email'])?$data['adjuster_email']:''; ?>" />
         </div>
     </div>
     <div class="form-group">
-        <div for="icp_insurance_adjuster_phone" class="col-sm-4 control-label">Adjuster Phone:</div>
+        <div for="icp_insurance_adjuster_phone" class="col-sm-4 control-label">Phone:</div>
 
         <div class="field-item text-field-item inline-field field-phone-number col-sm-5 col-xs-7"><input type="text" class="form-control" name="icp[adjuster_phone][number]" id="icp_adjuster_phone_number" onkeypress="return isNumberKey(event, false);" value="<?php echo isset($data['adjuster_phone']['number'])?$data['adjuster_phone']['number']:''; ?>" /></div>
         <div class="field-item text-field-item inline-field field-phone-ext col-sm-3 col-xs-5"><input type="text" class="form-control" name="icp[adjuster_phone][ext]" id="icp_adjuster_phone_ext" value="<?php echo isset($data['adjuster_phone']['ext'])?$data['adjuster_phone']['ext']:''; ?>" /></div>
     </div>
     <div class="form-group">
-        <div for="icp_adjuster_alternate_phone_number" class="col-sm-4 control-label">Adjuster Alternate Phone:</div>
+        <div for="icp_adjuster_alternate_phone_number" class="col-sm-4 control-label">Alternate Phone:</div>
 
         <div class="field-item text-field-item inline-field field-phone-number col-sm-5 col-xs-7"><input type="text" class="form-control" name="icp[adjuster_alternate_phone_number][number]" id="icp_adjuster_alternate_phone_number" class="phone-style-field" onkeypress="return isNumberKey(event, false);" value="<?php echo isset($data['adjuster_alternate_phone_number']['number'])?$data['adjuster_alternate_phone_number']['number']:''; ?>" /></div>
         <div class="field-item text-field-item inline-field field-phone-ext col-sm-3 col-xs-5"><input type="text" class="form-control" name="icp[adjuster_alternate_phone][ext]" id="icp_adjuster_alternate_phone_ext" value="<?php echo isset($data['adjuster_alternate_phone']['ext'])?$data['adjuster_alternate_phone']['ext']:''; ?>" /></div>

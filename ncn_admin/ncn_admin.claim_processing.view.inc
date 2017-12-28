@@ -261,7 +261,12 @@ function ncn_admin_view_aci_render_claim_information($claim_id, $section) {
     <td>
       <ul class="field-check-lists inline-group-fields clearfix">
         <li class="inline-field-item"><span id="ci_ef_yes" ><?php if($data['equipment_fuel']=="Yes(@d)") { echo "&#9745;";} else { echo "&#9744"; } ?></span>
-          <label for="ci_ef_yes">Yes(# <span class="field-item text-field-item small-size"><span id="ci_haul_debris_yes_price"><?php echo $data['equipment_fuel_yes_price']; ?></span> Gallons</span>)</label></li>
+          <label for="ci_ef_yes">Yes(
+            <span class="field-item text-field-item small-size">Type: <span id="ci_haul_debris_yes_type"><?php echo $data['equipment_fuel_yes_type']; ?></span></span>
+            <span class="field-item text-field-item small-size">Gallons: <span id="ci_haul_debris_yes_price"><?php echo $data['equipment_fuel_yes_price']; ?></span></span>
+            <span class="field-item text-field-item small-size">$Fee: <span id="ci_haul_debris_yes_fee"><?php echo $data['equipment_fuel_yes_fee']; ?></span></span>
+            )
+          </label></li>
         <li class="inline-field-item"><span id="ci_ef_no" ><?php if($data['equipment_fuel']=='No') { echo "&#9745;";} else { echo "&#9744"; } ?></span><label for="ci_ef_no">No</label></li>
       </ul>
     </td>
@@ -429,6 +434,34 @@ function ncn_admin_view_aci_render_insurance_claim_policy($claim_id, $section) {
     <td class="td-label"><label for="icp_date_of_loss">Date of Loss:</label></td>
     <td><div class="field-item text-field-item"><span id="icp_date_of_loss"><?php echo $data['date_of_loss']; ?></span></div></td>
   </tr>
+
+  <tr>
+    <td class="td-label"><label for="icp_field_adjuster">Field Adjuster:</label></td>
+    <td><div class="field-item text-field-item"><span id="icp_field_adjuster"><?php echo $data['field_adjuster']; ?></span></div></td>
+  </tr>
+  <tr>
+    <td class="td-label"><label for="icp_field_adjuster_email">Field Adjuster Email:</label></td>
+    <td><div class="field-item text-field-item"><span id="icp_field_adjuster_email"><?php echo $data['field_adjuster_email']; ?></span></div></td>
+  </tr>
+  <tr>
+    <td class="td-label"><label for="icp_field_adjuster_phone">Phone:</label></td>
+    <td>
+      <div class="field-item text-field-item inline-field field-phone-number"><span id="icp_field_adjuster_phone"><?php echo $data['field_adjuster_phone']['number']; ?></span></div>
+      <?php if ($data['field_adjuster_phone']['ext']): ?>
+      <div class="field-item text-field-item inline-field field-phone-ext"><label for="icp_field_adjuster_phone_ext">ext</label><span id="icp_field_adjuster_phone_ext"><?php echo $data['field_adjuster_phone']['ext']; ?></span></div>
+      <?php endif; ?>
+    </td>
+  </tr>
+  <tr>
+    <td class="td-label"><label for="icp_field_adjuster_alternate_phone">Alternate Phone:</label></td>
+    <td>
+      <div class="field-item text-field-item inline-field field-phone-number"><span id="icp_field_adjuster_alternate_phone" class="phone-style-field"><?php echo $data['field_adjuster_alternate_phone']['number']; ?></span></div>
+      <?php if ($data['field_adjuster_alternate_phone']['ext']): ?>
+      <div class="field-item text-field-item inline-field field-phone-ext"><label for="icp_field_adjuster_alternate_phone_ext">ext</label><span id="icp_field_adjuster_alternate_phone_ext"><?php echo $data['field_adjuster_alternate_phone']['ext']; ?></span></div>
+      <?php endif; ?>
+    </td>
+  </tr>
+
   <tr>
     <td class="td-label"><label for="icp_claim_adjuster">Claim Adjuster:</label></td>
     <td><div class="field-item text-field-item"><span id="icp_claim_adjuster"><?php echo $data['claim_adjuster']; ?></span></div></td>
@@ -455,6 +488,7 @@ function ncn_admin_view_aci_render_insurance_claim_policy($claim_id, $section) {
       <?php endif; ?>
     </td>
   </tr>
+
   <tr>
     <td class="td-label"><label for="icp_insurance_fax">Insurance Fax:</label></td>
     <td><div class="field-item text-field-item"><span id="icp_insurance_fax" class="phone-style-field"><?php echo $data['insurance_fax']; ?></span></div></td>

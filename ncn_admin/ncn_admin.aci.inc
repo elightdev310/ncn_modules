@@ -383,7 +383,12 @@ global $base_url;
         <td>
             <ul class="field-check-lists inline-group-fields clearfix">
                 <li class="inline-field-item"><input type="radio" name="ci[equipment_fuel]" id="ci_ef_yes" value="Yes(@d)" <?php if(isset($data['equipment_fuel'])&&$data['equipment_fuel']=="Yes(@d)") { echo "checked='checked'";} ?> class="cboxradio" />
-                    <label class="cboxlabel" for="ci_haul_debris_yes_price">Yes(# <span class="field-item text-field-item small-size"><input type="text" name="ci[equipment_fuel_yes_price]" id="ci_haul_debris_yes_price" value="<?php echo isset($data['equipment_fuel_yes_price'])?$data['equipment_fuel_yes_price']:''; ?>" /> Gallons</span>)</label></li>
+                    <label class="cboxlabel" for="ci_haul_debris_yes_price">Yes(
+                        <span class="field-item text-field-item small-size">Type: <input type="text" name="ci[equipment_fuel_yes_type]" id="ci_haul_debris_yes_type" value="<?php echo isset($data['equipment_fuel_yes_type'])?$data['equipment_fuel_yes_type']:''; ?>" /></span>&nbsp;
+                        <span class="field-item text-field-item small-size">Gallons: <input type="text" name="ci[equipment_fuel_yes_price]" id="ci_haul_debris_yes_price" value="<?php echo isset($data['equipment_fuel_yes_price'])?$data['equipment_fuel_yes_price']:''; ?>" /></span>&nbsp;
+                        <span class="field-item text-field-item small-size">$Fee: <input type="text" name="ci[equipment_fuel_yes_fee]" id="ci_haul_debris_yes_fee" value="<?php echo isset($data['equipment_fuel_yes_fee'])?$data['equipment_fuel_yes_fee']:''; ?>" /></span>
+                        )
+                    </label></li>
                 <li class="inline-field-item"><input type="radio" name="ci[equipment_fuel]" id="ci_ef_no" value="No" <?php if(isset($data['equipment_fuel'])&&$data['equipment_fuel']=='No') { echo "checked='checked'";} ?> /><label for="ci_ef_no">No</label></li>
             </ul>
         </td>
@@ -781,6 +786,30 @@ function ncn_admin_aci_render_insurance_claim_policy($claim_id, $section) {
         <td class="td-label"><label for="icp_date_of_loss">Date of Loss:</label></td>
         <td><div class="field-item text-field-item"><input type="text" name="icp[date_of_loss]" id="icp_date_of_loss" value="<?php echo isset($data['date_of_loss'])?$data['date_of_loss']:''; ?>" onkeypress="return isDateKey(event);" /></div></td>
     </tr>
+
+    <tr>
+        <td class="td-label"><label for="icp_field_adjuster">Field Adjuster:</label></td>
+        <td><div class="field-item text-field-item"><input type="text" name="icp[field_adjuster]" id="icp_field_adjuster" value="<?php echo isset($data['field_adjuster'])?$data['field_adjuster']:''; ?>" /></div></td>
+    </tr>
+    <tr>
+        <td class="td-label"><label for="icp_field_adjuster_email">Field Adjuster Email:</label></td>
+        <td><div class="field-item text-field-item"><input type="text" name="icp[field_adjuster_email]" id="icp_field_adjuster_email" value="<?php echo isset($data['field_adjuster_email'])?$data['field_adjuster_email']:''; ?>" /></div></td>
+    </tr>
+    <tr>
+        <td class="td-label"><label for="icp_field_adjuster_phone">Phone:</label></td>
+        <td>
+            <div class="field-item text-field-item inline-field field-phone-number"><input type="text" name="icp[field_adjuster_phone][number]" id="icp_field_adjuster_phone" onkeypress="return isNumberKey(event, false);" value="<?php echo isset($data['field_adjuster_phone']['number'])?$data['field_adjuster_phone']['number']:''; ?>" /></div>
+            <div class="field-item text-field-item inline-field field-phone-ext"><label for="icp_field_adjuster_phone_ext">ext</label><input type="text" name="icp[field_adjuster_phone][ext]" id="icp_field_adjuster_phone_ext" value="<?php echo isset($data['field_adjuster_phone']['ext'])?$data['field_adjuster_phone']['ext']:''; ?>" /></div>
+        </td>
+    </tr>
+    <tr>
+        <td class="td-label"><label for="icp_field_adjuster_alternate_phone">Alternate Phone:</label></td>
+        <td>
+            <div class="field-item text-field-item inline-field field-phone-number"><input type="text" name="icp[field_adjuster_alternate_phone][number]" id="icp_field_adjuster_alternate_phone" class="phone-style-field" onkeypress="return isNumberKey(event, false);" value="<?php echo isset($data['field_adjuster_alternate_phone']['number'])?$data['field_adjuster_alternate_phone']['number']:''; ?>" /></div>
+            <div class="field-item text-field-item inline-field field-phone-ext"><label for="icp_adjuster_alternate_phone_ext">ext</label><input type="text" name="icp[field_adjuster_alternate_phone][ext]" id="icp_field_adjuster_alternate_phone_ext" value="<?php echo isset($data['field_adjuster_alternate_phone']['ext'])?$data['field_adjuster_alternate_phone']['ext']:''; ?>" /></div>
+        </td>
+    </tr>
+
     <tr>
         <td class="td-label"><label for="icp_claim_adjuster">Claim Adjuster:</label></td>
         <td><div class="field-item text-field-item"><input type="text" name="icp[claim_adjuster]" id="icp_claim_adjuster" value="<?php echo isset($data['claim_adjuster'])?$data['claim_adjuster']:''; ?>" /></div></td>
@@ -803,6 +832,7 @@ function ncn_admin_aci_render_insurance_claim_policy($claim_id, $section) {
             <div class="field-item text-field-item inline-field field-phone-ext"><label for="icp_adjuster_alternate_phone_ext">ext</label><input type="text" name="icp[adjuster_alternate_phone][ext]" id="icp_adjuster_alternate_phone_ext" value="<?php echo isset($data['adjuster_alternate_phone']['ext'])?$data['adjuster_alternate_phone']['ext']:''; ?>" /></div>
         </td>
     </tr>
+
     <tr>
         <td class="td-label"><label for="icp_insurance_fax">Insurance Fax:</label></td>
         <td><div class="field-item text-field-item"><input type="text" name="icp[insurance_fax]" id="icp_insurance_fax" class="phone-style-field" onkeypress="return isNumberKey(event, false);" value="<?php echo isset($data['insurance_fax'])?$data['insurance_fax']:''; ?>" /></div></td>

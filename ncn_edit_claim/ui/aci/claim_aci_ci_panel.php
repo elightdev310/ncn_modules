@@ -150,7 +150,13 @@ global $base_url;
         <td>
             <ul class="field-check-lists inline-group-fields clearfix">
                 <li class="inline-field-item"><input type="radio" name="ci[equipment_fuel]" id="ci_ef_yes" value="Yes(@d)" <?php if(isset($data['equipment_fuel'])&&$data['equipment_fuel']=="Yes(@d)") { echo "checked='checked'";} ?> class="cboxradio" />
-                    <label class="cboxlabel" for="ci_haul_debris_yes_price">Yes(# <span class="field-item text-field-item small-size"><input type="text" name="ci[equipment_fuel_yes_price]" id="ci_haul_debris_yes_price" value="<?php echo isset($data['equipment_fuel_yes_price'])?$data['equipment_fuel_yes_price']:''; ?>" /> Gallons</span>)</label></li>
+                    <label class="cboxlabel" for="ci_haul_debris_yes_price">Yes (
+                        <span class="field-item text-field-item small-size">Type: <input type="text" name="ci[equipment_fuel_yes_type]" id="ci_haul_debris_yes_type" value="<?php echo isset($data['equipment_fuel_yes_type'])?$data['equipment_fuel_yes_type']:''; ?>" /></span>&nbsp;
+                        <span class="field-item text-field-item small-size">Gallons: <input type="text" name="ci[equipment_fuel_yes_price]" id="ci_haul_debris_yes_price" value="<?php echo isset($data['equipment_fuel_yes_price'])?$data['equipment_fuel_yes_price']:''; ?>" /></span>&nbsp;
+                        <span class="field-item text-field-item small-size">$Fee: <input type="text" name="ci[equipment_fuel_yes_fee]" id="ci_haul_debris_yes_fee" value="<?php echo isset($data['equipment_fuel_yes_fee'])?$data['equipment_fuel_yes_fee']:''; ?>" /></span>
+                        )
+                    </label>
+                </li>
                 <li class="inline-field-item"><input type="radio" name="ci[equipment_fuel]" id="ci_ef_no" value="No" <?php if(isset($data['equipment_fuel'])&&$data['equipment_fuel']=='No') { echo "checked='checked'";} ?> /><label for="ci_ef_no">No</label></li>
             </ul>
         </td>
