@@ -139,7 +139,6 @@
             showOn: "both",
             buttonImage: "<?php print url(drupal_get_path('module', 'ncn_report')."/images/calendar.gif"); ?>",
             buttonImageOnly: true,
-            dateFormat: 'yy/mm/dd',
         });
     });
 })(jQuery);
