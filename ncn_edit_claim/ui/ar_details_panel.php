@@ -148,8 +148,10 @@ if (empty($ars_hoa)) { $ars_hoa = array(); }
             <div class="form-group col-sm-6">
                 <label>Carrier Phone Number<a class="about-icon" href="#">about</a></label>
                 <div class="form-value">
-                    <?php echo isset($aci_icp['insurance_company_phone']['number'])?$aci_icp['insurance_company_phone']['number']:''; ?>
-                    <?php echo isset($aci_icp['insurance_company_phone']['ext'])?' ext '.$aci_icp['insurance_company_phone']['ext']:''; ?>
+                    <?php if (!empty($aci_icp['insurance_company_phone']['number']) && !empty($aci_icp['insurance_company_phone']['ext']) ): ?>
+                        <?php echo isset($aci_icp['insurance_company_phone']['number'])?$aci_icp['insurance_company_phone']['number']:''; ?>
+                        <?php echo isset($aci_icp['insurance_company_phone']['ext'])?' ext '.$aci_icp['insurance_company_phone']['ext']:''; ?>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
