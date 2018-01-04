@@ -117,7 +117,7 @@ if (empty($ars_hoa)) { $ars_hoa = array(); }
         <div class="row">
             <div class="form-group col-sm-6">
                 <label>Property Address<a class="about-icon" href="#">about</a></label>
-                <div class="form-value"><?php echo isset($aci_poi['insured_address'])?$aci_poi['insured_address']:''; ?>" </div>
+                <div class="form-value"><?php echo isset($aci_poi['insured_address'])?$aci_poi['insured_address']:''; ?> </div>
             </div>
             <div class="form-group col-sm-6">
                 <label>Property City<a class="about-icon" href="#">about</a></label>
