@@ -110,9 +110,10 @@ global $user;
 function ncn_chatter_claim_feed_block($claim_id, $type='claim') {
     $claim = get_claim_data($claim_id);
     if ($claim) {
-        $type = FEED_TYPE_CLAIM;
         if ($type == 'ar') {
             $type = FEED_TYPE_AR;
+        } else {
+            $type = FEED_TYPE_CLAIM;
         }
 
         $fid = ncn_chatter_get_claim_feed_id($claim_id, $type);

@@ -19,229 +19,7 @@ function ncn_admin_view_claim($claim_id)
   
     ncn_admin_view_claim_action($claim_id);
 
-    if (isset($_POST['current_scroll_position']) && $_POST['current_scroll_position'] != "")
-    {
-        echo "<script language='javascript'> window.onload = function(){window.scrollTo(0, ". $_POST['current_scroll_position'] .");} </script>";
-    }
-    else if (isset($_GET['current_scroll_position']) &&  $_GET['current_scroll_position'] != "")
-    {
-        echo "<script language='javascript'> window.onload = function(){window.scrollTo(0, ". $_GET['current_scroll_position'] .");}</script>";
-    }
-    else if (isset($_SESSION['current_scroll_position']))
-    {
-        echo "<script language='javascript'> window.onload = function(){window.scrollTo(0, ". $_SESSION['current_scroll_position'] .");}</script>";
-        $_SESSION['current_scroll_position'] = 0;
-    }
-
-        
-    if (isset($_POST['tfunction_workflow']) && $_POST['tfunction_workflow'] == 'tfunction_workflow') {
-        ncn_admin_claim_workflow_change($claim_id);
-        // mark 1st claim mail reminder
-        ncn_admin_mark_to_send_1st_mail($claim_id);     
-    } else if (isset($_POST['tfunction_file_note']) && $_POST['tfunction_file_note'] == 'tfunction_file_note') {
-        ncn_admin_claim_file_note_change($claim_id);
-    } else if (isset($_POST['tfunction_claim_type']) && $_POST['tfunction_claim_type'] == 'claim_type_change') {
-        ncn_admin_claim_type_change($claim_id);
-    } else if (isset($_POST['tfunction_claim_note_action']) && $_POST['tfunction_claim_note_action'] == 'tfunction_claim_note_add') {
-        $_claim_note = trim($_REQUEST['claim_note']);
-        if ($_claim_note) {
-          ncn_admin_note_add_note_from_original($claim_id);
-          if (ncn_admin_note_add_note($claim_id, $GLOBALS['user']->uid, $_claim_note)) {
-            drupal_set_message("You added note to claim, successfully.");
-            $log_message = t("!user_name added Claim Note. !note", array('!user_name'=>ncn_amin_get_user_role_and_name(), '!note'=>strip_tags($_claim_note)));
-            ncn_admin_insert_claim_log($claim_id, date('U'), $log_message);
-          }
-          /*if (ncn_admin_add_claim_filenote($claim_id, $_claim_note)) {
-            drupal_set_message("You added note to claim, successfully.");
-            $log_message = t("!user_name added Claim Note. !note", array('!user_name'=>ncn_amin_get_user_role_and_name(), '!note'=>strip_tags($_claim_note)));
-            ncn_admin_insert_claim_log($claim_id, date('U'), $log_message);
-          }*/
-        } 
-    } else if (isset($_POST['tfunction_claim_note_action']) && $_POST['tfunction_claim_note_action'] == 'tfunction_claim_note_update') {
-    $note_id = $_REQUEST['claim_note_id'];
-    $_claim_note = trim($_REQUEST['claim_note']);
-    if ($_claim_note) {
-      if (ncn_admin_note_update_note($note_id, $_claim_note)) {
-        drupal_set_message("You updated note to claim, successfully.");
-        $log_message = t("!user_name update Claim Note. !note", array('!user_name'=>ncn_amin_get_user_role_and_name(), '!note'=>strip_tags($_claim_note)));
-        ncn_admin_insert_claim_log($claim_id, date('U'), $log_message);
-      }
-    }
-  }
-  
-    if (isset($_POST['tfunction_send_cdr']) && $_POST['tfunction_send_cdr'] == 'tfunction_send_cdr') {
-        ncn_admin_send_cdr($claim_id);
-    }
-    
-    // --- handle of uploading scope file ---
-    if (isset($_POST['scope_upload_function']) && $_POST['scope_upload_function'] == 'scope') {
-        $roomname = $_POST['roomname'];
-        ncn_admin_scopeform_submit($roomname);
-    } else if (isset($_POST['scope_upload_function']) && $_POST['scope_upload_function'] == 'scope_auto_full_pdf') {
-        $roomname = $_POST['roomname'];
-        ncn_admin_auto_scopeform_full_pdf_submit(arg(4), $roomname);
-    } else if (isset($_POST['scope_upload_function']) && $_POST['scope_upload_function'] == 'scope_ss_data') {
-        $roomname = $_POST['roomname'];
-        ncn_admin_ss_make_scopesheet_image(arg(4), $roomname);
-    }
-    
-    if (isset($_POST['claims_data_update']) && $_POST['claims_data_update'] == 'claims_data_update') {
-        ncn_admin_claimsdata_update($claim_id);
-    }
-    
-    if (isset($_POST['create_invoice_function']) && $_POST['create_invoice_function'] == 'create_invoice') {
-        generate_final_invoice($claim_id);
-    }
-    
-    if (isset($_POST['extend_data_function']) && $_POST['extend_data_function'] == 'extend_data') {
-        save_extended_data($claim_id);
-    }
     $invoice_data = get_extended_data($claim_id);
-    
-    if (isset($_POST['photo_add_room']) && $_POST['photo_add_room']  == 'photo_add_room') {
-        ncn_admin_photo_add_room($claim_id, $_POST['room_name']);
-    }
-    else if (isset($_POST['update_captions']) && $_POST['update_captions'] == 'update_captions') {
-        save_image_captions($claim_id);
-    }
-    else if (isset($_POST['photo_delete_room']) && $_POST['photo_delete_room']  == 'photo_delete_room') {
-        ncn_admin_photo_delete_room($claim_id, $_POST['room_name']);
-    } 
-    else if (isset($_POST['photo_delete_first_room']) && $_POST['photo_delete_first_room']  == 'photo_delete_first_room') {
-        ncn_admin_photo_delete_first_room($claim_id, $_POST['room_name']);
-    } 
-    
-    if (stristr($_SERVER['REQUEST_URI'], 'ncn_admin_pool'))
-    {   $url_part = "ncn_admin_pool";       }
-    else
-    {   $url_part = "ncn_admin";        }
-
-    
-    // --- handle status update ----
-    if ( isset($_POST['claim_status_change']) && $_POST['claim_status_change']=='claim_status_change' && isset($_POST['claim_status']) )
-    {
-        // update claim amount
-        if ((is_numeric(trim($_POST['claim_amount']))) && (trim($_POST['claim_amount'])>= 0))
-        {
-        //  $query = "UPDATE claims SET claim_amount=".$_POST['claim_amount']." WHERE claim_id=".$claim_id;
-            $result = db_query('UPDATE {claims} SET claim_amount=:a  WHERE claim_id=:b',
-            array(':a'=>$_POST['claim_amount'],':b'=>$claim_id));
-        }
-        else    // invalid (non numeric) value entered for "claim amount"
-        {
-            drupal_set_message('Claim amount must be a positive number.' , 'error');
-        }
-    
-        // update payment received amount
-        if ((is_numeric(trim($_POST['payment_received']))) && (trim($_POST['payment_received'])>= 0))
-        {
-        //  $query = "UPDATE claims SET payment_received=".trim($_POST['payment_received'])." WHERE claim_id=".$claim_id;
-            $result = db_query('UPDATE {claims} SET payment_received=:a WHERE claim_id=:b',
-            array(':a'=>trim($_POST['payment_received']),':b'=>$claim_id));
-        }
-        else    // invalid (non numeric) value entered for "payment_received"
-        {
-            drupal_set_message('Payment received amount must be a positive number.' , 'error');
-        }
-    
-        // carry on
-        
-        
-        $updated_user = $GLOBALS['user']->name;
-        $log_message = "Status updated by " . ncn_amin_get_user_role_and_name() . " to '".$_POST['claim_status']."' ";
-        
-        if (trim($_POST['claim_status_message']) != '') // only add status message to log if it's not blank
-        {
-            $log_message .= "(with message: ".$_POST['claim_status_message'].")";
-        }
-        
-        $log_message .= " Claim amount updated to: $".trim($_POST['claim_amount']);
-        drupal_set_message($log_message, 'status');
-        
-        ncn_admin_insert_claim_log($claim_id, date('U'), $log_message);
-        
-        // --- email approved ---
-        if ((isset($_POST['claim_status']) && $_POST['claim_status'] == 'approved') && (variable_get('ncn_approved_active', '') == 1))
-        {
-        //  $query = "SELECT user_id FROM claims WHERE claim_id=".$claim_id;
-            $result = db_query('SELECT user_id FROM {claims} WHERE claim_id=:a',array(':a'=>$claim_id));
-            $row = $result->fetchAssoc();
-        
-            $subject = variable_get('ncn_approved_subject', '');
-            $body = variable_get('ncn_approved_body', '');
-        
-            $user_details = user_load($row['user_id']); 
-            $v['claim_id'] = $claim_id;
-            $v['customer_name'] = ncn_cd($claim_id, 'customer_name');
-        
-            $subject = pm_message_tags($v, $subject);
-            $body = pm_message_tags($v, $body);
-            $params = array(
-                '!owner_name' => ncn_cd($claim_id, 'customer_name'),
-                '!claim_id' => $claim_id
-            );
-            
-            pm_send(0, $user_details->uid, $subject, $body, $claim_id, 0, 'approve_claim', $params);
-        }
-        else
-        // --- email rejected ---
-        if ((isset($_POST['claim_status']) && $_POST['claim_status'] == 'returned') && (variable_get('ncn_approved_active', '') == 1))
-        {
-        //  $query = "SELECT user_id FROM claims WHERE claim_id=".$claim_id;
-            $result = db_query('SELECT user_id FROM {claims} WHERE claim_id=:a',array(':a'=>$claim_id));
-            $row = $result->fetchAssoc();
-        
-            $subject = variable_get('ncn_rejected_subject', '');
-            $body = variable_get('ncn_rejected_body', '');
-        
-            $user_details = user_load($row['user_id']); 
-            $v['claim_id'] = $claim_id;
-            $v['customer_name'] = ncn_cd($claim_id, 'customer_name');
-            $v['reason'] = $_POST['claim_status_message'];
-        
-            $subject = pm_message_tags($v, $subject);
-            $body = pm_message_tags($v, $body);
-            
-            pm_send(0, $user_details->uid, $subject, $body, $claim_id);
-        }
-        // --- claim message changed? ----
-        else
-        if (isset($_POST['claim_status_message']) && trim($_POST['claim_status_message']) != '')
-        {
-            // check to see if claims message has changed
-        //  $query = "SELECT * FROM claims WHERE claim_id=".$claim_id;
-            $result = db_query('SELECT * FROM {claims} WHERE claim_id=:a',array(':a'=>$claim_id));
-            $row = $result->fetchAssoc();
-            
-            if (AddSlashes($_POST['claim_status_message']) != $row['claim_status_message'])
-            {
-                $subject = variable_get('ncn_generic_subject', '');
-                $body = variable_get('ncn_generic_body', '');
-            
-                $user_details = user_load($row['user_id']); 
-
-                $v['claim_id'] = $claim_id;
-                $v['customer_name'] = ncn_cd($claim_id, 'customer_name');
-                $v['status'] = $_POST['claim_status_message'];
-            
-                $subject = pm_message_tags($v, $subject);   
-                $body = pm_message_tags($v, $body);
-                
-                pm_send(0, $user_details->uid, $subject, $body, $claim_id);
-                
-                
-            } 
-        }
-        
-        // update claim status
-        // $query = "UPDATE claims SET claim_status='".$_POST['claim_status']."',claim_status_message=\"".AddSlashes($_POST['claim_status_message'])."\",last_modified=".date('U')." WHERE claim_id=".$claim_id;
-        $result = db_query('UPDATE {claims} SET claim_status=:a, claim_status_message=:b,
-        last_modified=:c  WHERE claim_id=:d',array(':a'=>$_POST['claim_status'],
-        ':b'=>$_POST['claim_status_message'],':c'=>date('U'),':d'=>$claim_id));
-        
-        // Claim Back End
-        set_ncn_data_extra($claim_id, 'claim_backend', $_POST['claim_backend']);
-    }
     
     // ---- display stuff start ----
     // get logfile count
@@ -1040,6 +818,23 @@ function ncn_admin_view_claim($claim_id)
 
     if (module_exists('ncn_chatter')) {
         echo ncn_chatter_claim_feed_block($claim_id);
+    }
+
+
+
+    ////////////////////////////////////////////////////
+    if (isset($_POST['current_scroll_position']) && $_POST['current_scroll_position'] != "")
+    {
+        echo "<script language='javascript'> window.onload = function(){window.scrollTo(0, ". $_POST['current_scroll_position'] .");} </script>";
+    }
+    else if (isset($_GET['current_scroll_position']) &&  $_GET['current_scroll_position'] != "")
+    {
+        echo "<script language='javascript'> window.onload = function(){window.scrollTo(0, ". $_GET['current_scroll_position'] .");}</script>";
+    }
+    else if (isset($_SESSION['current_scroll_position']))
+    {
+        echo "<script language='javascript'> window.onload = function(){window.scrollTo(0, ". $_SESSION['current_scroll_position'] .");}</script>";
+        $_SESSION['current_scroll_position'] = 0;
     }
 }
 

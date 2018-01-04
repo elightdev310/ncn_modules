@@ -17,7 +17,9 @@ $ars_file_status_info = ncn_ars_file_status();
                 <a href="#" class="btn">Edit</a> 
             </div>
         </div> -->
-        <a href="#" class="btn btn-primary claim-right-link ars-approve-invoice-btn" data-claim="<?php echo $claim_id; ?>">Approve Invoice</a>
+        <?php if ($claim['ars_file_status'] == ARS_OUT_FOR_APPROVAL): ?>
+            <a href="#" class="btn btn-primary claim-right-link ars-approve-invoice-btn" data-claim="<?php echo $claim_id; ?>">Approve Invoice</a>
+        <?php endif; ?>
     </div>
     </div>
 

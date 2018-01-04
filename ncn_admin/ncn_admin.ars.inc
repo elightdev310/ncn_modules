@@ -63,6 +63,15 @@ function ncn_admin_claim_view_ars_section($claim_id) {
         }
     }
 
+    if (isset($_POST['ars_function'])) {
+        $query = array();
+        if (isset($_POST['current_scroll_position']) && $_POST['current_scroll_position'] != "") {
+            $query['current_scroll_position'] = $_POST['current_scroll_position'];
+        }
+        drupal_goto(current_path(), array('query'=>$query));
+        exit;
+    }
+
     $claim = get_claim_data($claim_id);
 
     //ui

@@ -63,7 +63,9 @@ $ars_file_status_info = ncn_ars_file_status();
                 ?>
                     <tr>
                         <td class="td-id">
-                            <?php echo $row['claim_id'] ?>
+                            <a href="<?php print url('account/ar/'.$row['claim_id']); ?>">
+                                <?php echo $row['claim_id'] ?>
+                            </a>
                         </td>
                         <td class="td-created-at">
                             <?php echo strTime($row['created']) ?>
@@ -84,7 +86,9 @@ $ars_file_status_info = ncn_ars_file_status();
                             <a href="<?php print url('account/ar/'.$row['claim_id']); ?>" class="btn btn-primary">View</a>
                         </td>
                         <td class="td-approve-invoice">
-                            <a href="#" class="btn btn-primary approve-btn ars-approve-invoice-btn" data-claim="<?php echo $row['claim_id']; ?>">Approve Invoice</a>
+                            <?php if ($row['ars_file_status'] == ARS_OUT_FOR_APPROVAL): ?>
+                                <a href="#" class="btn btn-primary approve-btn ars-approve-invoice-btn" data-claim="<?php echo $row['claim_id']; ?>">Approve Invoice</a>
+                            <?php endif; ?>
                         </td>
                     </tr>
                 <?php endforeach; ?>
