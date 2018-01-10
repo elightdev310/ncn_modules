@@ -20,7 +20,7 @@ global $user;
 
   $data = array();
   $query = "SELECT DISTINCT cd.claim_id FROM {claims_data} AS cd 
-            LEFT JOIN {claims} AS c ON cd.claim_id = cd.claim_id 
+            LEFT JOIN {claims} AS c ON c.claim_id = cd.claim_id 
             WHERE c.user_id = {$user->uid} AND 
                   c.claim_status != 'unpurchased' AND 
                   (cd.key='customer_name' OR cd.key='insured_address' OR cd.key='insured_city') AND 
