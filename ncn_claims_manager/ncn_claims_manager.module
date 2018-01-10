@@ -22,6 +22,8 @@ require_once('ncn_claims_manager.aci.v1.inc');
 require_once('ncn_claims_manager.scopesheet.inc');
 require_once('ncn_claims_manager.note.inc');
 
+require_once('ncn_claims_manager.search.inc');
+
 require_once('distributor/ncn_distributor.inc');
 require_once('associate/ncn_associate.inc');
 
@@ -166,9 +168,9 @@ function ncn_claims_manager_menu()
         'file' => 'dblog.admin.inc',
         'file path' => drupal_get_path('module', 'dblog'),
     );
-  
 
     ncn_claims_manager_menu_note($items);
+    ncn_claims_manager_menu_search($items);
 
     return $items;
 }
