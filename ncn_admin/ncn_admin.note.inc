@@ -139,7 +139,11 @@ function ncn_admin_note_add_note($claim_id, $uid, $note) {
 global $user;
   $note = trim($note);
   if (empty($note)) { return false; }
-  $capcrm_history_id = ncn_capsulecrm_note_add_note($claim_id, $note);
+
+  $capcrm_history_id = 0;
+  if (module_exists('ncn_capsulecrm')) {
+    $capcrm_history_id = ncn_capsulecrm_note_add_note($claim_id, $note);
+  }
 
   $msg = "Note: ".$note;
 
@@ -159,7 +163,7 @@ function ncn_admin_note_update_note($note_id, $note) {
   $_note = ncn_admin_note_db_get_note($note_id);
   if ($_note['note'] != $note) {
     $note_capsulecrm_hid = $_note['capcrm_history_id'];
-    if ($note_capsulecrm_hid != 0) {
+    if ($note_capsulecrm_hid != 0 && module_exists('ncn_capsulecrm') ) {
       ncn_capsulecrm_note_update_note($_note['claim_id'], $note_capsulecrm_hid, $note);
     }
     return ncn_admin_note_db_update_note($note_id, $note);
@@ -238,7 +242,9 @@ function ncn_admin_note_check_mode($claim_id) {
 
 function ncn_admin_claim_file_note_change($claim_id) {
     $file_note = $_POST['claim_file_note'];
-    $hid = ncn_capsulecrm_note_add_note($claim_id, $file_note);
+    if (module_exists('ncn_capsulecrm')) {
+      $hid = ncn_capsulecrm_note_add_note($claim_id, $file_note);
+    }
   
     $file_note = base64_encode(strip_tags($file_note));
     $log_message = ncn_amin_get_user_role_and_name()." update notes on file to '".$_POST['claim_file_note']."' ";

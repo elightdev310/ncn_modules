@@ -402,28 +402,34 @@ switch ($tfunction)
 
         $org_id = intval($_POST['org_id']);
         $person_id = intval($_POST['person_id']);
-        if (ncn_capsulecrm_save_map_info($user->profile_memberid, $org_id, $person_id) ) {
-            ncn_capsulecrm_set_user_detail_link($user->uid);
-            drupal_set_message("Success to update capsulecrm party id");
-        } else {
-            drupal_set_message("Failed to update capsulecrm party id", 'error');
+        if (module_exists('ncn_capsulecrm')) {
+            if (ncn_capsulecrm_save_map_info($user->profile_memberid, $org_id, $person_id) ) {
+                ncn_capsulecrm_set_user_detail_link($user->uid);
+                drupal_set_message("Success to update capsulecrm party id");
+            } else {
+                drupal_set_message("Failed to update capsulecrm party id", 'error');
+            }
         }
         break;
     case "update_capsulecrm_user_token":
         $casulecrm_user_token = $_POST['casulecrm_user_token'];
-        if (ncn_capsulecrm_token_save_user_token($user->uid, $casulecrm_user_token)) {
-            drupal_set_message("Success to set capsulecrm user token");
-        } else {
-            drupal_set_message("Failed to set capsulecrm user token", 'error');
+        if (module_exists('ncn_capsulecrm')) {
+            if (ncn_capsulecrm_token_save_user_token($user->uid, $casulecrm_user_token)) {
+                drupal_set_message("Success to set capsulecrm user token");
+            } else {
+                drupal_set_message("Failed to set capsulecrm user token", 'error');
+            }
         }
         break;
 
     case "update_capsulecrm_account":
         $capsulecrm_account = $_POST['casulecrm_account'];
-        if (ncn_capsulecrm_account_save_account($user->uid, $capsulecrm_account)) {
-            drupal_set_message("Success to set capsulecrm account");
-        } else {
-            drupal_set_message("Failed to set capsulecrm account", 'error');
+        if (module_exists('ncn_capsulecrm')) {
+            if (ncn_capsulecrm_account_save_account($user->uid, $capsulecrm_account)) {
+                drupal_set_message("Success to set capsulecrm account");
+            } else {
+                drupal_set_message("Failed to set capsulecrm account", 'error');
+            }
         }
         break;
 }
@@ -649,6 +655,7 @@ switch ($tfunction)
 <!-- End of User Role -->
 
 <!-- CapsuleCRM  -->
+<?php if (module_exists('ncn_capsulecrm')): ?>
 <?php if ($GLOBALS['user']->uid==1 || user_access('ncn capsule_crm management')): ?>
     <fieldset class="edit_user_group">
         <?php
@@ -697,6 +704,7 @@ switch ($tfunction)
             </table>
         </form>
     </fieldset>
+<?php endif; ?>
 <?php endif; ?>
 <!-- End of CapsuleCRM  -->
 

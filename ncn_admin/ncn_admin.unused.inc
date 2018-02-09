@@ -1497,28 +1497,34 @@ function user_edit_new($in_admin = true, $uid = false)
         case "update_org_party_id":
             $org_id = intval($_POST['org_id']);
             $person_id = intval($_POST['person_id']);
-            if (ncn_capsulecrm_save_map_info($user->profile_memberid, $org_id, $person_id) ) {
-        ncn_capsulecrm_set_user_detail_link($user->uid);
-                drupal_set_message("Success to update capsulecrm party id");
-            } else {
-                drupal_set_message("Failed to update capsulecrm party id", 'error');
+            if (module_exists('ncn_capsulecrm')) {
+                if (ncn_capsulecrm_save_map_info($user->profile_memberid, $org_id, $person_id) ) {
+                    ncn_capsulecrm_set_user_detail_link($user->uid);
+                    drupal_set_message("Success to update capsulecrm party id");
+                } else {
+                    drupal_set_message("Failed to update capsulecrm party id", 'error');
+                }
             }
         break;
     case "update_capsulecrm_user_token":
       $casulecrm_user_token = $_POST['casulecrm_user_token'];
-      if (ncn_capsulecrm_token_save_user_token($user->uid, $casulecrm_user_token)) {
-        drupal_set_message("Success to set capsulecrm user token");
-      } else {
-        drupal_set_message("Failed to set capsulecrm user token", 'error');
-      }
+      if (module_exists('ncn_capsulecrm')) {
+          if (ncn_capsulecrm_token_save_user_token($user->uid, $casulecrm_user_token)) {
+            drupal_set_message("Success to set capsulecrm user token");
+          } else {
+            drupal_set_message("Failed to set capsulecrm user token", 'error');
+          }
+        }
     break;
     
     case "update_capsulecrm_account":
       $capsulecrm_account = $_POST['casulecrm_account'];
-      if (ncn_capsulecrm_account_save_account($user->uid, $capsulecrm_account)) {
-        drupal_set_message("Success to set capsulecrm account");
-      } else {
-        drupal_set_message("Failed to set capsulecrm account", 'error');
+      if (module_exists('ncn_capsulecrm')) {
+          if (ncn_capsulecrm_account_save_account($user->uid, $capsulecrm_account)) {
+            drupal_set_message("Success to set capsulecrm account");
+          } else {
+            drupal_set_message("Failed to set capsulecrm account", 'error');
+          }
       }
     break;
     }
@@ -1728,15 +1734,18 @@ function user_edit_new($in_admin = true, $uid = false)
     <fieldset class="edit_user_group">
     <?php 
       if (isset($user->profile_memberid)) {
-          $cc_map_info = ncn_capsulecrm_get_map_info($user->profile_memberid);
           $organization_id = 0; $person_id = 0;
-          if ($cc_map_info) {
-            $organization_id = $cc_map_info['organization_id'];
-            $person_id       = $cc_map_info['person_id'];
-            $_url_cc_org = ncn_capsulecrm_get_url()."/party/".$organization_id;
+          if (module_exists('ncn_capsulecrm')) {
+              $cc_map_info = ncn_capsulecrm_get_map_info($user->profile_memberid);
+              if ($cc_map_info) {
+                $organization_id = $cc_map_info['organization_id'];
+                $person_id       = $cc_map_info['person_id'];
+                $_url_cc_org = ncn_capsulecrm_get_url()."/party/".$organization_id;
+              }
           }
       }
     ?>
+    <?php if (module_exists('ncn_capsulecrm')): ?>
     <?php if ( isset($user->profile_memberid) && is_member($user->profile_memberid) && ($GLOBALS['user']->uid==1 || user_access('ncn capsule_crm management')) ) { ?>
         <h2 class="sub-title">CapsuleCRM</h2>
         <form method="POST" id="update_org_party_id">
@@ -1756,6 +1765,9 @@ function user_edit_new($in_admin = true, $uid = false)
         </table>
         </form>
     <?php } ?>
+    <?php endif; ?>
+
+    <?php if (module_exists('ncn_capsulecrm')): ?>
     <h2 class="sub-title">CapsuleCRM Account</h2>
     <form method="POST" id="update_capsulecrm_account_form">
     <input type="hidden" name="tfunction" value="update_capsulecrm_account">
@@ -1769,6 +1781,7 @@ function user_edit_new($in_admin = true, $uid = false)
       </tr>
     </table>
     </form>
+    <?php endif; ?>
     
     </fieldset>
     <?php } ?>

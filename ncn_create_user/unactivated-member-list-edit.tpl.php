@@ -146,16 +146,20 @@ drupal_add_js(drupal_get_path('module', 'ncn_admin') . '/ncn_admin.js');
     </div>
 </fieldset>
 
-<?php
-$cc_map_info = ncn_capsulecrm_get_map_info($b);
-$organization_id = 0; $person_id = 0;
-if ($cc_map_info) {
-    $organization_id = $cc_map_info['organization_id'];
-    $person_id			 = $cc_map_info['person_id'];
-    $_url_cc_org = ncn_capsulecrm_get_url()."/party/".$organization_id;
-}
 
+<?php
+if (module_exists('ncn_capsulecrm')) {
+    $cc_map_info = ncn_capsulecrm_get_map_info($b);
+    $organization_id = 0; $person_id = 0;
+    if ($cc_map_info) {
+        $organization_id = $cc_map_info['organization_id'];
+        $person_id			 = $cc_map_info['person_id'];
+        $_url_cc_org = ncn_capsulecrm_get_url()."/party/".$organization_id;
+    }
+}
 ?>
+
+<?php if (module_exists('ncn_capsulecrm')): ?>
 <fieldset class="edit_user_group">
     <h2 class="sub-title">CapsuleCRM</h2>
     <form method="POST" id="update_org_party_id">
@@ -168,6 +172,7 @@ if ($cc_map_info) {
         </table>
     </form>
 </fieldset>
+<?php @endif; ?>
 
 <fieldset>
     <h2>Activation Email</h2>
